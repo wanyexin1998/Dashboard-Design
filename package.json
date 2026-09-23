@@ -1,0 +1,16 @@
+{
+  "name": "dashboard-design",
+  "private": true,
+  "type": "module",
+  "description": "图表实验室 · Chart Studies：51 个可交互数据组件（图表 / 指标 / 筛选 / 页签 / 表格）的参考模板与设计规格",
+  "scripts": {
+    "build": "node tools/build.mjs",
+    "build:artifact": "node tools/build.mjs --artifact",
+    "check": "node tools/build.mjs --check",
+    "test": "node tests/run.mjs",
+    "test:full": "node tests/run.mjs --full"
+  },
+  "devDependencies": {
+    "playwright": "1.56.0"
+  }
+}

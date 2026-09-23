@@ -1,0 +1,512 @@
+<title>Tab 组件方案</title>
+<style>
+:root{--paper:#eeede7;--ink:#20231f;--muted:#6c7166;--line:#d6d7ce;--deep:#242b20;--deep-ink:#f1f2e9;--note:#e4e5dc}
+/* Chart theme tokens — generated from tokens.py; dark = baseline values */
+:root,[data-chart-theme="dark"]{--c-surface:#111214;--c-control:#27292e;--c-panel:#202326;--c-inset:#191d1f;--c-hover:#2b3026;--c-border:#292b2b;--c-divider:#242629;--c-outline:#363a31;--c-panel-border:#42474b;--c-panel-rule:#393f40;--c-track:#2b2d31;--c-grid:#292c30;--c-baseline:#383a3f;--c-connector:#4d5748;--c-rule:#61695c;--c-leader:#8a8e86;--c-text:#f1f0e9;--c-text-2:#c0c4bd;--c-text-3:#a5aaa5;--c-text-4:#979b9f;--c-text-5:#85868f;--c-inverse:#f1f0e9;--c-on-inverse:#1b1f21;--c-dim:#3d3e43;--c-dim-dot:#64656b;--c-off:#363940;--c-focus:#f1f0e9;--c-focus-soft:#a5b7a8;--c-focus-line:#819183;--c-node-1:#2b322a;--c-node-2:#202429;--s-gold:#eac34d;--s-sage:#b8c7ab;--s-blue:#7baed0;--s-purple:#baa1d2;--s-orange:#e78b5f;--s-mint:#74cfb7;--s-coral:#de656d;--s-lime:#c2d965;--s-pink:#de88a4;--s-lavender:#c2bbf3;--s-olive:#aaa77c;--s-neutral:#efeee4;--s-ink:#f1f0e9;--s-graphite:#55555c;--s-slate:#85888c;--s-band-low:#42464b;--s-band-high:#5b5f65;--s-gold-on:#17181b;--s-sage-on:#17181b;--s-blue-on:#17181b;--s-purple-on:#17181b;--s-orange-on:#17181b;--s-mint-on:#17181b;--s-coral-on:#17181b;--s-lime-on:#17181b;--s-pink-on:#17181b;--s-lavender-on:#17181b;--s-olive-on:#17181b;--s-neutral-on:#17181b;--s-ink-on:#17181b;--s-graphite-on:#f0f0ed;--s-slate-on:#17181b;--s-band-low-on:#f0f0ed;--s-band-high-on:#f0f0ed;--s-gold-text:#eac34d;--s-sage-text:#b8c7ab;--s-blue-text:#7baed0;--s-purple-text:#baa1d2;--s-orange-text:#e78b5f;--s-mint-text:#74cfb7;--s-coral-text:#de656d;--s-lime-text:#c2d965;--s-pink-text:#de88a4;--s-lavender-text:#c2bbf3;--s-olive-text:#aaa77c;--s-neutral-text:#efeee4;--s-ink-text:#f1f0e9;--s-graphite-text:#7d7d84;--s-slate-text:#85888c;--s-band-low-text:#787d82;--s-band-high-text:#797d84;--s-gold-deep:#927127;--s-gold-soft:#51421a;--s-gold-soft-ink:#edda93;--s-sage-on-2:#435039;--seq-0:#2b2d31;--seq-1:#565c50;--seq-2:#93987b;--seq-3:#d4d6bf;--seq-4:#74cfb7;--st-good:#4cc38a;--st-good-text:#4cc38a;--st-good-soft:#1a2e27;--st-bad:#f2716a;--st-bad-text:#f2716a;--st-bad-soft:#352122;--st-warn:#f0b43f;--st-warn-text:#f0b43f;--st-warn-soft:#352c1b;--c-shadow:0 8px 30px #0005;--c-card-shadow:none;}
+[data-chart-theme="light"]{--c-surface:#fbfbf8;--c-control:#ecebe5;--c-panel:#ffffff;--c-inset:#f3f2ed;--c-hover:#efeee8;--c-border:#dddcd3;--c-divider:#ebeae3;--c-outline:#d3d2c9;--c-panel-border:#dcdbd2;--c-panel-rule:#edece6;--c-track:#e8e7e0;--c-grid:#e8e7e1;--c-baseline:#c9c8bf;--c-connector:#c3c9bb;--c-rule:#a6ada1;--c-leader:#999d94;--c-text:#20231f;--c-text-2:#454a43;--c-text-3:#585e56;--c-text-4:#676d64;--c-text-5:#8e9289;--c-inverse:#262a23;--c-on-inverse:#f6f5ef;--c-dim:#dfded7;--c-dim-dot:#c7c7c0;--c-off:#d9d8d0;--c-focus:#20231f;--c-focus-soft:#5f7a65;--c-focus-line:#7f9483;--c-node-1:#eef1ea;--c-node-2:#f6f6f2;--s-gold:#d2ab17;--s-sage:#6fa374;--s-blue:#4188b6;--s-purple:#8463a8;--s-orange:#cf5b28;--s-mint:#269b7e;--s-coral:#c94750;--s-lime:#b4c82b;--s-pink:#ad507a;--s-lavender:#8379ca;--s-olive:#7a6939;--s-neutral:#dedcd7;--s-ink:#3e413a;--s-graphite:#3d3c38;--s-slate:#babec3;--s-band-low:#e2e1dd;--s-band-high:#b7bbc0;--s-gold-on:#17181b;--s-sage-on:#17181b;--s-blue-on:#17181b;--s-purple-on:#ffffff;--s-orange-on:#17181b;--s-mint-on:#17181b;--s-coral-on:#ffffff;--s-lime-on:#17181b;--s-pink-on:#ffffff;--s-lavender-on:#17181b;--s-olive-on:#ffffff;--s-neutral-on:#17181b;--s-ink-on:#ffffff;--s-graphite-on:#ffffff;--s-slate-on:#17181b;--s-band-low-on:#17181b;--s-band-high-on:#17181b;--s-gold-text:#896e01;--s-sage-text:#4a7d50;--s-blue-text:#2f77a4;--s-purple-text:#8463a8;--s-orange-text:#c14e18;--s-mint-text:#048167;--s-coral-text:#c7454f;--s-lime-text:#6c7900;--s-pink-text:#ad507a;--s-lavender-text:#7267b6;--s-olive-text:#7a6939;--s-neutral-text:#73716d;--s-ink-text:#3e413a;--s-graphite-text:#3d3c38;--s-slate-text:#6e7276;--s-band-low-text:#72716e;--s-band-high-text:#6e7277;--s-gold-deep:#93690d;--s-gold-soft:#f6e7b6;--s-gold-soft-ink:#6f5000;--s-sage-on-2:#1a2e1f;--seq-0:#e8e7e0;--seq-1:#ced0bd;--seq-2:#a6a78b;--seq-3:#797c5d;--seq-4:#269b7e;--st-good:#18a058;--st-good-text:#03793f;--st-good-soft:#e0f0e5;--st-bad:#e64c45;--st-bad-text:#c62b2a;--st-bad-soft:#f8e6e3;--st-warn:#d9920a;--st-warn-text:#936100;--st-warn-soft:#f7eedb;--c-shadow:0 10px 28px rgba(32,35,31,.14),0 1px 3px rgba(32,35,31,.08);--c-card-shadow:0 1px 2px rgba(32,35,31,.05);}
+
+:root{--paper:#eeede7;--ink:#20231f;--muted:#6c7166;--line:#d6d7ce;--deep:#242b20;--deep-ink:#f1f2e9;--note:#e4e5dc}
+/*TOKENS*/
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:84px}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,"Segoe UI","PingFang SC","Microsoft YaHei",system-ui,sans-serif;font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+button{font:inherit;cursor:pointer;border:0}
+a{color:inherit}
+code,.mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+:focus-visible{outline:2px solid #7cac85;outline-offset:3px}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rgba(238,237,231,.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.top-in{max-width:1180px;margin:auto;padding:0 24px;height:64px;display:flex;align-items:center;gap:24px}
+.brand{font-weight:750;font-size:19px;letter-spacing:-.6px;white-space:nowrap}
+.brand span{font:10px ui-monospace,Consolas,monospace;letter-spacing:1.4px;color:var(--muted);margin-left:10px;font-weight:400}
+.top nav{display:flex;gap:18px;font-size:12px;margin-left:auto}
+.top nav a{text-decoration:none;color:#5c6455}
+.top nav a:hover{color:#111}
+.theme-switch{display:inline-flex;gap:2px;padding:2px;border:1px solid #c0c4b6;border-radius:7px;flex-shrink:0}
+.theme-switch button{display:inline-flex;align-items:center;gap:6px;background:transparent;color:#4f5946;font-size:11px;line-height:1;padding:6px 9px;border-radius:5px}
+.theme-switch button:hover{background:#dfe3d5}
+.theme-switch button[aria-pressed=true]{background:var(--deep);color:var(--deep-ink)}
+.theme-switch i{width:9px;height:9px;border-radius:50%;box-shadow:inset 0 0 0 1px #0000002e}
+.ts-dark{background:#111214}.ts-light{background:#fbfbf8}
+main{max-width:1180px;margin:auto;padding-block:44px 40px;padding-inline:24px}
+.kicker{font:11px ui-monospace,Consolas,monospace;letter-spacing:1.6px;color:#6b735f;margin:0 0 12px;text-transform:uppercase}
+h1{font-size:38px;line-height:1.2;letter-spacing:-1.4px;font-weight:650;margin:0 0 14px;text-wrap:balance}
+.lede{max-width:760px;color:#565c51;font-size:14px;line-height:1.85;margin:0}
+.status{display:inline-flex;align-items:center;gap:7px;margin-top:18px;font-size:11px;color:#4f5946;border:1px dashed #a9b09f;border-radius:99px;padding:5px 11px}
+.status i{width:6px;height:6px;border-radius:50%;background:#c49a2a}
+section{margin-top:64px;scroll-margin-top:84px}
+.sec-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,420px);gap:12px 40px;align-items:end;border-top:1px solid #c7cdbe;padding-top:24px;margin-bottom:26px}
+.sec-head .kicker{margin-bottom:8px}
+h2{font-size:26px;letter-spacing:-.6px;font-weight:600;margin:0;text-wrap:balance}
+.sec-head p{margin:0;color:var(--muted);font-size:12.5px;line-height:1.8}
+h3{font-size:15px;margin:0 0 8px;font-weight:650}
+/* TL;DR */
+.tldr{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:18px}
+.tldr > div{background:#e6e7df;border-radius:14px;padding:18px 20px}
+.tldr > div:first-child{background:var(--deep);color:var(--deep-ink)}
+.tldr > div:first-child .kicker{color:#b8c7ab}
+.tldr ul{margin:0;padding-left:18px;font-size:13px;line-height:1.85}
+.tldr p{margin:8px 0 0;font-size:12.5px;line-height:1.8;opacity:.85}
+.tag{display:inline-block;font:10px ui-monospace,Consolas,monospace;letter-spacing:.6px;padding:2px 6px;border-radius:4px;vertical-align:1px}
+.tag.p0{background:var(--deep);color:var(--deep-ink)}
+.tldr > div:first-child .tag.p0{background:#b8c7ab;color:#1d2419}
+.tag.p1{border:1px solid #8d957f;color:#3f4839}
+.tag.p2{border:1px dashed #9aa18c;color:#5c6455}
+/* tables */
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:#f5f5f0}
+table{border-collapse:collapse;width:100%;font-size:12.5px;min-width:760px}
+th,td{text-align:left;vertical-align:top;padding:10px 14px;border-bottom:1px solid #e0e1d8;line-height:1.65}
+th{font-size:11px;letter-spacing:.4px;color:#5c6455;font-weight:600;background:#ebece4;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td:first-child{font-weight:600;white-space:nowrap}
+td.dna{color:#7a5f14;font-weight:600}
+.num{text-align:right;font-variant-numeric:tabular-nums}
+.conv{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 28px;margin-top:26px}
+.conv div{border-left:2px solid #b8c7ab;padding:2px 0 2px 14px;font-size:12.5px;line-height:1.75;color:#454b41}
+.conv b{color:var(--ink)}
+details{margin-top:22px;font-size:12px;color:#565c51}
+summary{cursor:pointer;font-weight:600;color:var(--ink)}
+.sources{columns:3 260px;column-gap:28px;margin-top:12px}
+.sources p{break-inside:avoid;margin:0 0 12px;line-height:1.7}
+.sources b{display:block;color:var(--ink);font-size:11px;letter-spacing:.4px}
+.sources a{text-decoration:none;border-bottom:1px solid #b9bfae;word-break:break-word}
+/* specimen grid */
+.legend-note{font:10.5px ui-monospace,Consolas,monospace;letter-spacing:.6px;color:#6b735f;margin:-8px 0 16px}
+.specs{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:30px 24px}
+.specs.wide{grid-template-columns:repeat(auto-fill,minmax(520px,1fr))}
+.spec{min-width:0;display:flex;flex-direction:column;gap:12px}
+.spec-stage{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));align-content:start}
+.spec-stage.one{grid-template-columns:1fr}
+.spec-meta{display:grid;gap:6px;font-size:12px;color:#565c51;line-height:1.7}
+.spec-title{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px;color:var(--ink);font-weight:650}
+.spec-title small{font:10px ui-monospace,Consolas,monospace;color:#7a8070;font-weight:400;letter-spacing:.5px}
+.spec-q{font-size:12.5px;color:var(--ink)}
+.spec-meta dl{margin:0;display:grid;grid-template-columns:34px 1fr;gap:3px 10px}
+.spec-meta dt{color:#8a907f;font-size:11px}
+.spec-meta dd{margin:0}
+/* rules & states */
+.rules{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:26px}
+pre{margin:0;background:#1b1f1a;color:#dfe3d5;border-radius:12px;padding:16px 18px;font-size:11.5px;line-height:1.65;overflow-x:auto}
+pre .k{color:#b8c7ab}pre .s{color:#eac34d}pre .c{color:#8c9486}
+.states{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+.states .kpi{height:132px;display:flex;flex-direction:column}
+.skel{border-radius:5px;background:linear-gradient(90deg,var(--c-control),var(--c-track),var(--c-control));height:10px}
+.cap{font-size:11px;color:#6b7166;margin-top:6px;text-align:center}
+.retry{margin-top:auto;align-self:flex-start;font-size:10px;padding:5px 10px;border-radius:99px;border:1px solid var(--c-outline);color:var(--c-text-2);background:transparent}
+.polar{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+.polar .kpi{padding:12px 14px}
+.polar .kpi-value{font-size:20px;margin-top:4px}
+.polar .why{font-size:10px;color:var(--c-text-4);margin-top:4px}
+/* decisions */
+.decisions{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px}
+.decision{border:1px solid #c9cebf;border-radius:14px;padding:16px 18px;background:#f4f4ef}
+.decision h3{display:flex;gap:10px;align-items:baseline}
+.decision h3 span{font:11px ui-monospace,Consolas,monospace;color:#7a8070}
+.decision ol{margin:6px 0 0;padding-left:20px;font-size:12.5px;line-height:1.8;color:#454b41}
+.decision li.rec{color:var(--ink);font-weight:600}
+.decision li.rec::after{content:"推荐";font:600 10px/1 system-ui,sans-serif;margin-left:8px;padding:3px 6px;border-radius:4px;background:var(--deep);color:var(--deep-ink);vertical-align:1px}
+.decision p{margin:8px 0 0;font-size:11.5px;color:#6b7166;line-height:1.7}
+.decision.done{background:#f3f4ee}
+.decision li.alt{color:#7c8272}
+.decision li.pick{color:var(--ink);font-weight:650}
+.decision .lab{display:inline-block;font:600 10px/1 system-ui,sans-serif;margin-left:8px;padding:3px 6px;border-radius:4px;vertical-align:1px;white-space:nowrap}
+.decision .lab.pick{background:#2f5e3a;color:#f1f2e9}
+.decision .lab.was{border:1px solid #b3b9a8;color:#5f6559;font-weight:500;padding:2px 5px}
+.decision .verdict{margin-top:10px;padding-top:9px;border-top:1px dashed #c3c9b8;font-size:12px;color:#2f3a2b;line-height:1.75}
+.decision .verdict b{color:#2f5e3a}
+.phase .step{font:11px ui-monospace,Consolas,monospace;letter-spacing:.6px;color:#6b735f;margin-right:6px}
+.phases{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.phase{border-top:3px solid var(--deep);padding-top:12px}
+.phase.p1{border-top-color:#8d957f}.phase.p2{border-top-color:#c3c8b8}
+.phase ul{margin:6px 0 0;padding-left:18px;font-size:12.5px;line-height:1.85;color:#454b41}
+.plain{font-size:13px;line-height:1.9;color:#454b41;max-width:860px}
+.plain li{margin:3px 0}
+footer{margin-top:64px;padding-top:18px;border-top:1px solid var(--line);font-size:11px;color:#7a8070;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+html.theme-switching .sketch,html.theme-switching .sketch *{transition:background-color .3s,border-color .3s,color .3s,fill .3s,stroke .3s!important}
+@media(max-width:900px){.tldr,.rules,.phases{grid-template-columns:minmax(0,1fr)}.sec-head{grid-template-columns:minmax(0,1fr)}.states,.polar{grid-template-columns:repeat(2,minmax(0,1fr))}.conv{grid-template-columns:1fr}.specs.wide{grid-template-columns:minmax(0,1fr)}.top nav{display:none}.theme-switch{margin-left:auto}}
+@media(max-width:600px){main{padding-inline:16px}.top-in{padding:0 16px}h1{font-size:28px;letter-spacing:-.8px}.specs{grid-template-columns:minmax(0,1fr)}.strip{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 0}.strip > div:nth-child(odd){border-left:0;padding-left:0}.tabs{grid-template-columns:repeat(2,minmax(0,1fr))}.hero{grid-template-columns:1fr}.hero .rows{border-left:0;padding-left:0}.grid-panel{grid-template-columns:repeat(2,minmax(0,1fr))}.facts{grid-template-columns:repeat(2,minmax(0,1fr))}.chain{flex-wrap:wrap;gap:10px}.chain .arrow{display:none}.chain > div{flex:1 1 40%}.brand span{display:none}.trio .kpi-value{font-size:18px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+
+/* ---- tab sketches (all colours are chart tokens) ---- */
+.sketch{background:var(--c-surface);color:var(--c-text);border:1px solid var(--c-border);border-radius:18px;padding:15px 17px;min-width:0}
+.sketch table{min-width:0}
+.sk-head{display:flex;align-items:center;gap:8px;font-size:10px;letter-spacing:1.4px;color:var(--c-text-4);margin-bottom:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sk-head b{font-size:11px;font-weight:550;letter-spacing:.3px;color:var(--c-text-2);margin-left:6px}
+.sk-head .right{margin-left:auto;font-size:10px;letter-spacing:0;color:var(--c-text-4)}
+.tb-note{font-size:10.5px;color:var(--c-text-4);line-height:1.7;margin-top:10px}
+.tb-note b{color:var(--c-text-2);font-weight:600}
+/* T01 underline */
+.tb-line{display:flex;gap:22px;border-bottom:1px solid var(--c-divider);padding-bottom:0}
+.tb-line span{position:relative;padding:0 2px 10px;font-size:12.5px;color:var(--c-text-4);white-space:nowrap}
+.tb-line span.on{color:var(--c-text);font-weight:600}
+.tb-line span.on::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;border-radius:2px;background:var(--s-blue)}
+.tb-line span.dis{color:var(--c-text-5);text-decoration:line-through}
+/* T02 pill */
+.tb-pill{display:inline-flex;gap:3px;padding:3px;border-radius:20px;background:var(--c-control)}
+.tb-pill span{padding:7px 14px;border-radius:20px;font-size:11.5px;color:var(--c-text-3);white-space:nowrap}
+.tb-pill span.on{background:var(--c-inverse);color:var(--c-on-inverse);font-weight:600}
+.tb-pill.dna span.on{background:var(--s-blue);color:var(--s-blue-on)}
+/* T03 metric tabs */
+.tb-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+.tb-card{position:relative;border:1px solid var(--c-divider);border-radius:12px;padding:10px 12px;min-width:0}
+.tb-card.on{background:var(--c-inset);border-color:var(--c-outline)}
+.tb-card.on::before{content:"";position:absolute;left:12px;right:12px;top:-1px;height:2px;border-radius:0 0 2px 2px;background:var(--s-blue)}
+.tb-card .t{font-size:11px;color:var(--c-text-3)}
+.tb-card .v{font-size:18px;font-weight:600;letter-spacing:-.4px;margin-top:2px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.tb-card .v small{font-size:10px;font-weight:400;color:var(--c-text-4);margin-left:3px}
+.tb-card .d{font-size:10.5px;font-weight:600;margin-top:1px}
+.tb-card .d.good{color:var(--st-good-text)}.tb-card .d.bad{color:var(--st-bad-text)}
+/* T04 segmented */
+.tb-seg{display:inline-flex;gap:2px;padding:3px;border-radius:20px;background:var(--c-control)}
+.tb-seg span{min-width:38px;text-align:center;padding:7px 11px;border-radius:20px;font-size:10px;color:var(--c-text-3);white-space:nowrap}
+.tb-seg span.on{background:var(--c-inverse);color:var(--c-on-inverse)}
+/* T05 badge */
+.tb-badge{display:inline-flex;align-items:center;gap:6px}
+.tb-badge i{font-style:normal;min-width:18px;height:16px;padding:0 5px;border-radius:8px;background:var(--c-control);color:var(--c-text-3);font-size:10px;display:inline-grid;place-items:center;font-variant-numeric:tabular-nums}
+.tb-line span.on .tb-badge i{background:var(--s-blue);color:var(--s-blue-on)}
+.tb-badge i.warn{background:var(--st-warn-soft);color:var(--st-warn-text)}
+/* T06 overflow */
+.tb-scroll{display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--c-divider)}
+.tb-scroll .arrow{flex:none;width:20px;height:24px;display:grid;place-items:center;color:var(--c-text-4);font-size:11px}
+.tb-scroll .track{flex:1;min-width:0;display:flex;gap:18px;overflow:hidden;position:relative;-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent)}
+.tb-scroll .track span{padding:0 2px 9px;font-size:12px;color:var(--c-text-4);white-space:nowrap;position:relative}
+.tb-scroll .track span.on{color:var(--c-text);font-weight:600}
+.tb-scroll .track span.on::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--s-blue);border-radius:2px}
+.tb-more{flex:none;font-size:11px;color:var(--c-text-3);padding:0 8px 9px;white-space:nowrap}
+/* T07 vertical */
+.tb-vert{display:grid;grid-template-columns:118px minmax(0,1fr);gap:14px}
+.tb-vcol{display:grid;gap:2px;border-right:1px solid var(--c-divider);padding-right:10px}
+.tb-vcol span{position:relative;padding:8px 10px;border-radius:8px;font-size:11.5px;color:var(--c-text-3);white-space:nowrap}
+.tb-vcol span.on{background:var(--c-inset);color:var(--c-text);font-weight:600}
+.tb-vcol span.on::before{content:"";position:absolute;left:0;top:7px;bottom:7px;width:2px;border-radius:2px;background:var(--s-blue)}
+.tb-panel{border:1px dashed var(--c-outline);border-radius:12px;min-height:96px;display:grid;place-items:center;color:var(--c-text-4);font-size:11px}
+/* T08 dynamic */
+.tb-dyn{display:flex;gap:6px;flex-wrap:wrap}
+.tb-dyn span{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border-radius:9px 9px 0 0;border:1px solid var(--c-divider);border-bottom:0;font-size:11.5px;color:var(--c-text-3);white-space:nowrap}
+.tb-dyn span.on{background:var(--c-inset);color:var(--c-text);font-weight:600;border-color:var(--c-outline)}
+.tb-dyn span .x{color:var(--c-text-4);font-size:11px}
+.tb-dyn .add{border-style:dashed;color:var(--c-text-4)}
+/* T09 two levels */
+.tb-two{display:grid;gap:12px}
+.tb-mini{height:52px;border-radius:10px;background:linear-gradient(180deg,color-mix(in srgb,var(--s-blue) 22%,transparent),transparent);border-bottom:2px solid var(--s-blue);position:relative}
+.tb-mini::after{content:"";position:absolute;left:8%;right:8%;top:30%;height:1px;background:var(--c-grid)}
+/* states */
+.tb-states{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+.tb-states .cap{font-size:11px;color:#6b7166;margin-top:7px;text-align:center}
+.tb-tree{display:grid;gap:8px;font-size:12.5px;color:#454b41;line-height:1.75}
+.tb-tree div{border-left:2px solid #b8c7ab;padding:2px 0 2px 14px}
+.tb-tree b{color:var(--ink)}
+@media(max-width:900px){.tb-states{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.tb-cards{grid-template-columns:repeat(2,minmax(0,1fr))}.tb-vert{grid-template-columns:minmax(0,1fr)}.tb-vcol{border-right:0;border-bottom:1px solid var(--c-divider);padding:0 0 8px;grid-auto-flow:column;overflow:auto}}
+</style>
+<script>try{var t=localStorage.getItem("chart-studies-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-chart-theme",t)}catch(e){}</script>
+
+<header class="top"><div class="top-in">
+  <div class="brand">图表实验室<span>PROPOSAL · TABS</span></div>
+  <nav aria-label="方案目录"><a href="#overlap">与现有组件</a><a href="#research">调研</a><a href="#types">六种页签</a><a href="#choose">选哪一个</a><a href="#rules">统一规范</a><a href="#integrate">并入方式</a><a href="#decide">决策</a><a href="#plan">计划</a></nav>
+  <div class="theme-switch" role="group" aria-label="草图底色"><button type="button" data-theme-choice="dark" aria-pressed="true"><i class="ts-dark" aria-hidden="true"></i>深色</button><button type="button" data-theme-choice="light" aria-pressed="false"><i class="ts-light" aria-hidden="true"></i>浅色</button></div>
+</div></header>
+
+<main>
+  <p class="kicker">Proposal / Tabs &amp; segmented controls · 2026-09-23</p>
+  <h1>Tab 组件方案</h1>
+  <p class="lede">为图表实验室梳理「切换」这件事：什么时候用页签、什么时候只是一个分段控件、什么时候根本不该切换。对照 W3C ARIA APG 与 Carbon、Polaris、Fluent、Radix、Ant Design、Semi、Vercel Geist 的公开文档，以及 Quick BI、FineBI、Power BI、Grafana、Looker Studio、GA4 的做法，归纳出 6 种需要新增的页签形态、一张选择表和一套无障碍约定；与已实现组件重叠的三项已并入现有组件或改为规则。</p>
+  <div class="status"><i aria-hidden="true"></i>第三版 · 6 项决策已定 · 进入实现，草图保留为设计依据</div>
+
+  <section id="tldr" aria-labelledby="tldr-h">
+    <div class="sec-head"><div><p class="kicker">01 / Summary</p><h2 id="tldr-h">先说结论</h2></div><p>「切换」有两种：换<b>看什么</b>（内容区，用 tabs）和换<b>怎么看</b>（一个参数，用分段控件）。模板里这两种都已经出现，但语义没有分清楚——这份方案先把边界划出来，再补齐形态。</p></div>
+    <div class="tldr">
+      <div>
+        <p class="kicker">本轮范围 · 六种一次做完</p>
+        <ul>
+          <li><span class="tag p0">T01</span> 下划线页签　<span class="tag p0">T02</span> 药丸页签</li>
+          <li><span class="tag p0">T05</span> 徽标页签　<span class="tag p0">T06</span> 页签溢出</li>
+          <li><span class="tag p0">T07</span> 纵向页签　<span class="tag p0">T08</span> 动态页签</li>
+        </ul>
+        <p>另附一张选择表。带数值的页签就是已实现的 P03，分段控件已遍布模板，这两样不再新做。</p>
+      </div>
+      <div>
+        <p class="kicker">已拍板 · 6 项</p>
+        <ul>
+          <li>范围：六种一次做完</li>
+          <li>激活：内容在页内聚焦即切，要取数按 Enter</li>
+          <li>样式：页面级下划线，卡内药丸</li>
+          <li>分段控件：保持按钮组语义</li>
+          <li>层级：最多两层</li>
+          <li>页签状态写进 URL hash</li>
+        </ul>
+        <p>与推荐不同的只有首批范围一项，落地方式见第 08 节。</p>
+      </div>
+      <div>
+        <p class="kicker">刻意不做</p>
+        <ul>
+          <li>用页签放需要互相比较的内容</li>
+          <li>页签套页签（超过两层）</li>
+          <li>把筛选条件做成页签</li>
+          <li>页签当路由跳转用</li>
+          <li>切换时内容高度跳动</li>
+        </ul>
+        <p>第一条与第二条分别来自 Carbon 与 Grafana / Looker Studio 的明文限制。</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="overlap" aria-labelledby="overlap-h">
+    <div class="sec-head"><div><p class="kicker">02 / Overlap</p><h2 id="overlap-h">与已实现组件的关系</h2></div><p>第一版的九种里有三种和模板已有的东西重叠：一个是同一个组件，一个是已经遍布各卡的控件，一个其实是规则。</p></div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>方案项</th><th>已实现组件</th><th>交叠在哪</th><th>处理</th></tr></thead>
+      <tbody id="overlap-rows"></tbody>
+    </table></div>
+  </section>
+
+  <section id="research" aria-labelledby="research-h">
+    <div class="sec-head"><div><p class="kicker">03 / Research</p><h2 id="research-h">调研：各家怎么定义「切换」</h2></div><p>W3C ARIA APG 给角色与键盘，设计系统给用法边界，BI 与产品给落地形态。下表只列实际读到官方文档的做法。</p></div>
+    <h3>原型与边界</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>原型</th><th>定义</th><th>何时用</th><th>何时不用</th><th>出处</th></tr></thead>
+      <tbody id="proto-rows"></tbody>
+    </table></div>
+    <h3 style="margin-top:28px">样式与结构变体</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>变体</th><th>典型出处</th><th>适用场景</th><th>注意点</th></tr></thead>
+      <tbody id="variant-rows"></tbody>
+    </table></div>
+    <div class="conv" id="conv"></div>
+    <details>
+      <summary>来源（均为调研时实际打开的官方文档）</summary>
+      <div class="sources" id="sources"></div>
+    </details>
+  </section>
+
+  <section id="types" aria-labelledby="types-h">
+    <div class="sec-head"><div><p class="kicker">04 / Types</p><h2 id="types-h">六种页签形态</h2></div><p>草图用模板 token 画，右上角可切深浅两套底色。示例场景与模板同源：经营看板的总览 / 趋势 / 结构 / 明细。编号沿用第一版，T03 / T04 / T09 见第 02 节。</p></div>
+    <p class="legend-note">静态草图 · 非最终实现</p>
+    <div class="specs wide" id="type-specs"></div>
+  </section>
+
+  <section id="choose" aria-labelledby="choose-h">
+    <div class="sec-head"><div><p class="kicker">05 / Decision tree</p><h2 id="choose-h">选哪一个</h2></div><p>先问三句话，再决定用哪个控件；这三句话也是评审时的检查口径。</p></div>
+    <div class="rules">
+      <div>
+        <h3>三问</h3>
+        <div class="tb-tree">
+          <div><b>一问：切换之后，下面是一块独立的内容区吗？</b><br>是 → 页签（tablist / tab / tabpanel）。<br>否，只是换了一个参数（周 / 月 / 年、实际 / 预算） → 分段控件（radiogroup 或 aria-pressed 按钮组）。</div>
+          <div><b>二问：这些内容需要放在一起比较吗？</b><br>需要 → 不要用页签，改成并排卡片或表格列组（Carbon：「Tabs should not be used if the user needs to compare information」）。</div>
+          <div><b>三问：它们有先后顺序、后一步依赖前一步吗？</b><br>有 → 用步骤条，不用页签（Carbon）。<br>目的地是另一个页面、有独立 URL 与数据模型 → 用二级导航，不要用页签伪装路由（Vercel Geist）。</div>
+        </div>
+      </div>
+      <div>
+        <h3>角色映射</h3>
+        <div class="table-wrap"><table style="min-width:0">
+          <thead><tr><th>场景</th><th>角色</th><th>键盘</th></tr></thead>
+          <tbody id="role-rows"></tbody>
+        </table></div>
+        <p class="plain" style="margin-top:12px">同一副外观（药丸）既可能是 tab 也可能是 radio——<b>由它切什么决定，不由长相决定</b>。Carbon 的 Content Switcher 长得像分段控件，但因为它切的是下方独立内容区，官方实现用的是 tablist / tab。</p>
+      </div>
+    </div>
+
+    <h3 style="margin-top:34px">页签五态</h3>
+    <div class="tb-states" id="states"></div>
+  </section>
+
+  <section id="rules" aria-labelledby="rules-h">
+    <div class="sec-head"><div><p class="kicker">06 / Rules</p><h2 id="rules-h">统一规范</h2></div><p>尺寸、动画、溢出、URL 与无障碍，一次定清楚，后面的页签都照这个长。</p></div>
+    <div class="rules">
+      <div>
+        <h3>尺寸与外观</h3>
+        <ul class="plain">
+          <li>下划线页签：文字 12.5px，选中加粗 600，指示条 2px、圆角 2px、色为 <code>--s-blue</code>；页签间距 22px；底线 <code>--c-divider</code>。</li>
+          <li>药丸页签 / 分段控件：轨道 <code>--c-control</code>、圆角 20px、内边距 3px；选中为反色 <code>--c-inverse</code>；分段控件文字 10px，药丸页签 11.5px。</li>
+          <li>指标页签（T03）：卡片式，圆角 12px，选中底 <code>--c-inset</code> + 顶部 2px 指示条；数值 20px / 600。</li>
+          <li>纵向页签：宽 118px，选中左侧 2px 指示条 + <code>--c-inset</code> 底。</li>
+          <li>数量上限：桌面一行 5–7 个，窄屏 3–4 个，超出走 T06（Vercel Geist 的经验值）。</li>
+        </ul>
+        <h3 style="margin-top:22px">切换动画</h3>
+        <ul class="plain">
+          <li>内容在同一坐标系里的（同一张图换指标）→ <b>原位变形</b> 650ms，沿用模板「范围切换不重画」。</li>
+          <li>内容结构不同的（换成表格 / 换成另一组卡片）→ 指示条移动 200ms + 内容淡入 160ms，不做位移动画。</li>
+          <li>面板高度固定或设最小高度，避免切换时页面跳动。</li>
+          <li>减少动态效果：指示条直接到位，内容直接显示。</li>
+        </ul>
+      </div>
+      <div>
+        <h3>溢出与深链接</h3>
+        <ul class="plain">
+          <li>溢出优先横向滚动 + 边缘渐隐提示，两端给箭头；方向键移动焦点时自动把目标滚进可视区（Carbon）。</li>
+          <li>页签由数据生成、数量不可控时，才上「更多 ▾」折叠菜单（Ant Design 支持带搜索的更多菜单）。</li>
+          <li>选中页签写进 URL hash（<code>#t=main:trend</code>，D6），刷新与分享复原；与筛选方案共用一套序列化。</li>
+          <li>层级上限两层：页面级页签 + 卡内分段控件（第一版的 T09）。Grafana 不允许 Tab 直接嵌 Tab，Looker Studio 页面层级也设了上限。</li>
+          <li>带数值的页签只有 P03 一种：页签即指标卡、驱动下方图表；其余页签一律只放文字，最多带计数徽标（T05）。</li>
+        </ul>
+        <h3 style="margin-top:22px">无障碍</h3>
+        <div class="table-wrap"><table style="min-width:0">
+          <thead><tr><th>要点</th><th>做法</th></tr></thead>
+          <tbody id="a11y-rows"></tbody>
+        </table></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="integrate" aria-labelledby="int-h">
+    <div class="sec-head"><div><p class="kicker">07 / Integration</p><h2 id="int-h">并入模板的方式</h2></div><p>模板里已经有分段控件与指标页签，这一步主要是<b>统一语义</b>并补形态。</p></div>
+    <ul class="plain">
+      <li><b>新分组「切换与导航」</b>：下划线页签、药丸页签、溢出页签、徽标页签、纵向页签、动态页签各一张样本卡；分段控件与指标页签不另立样本，直接指向已有的卡（柱状图、P03）。</li>
+      <li><b>新增 <code>TabKit</code></b>：<code>tabs(container, {activation})</code> 建立 tablist / tab / tabpanel 关系与 roving tabindex；<code>group(container)</code> 处理 radiogroup / 按钮组语义；<code>overflow()</code> 处理滚动、箭头与「更多」菜单；<code>link()</code> 同步 URL hash。</li>
+      <li><b>语义校准</b>：模板现有的 <code>.segmented</code>（周 / 月 / 年、实际 / 预算、本月 / 本季 / 本年）保持 <code>aria-pressed</code> 按钮组语义，不改成 tab；P03 指标页签保持 tablist 语义并补 <code>tabindex</code> 管理（已实现）。</li>
+      <li><b>复用现有能力</b>：分段控件样式与主题 token、<code>ChartKit.animate</code> 的原位变形、减少动态效果、读数浮层。</li>
+      <li><b>文档</b>：md 文档新增「切换与导航」章节，并在第 3 节交互系统里补一条「切内容用 tab，切参数用按钮组」的总则。</li>
+    </ul>
+  </section>
+
+  <section id="decide" aria-labelledby="decide-h">
+    <div class="sec-head"><div><p class="kicker">08 / Decisions</p><h2 id="decide-h">六项决策（已定）</h2></div><p>每项标出最终选择；与推荐不同的项写明落地方式。</p></div>
+    <div class="decisions" id="decisions"></div>
+  </section>
+
+  <section id="plan" aria-labelledby="plan-h">
+    <div class="sec-head"><div><p class="kicker">09 / Plan</p><h2 id="plan-h">一次做完：实现顺序</h2></div><p>三步在同一轮内完成；每步结束跑深 / 浅 × 三档宽度 + 键盘路径验收，并同步 md 文档。</p></div>
+    <div class="phases" id="phases"></div>
+  </section>
+
+
+  <footer><span>图表实验室 · Tab 组件方案 · 2026-09-23</span><span>基于 chart-studies.html（REFERENCE EDITION / 01，当时 29 个组件）· 2026-09-23 已全部并入模板（现 51 个组件）</span></footer>
+</main>
+
+<script>
+(() => {
+'use strict';
+const T=(rows,el)=>document.getElementById(el).innerHTML=rows.map(r=>'<tr>'+r.map(c=>`<td>${c}</td>`).join('')+'</tr>').join('');
+T([
+ ['<b>T03</b> 指标页签','P03 指标页签驱动图表','同一个组件：卡片式页签 + 数值 + 驱动下方图表原位变形','删除 T03。P03 是模板里唯一「带数值的页签」；新增页签一律只放文字（原 D5「页签带数值」随之取消）'],
+ ['<b>T04</b> 分段控件','十多张卡里的分段控件：柱状图、面积图、折线图、组合图、瀑布图、矩阵、树状图、K04、K06、K08、P01、P04、P07','已有控件，外观与尺寸早已定型','删除组件条目；只保留一条「语义校准」规则（<b>D4</b>：读屏语义是否要改）'],
+ ['<b>T09</b> 两层切换','「页面级页签 + 卡内分段控件」的组合','是组合规则，不是组件','移入统一规范的「层级上限」（<b>D5</b>）'],
+ ['第 05 节「选哪一个」','读数浮层、P03','—','保留：它划清新页签与现有分段控件的边界，是评审口径']
+],'overlap-rows');
+T([
+ ['标准页签 Tabs','tablist + tab + tabpanel 三层，同一时刻只展示一个互斥面板','内容彼此独立、同级，依次查看','内容需要互相比较时','Carbon Tabs usage · W3C APG Tabs'],
+ ['分段控件 Segmented / Content Switcher','同一视图内切换参数或展现格式的按钮组','视图模式、时间范围、口径切换','二元开关用 Toggle；超过 5–6 项用下拉','Carbon Content Switcher · Ant Design Segmented'],
+ ['单选按钮组 Radio group','一组互斥选项，选中态本身就是状态，没有配套面板','纯状态选择、表单单选','选中后要展示专属内容区时','W3C APG Radio Group'],
+ ['药丸导航 Pill nav','药丸外观的按钮组——角色由它绑定的对象决定','绑面板 = tab；绑一个值 = radiogroup','不能只因为「长得像药丸」就套 tab 角色','Carbon Content Switcher accessibility'],
+ ['二级导航 Sub-nav','承担路由跳转，目标有独立 URL 与数据模型','目的地是另一个页面','同页内容切换','Vercel Geist Tabs'],
+ ['手风琴 Accordion','每个面板各自 aria-expanded，可同时展开多个','需要上下文比较、窄屏、面板数不固定','面板固定互斥、每次只关心一个','W3C APG Disclosure'],
+ ['步骤条 Stepper','线性、有顺序依赖的流程指示','后一步依赖前一步','各面板互相独立、无顺序','Carbon Tabs usage']
+],'proto-rows');
+T([
+ ['下划线式 Line','Ant Design（指示条宽度 / 对齐可配）· shadcn variant="line"','页面级、一级切换，视觉轻，融入内容','指示条动画与内容切换动画分开控制'],
+ ['填充药丸 / 卡片式 Contained','Carbon Contained Tabs · Ant Design card 型','卡片内、次级切换，需要更强的区域感','选中靠底色 + 文字对比，别只改描边；卡片式没有对应的纵向样式'],
+ ['指标页签（页签即 KPI 卡）','GA4 摘要资讯卡 · Vercel / Stripe 概览','概览页「选中即看该指标趋势」','GA4 实为「卡片 + 下拉」，主流设计系统尚未把它收编为标准变体；做成整卡可点时仍要给 tab 语义'],
+ ['带徽标 / 图标','Carbon（图标固定在标签右侧）· Fluent UI icon 插槽 · Polaris accessibilityLabel','提示数量、强化扫读','图标与徽标不能替代文字标签'],
+ ['可关闭 / 可新增','Ant Design Editable-Card（统一 onEdit 回调）','多任务工作区','关闭后焦点要落到相邻页签，不能丢到 body'],
+ ['纵向页签','Carbon Vertical Tabs（不支持多行、不建议做主导航）· Radix orientation="vertical"','设置页、侧栏','Ant Design 在移动端会把 start / end 退化为 top'],
+ ['溢出处理','Carbon（两端箭头）· Ant Design（更多菜单可带搜索）· Semi（悬浮折叠）','页签由数据生成、数量不可控','移动端横向滚动必须有渐隐或箭头提示'],
+ ['嵌套层级','Grafana（Tab 不可直接嵌 Tab，须经 Row 中转）· Looker Studio（页面层级上限）','复杂看板分区','两家都不允许 tab 直接套 tab'],
+ ['URL 深链接','Vercel Geist（应在 URL 中反映当前标签，支持深链接与刷新）','需要分享特定视图','Quick BI / FineBI 官方文档未提及 Tab 深链接，落地前要实测']
+],'variant-rows');
+document.getElementById('conv').innerHTML=[
+ ['三层角色缺一不可。','tablist + tab + tabpanel，用 aria-controls / aria-labelledby 互相指认（W3C APG Tabs）。'],
+ ['选中态只有一个。','选中项 aria-selected="true"，其余显式写 "false"，不是省略（APG Tabs）。'],
+ ['页签组只占一个 Tab 位。','roving tabindex：当前项 tabindex=0，其余 -1；Tab 键只在进入与离开时停留，组内用方向键（APG、Carbon、Fluent）。'],
+ ['自动激活有前提。','面板能无延迟展示（通常已预加载）才用聚焦即切换；否则退化为 Enter / Space 手动激活（APG Tabs）。'],
+ ['面板要能被聚焦。','若面板里没有可聚焦元素，面板本身加 tabindex="0"（APG Tabs）。'],
+ ['要比较就别用页签。','Carbon 的用法页写得很直白：需要对比不同组信息时不要用 Tabs。'],
+ ['切「怎么看」用分段控件。','格式 / 视图 / 范围切换属于 Content Switcher，不是 Tabs（Carbon、Ant Design Segmented）。'],
+ ['有顺序依赖用步骤条。','线性任务用 Progress Indicator，不用页签（Carbon）。'],
+ ['标签文案要短。','一到两个词的名词，不换行（Vercel Geist、Carbon「两三个词以内」）。'],
+ ['数量有上限。','桌面 5–7 个、移动 3–4 个，超出收进菜单而不是继续平铺（Vercel Geist）。'],
+ ['页签不是路由。','Tabs 暗示这些视图共享作用域与数据模型，不要用它做跨页跳转（Vercel Geist）。'],
+ ['状态应写进 URL。','支持刷新与分享回到同一页签（Vercel Geist）。'],
+ ['不要 tab 套 tab。','Grafana 要求经 Row 中转，Looker Studio 限制页面层级——深层结构换成分区（Grafana、Looker Studio）。'],
+ ['外观不决定角色。','Carbon 的 Content Switcher 用 tablist / tab 实现，因为它切的是独立内容区——判断依据是「切什么」而不是「长什么样」。'],
+ ['图标不能替代文字。','图标与徽标是补充，标签文字必须在（Carbon、Polaris）。'],
+ ['动态页签统一回调。','新增与关闭走同一个 onEdit，不拆成两套处理（Ant Design Editable-Card）。']
+].map(([b,t])=>`<div><b>${b}</b>${t}</div>`).join('');
+document.getElementById('sources').innerHTML=[
+ ['W3C 无障碍规范',[['Tabs Pattern | APG','https://www.w3.org/WAI/ARIA/apg/patterns/tabs/'],['Radio Group Pattern | APG','https://www.w3.org/WAI/ARIA/apg/patterns/radio/'],['Button Pattern | APG','https://www.w3.org/WAI/ARIA/apg/patterns/button/'],['Disclosure Pattern | APG','https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/']]],
+ ['国际设计系统',[['Carbon Tabs usage','https://carbondesignsystem.com/components/tabs/usage/'],['Carbon Tabs accessibility','https://carbondesignsystem.com/components/tabs/accessibility/'],['Carbon Content Switcher usage','https://carbondesignsystem.com/components/content-switcher/usage/'],['Carbon Content Switcher accessibility','https://carbondesignsystem.com/components/content-switcher/accessibility/'],['Polaris Tabs','https://polaris-react.shopify.com/components/navigation/tabs'],['Fluent UI react-tabs Spec','https://github.com/microsoft/fluentui/blob/master/packages/react-components/react-tabs/library/docs/Spec.md'],['Vercel Geist Tabs','https://vercel.com/geist/tabs']]],
+ ['开源原语与中文组件库',[['Radix Tabs','https://www.radix-ui.com/primitives/docs/components/tabs'],['Radix Toggle Group','https://www.radix-ui.com/primitives/docs/components/toggle-group'],['shadcn/ui Tabs','https://ui.shadcn.com/docs/components/base/tabs'],['Ant Design 标签页 Tabs','https://ant.design/components/tabs-cn/'],['Ant Design 分段控制器 Segmented','https://ant.design/components/segmented-cn/'],['Semi Design 页签 Tabs','https://semi.design/design/zh-CN/navigation/tabs']]],
+ ['BI / 仪表板产品',[['Quick BI Tab 控件','https://help.aliyun.com/zh/quick-bi/user-guide/configure-a-tab-widge'],['FineBI Tab 组件','https://help.fanruan.com/finebi/doc-view-1101.html'],['Power BI 页面与书签导航器','https://learn.microsoft.com/en-us/power-bi/create-reports/button-navigators'],['Grafana Dashboard groupings','https://grafana.com/docs/grafana/latest/visualizations/dashboards/build-dashboards/create-dashboard/dashboard-groupings/'],['Looker Studio 页面与导航','https://docs.cloud.google.com/looker/docs/studio/add-pages-and-report-navigation'],['GA4 摘要资讯卡','https://support.google.com/analytics/answer/13817100?hl=zh-Hans']]]
+].map(([g,list])=>`<p><b>${g}</b>${list.map(([t,u])=>`<a href="${u}" target="_blank" rel="noopener">${t}</a>`).join(' · ')}</p>`).join('');
+/* ---------- sketches ---------- */
+const box=(inner,cls='')=>`<div class="sketch ${cls}">${inner}</div>`;
+const head=(en,name,right='')=>`<div class="sk-head">${en}<b>${name}</b>${right?`<span class="right">${right}</span>`:''}</div>`;
+const line=(items,on)=>`<div class="tb-line">${items.map(t=>`<span class="${t===on?'on':''}">${t}</span>`).join('')}</div>`;
+const pill=(items,on,cls='')=>`<div class="tb-pill ${cls}">${items.map(t=>`<span class="${t===on?'on':''}">${t}</span>`).join('')}</div>`;
+const seg=(items,on)=>`<div class="tb-seg">${items.map(t=>`<span class="${t===on?'on':''}">${t}</span>`).join('')}</div>`;
+const mini='<div class="tb-mini"></div>';
+const S=[];
+S.push({id:'T01',p:'p0',name:'下划线页签',en:'Line tabs',q:'页面这一层，我在看哪一块',
+  html:box(head('LINE TABS','页面级页签','指示条 2px')+line(['总览','趋势','结构','明细'],'趋势')+`<div style="margin-top:12px">${mini}</div><div class="tb-note">最轻的一种切换，适合整页最高层；选中同时用<b>加粗 + 指示条</b>，不只靠颜色。</div>`),
+  anat:'文字 12.5px + 2px 指示条 + 底线',act:'← → 移动并激活（自动激活）；Home / End 到首尾；Tab 直接进入面板',src:'Ant Design Tabs · Carbon Line Tabs · shadcn line variant',dna:'—'});
+S.push({id:'T02',p:'p0',name:'药丸页签',en:'Pill tabs',q:'卡片内部换一组内容',
+  html:box(head('PILL TABS','药丸页签','卡内次级')+pill(['活动分析','活动对比','活动明细'],'活动分析')+`<div style="margin-top:12px">${mini}</div><div class="tb-note">模板选中态用反色 <b>--c-inverse</b>；若按 DNA 皮肤走，则换成主色底白字（下图）。</div><div style="margin-top:8px">${pill(['活动分析','活动对比','活动明细'],'活动分析','dna')}</div>`),
+  anat:'轨道 --c-control + 反色选中；圆角 20px',act:'同 T01；卡内页签不接管页面级键盘焦点顺序',src:'Carbon Contained Tabs · Ant Design card 型 · DNA「主色底白字药丸」',dna:'Tab 切换用主色药丸'});
+S.push({id:'T03',p:'p1',name:'指标页签',en:'Metric tabs',q:'从一排指标走进一张图',
+  html:box(head('METRIC TABS','指标页签','模板已实现')+`<div class="tb-cards">${[['营收','1,286.4','万','+8.6%','good'],['订单数','2,418','单','+12.5%','good'],['客单价','5,320','元','−3.5%','bad'],['退款率','1.8%','','−0.4pp','good']].map((t,i)=>`<div class="tb-card ${i===0?'on':''}"><div class="t">${t[0]}</div><div class="v">${t[1]}${t[2]?`<small>${t[2]}</small>`:''}</div><div class="d ${t[4]}">${t[3]}</div></div>`).join('')}</div><div style="margin-top:12px">${mini}</div><div class="tb-note">页签本身就是指标卡；切换时下方图<b>原位变形</b>，页签上的数值始终是当期，不随悬浮改变。</div>`),
+  anat:'卡片式页签（名称 + 数值 + 涨跌）+ 顶部 2px 指示条',act:'点击或 ← → 切换；面板 aria-labelledby 指回当前页签',src:'GA4 摘要资讯卡 · Vercel Analytics · Stripe · Quick BI Tab 趋势图',dna:'—'});
+S.push({id:'T04',p:'p0',name:'分段控件',en:'Segmented',q:'同一张图，换个看法',
+  html:box(head('SEGMENTED','分段控件','切参数，不切内容区')+`<div style="display:flex;gap:10px;flex-wrap:wrap">${seg(['周','月','年'],'月')}${seg(['实际','预算'],'实际')}${seg(['本月','本季','本年'],'本月')}</div><div style="margin-top:12px">${mini}</div><div class="tb-note">这不是页签：下方内容区没变，只是<b>参数</b>变了。建议用 <b>radiogroup</b> 或 <code>aria-pressed</code> 按钮组语义，方向键直接改值。</div>`),
+  anat:'与药丸页签同一套外观，语义不同',act:'← → 直接改值（radiogroup 选中跟随焦点）；无需 Enter 确认',src:'Ant Design Segmented（底层 input[type=radio]）· Carbon Content Switcher · W3C APG Radio Group',dna:'—'});
+S.push({id:'T05',p:'p1',name:'带徽标页签',en:'Badge tabs',q:'哪一组还有事没处理',
+  html:box(head('BADGE','带徽标页签')+`<div class="tb-line"><span class="on"><span class="tb-badge">待办 <i>12</i></span></span><span><span class="tb-badge">关注 <i class="warn">3</i></span></span><span>已完成</span><span>全部</span></div><div class="tb-note">徽标只放数量，不放状态色以外的含义；数量为 0 时隐藏徽标而不是显示「0」。</div>`),
+  anat:'标签 + 计数徽标（选中态徽标反色）',act:'同 T01；徽标数值变化写进 aria-label，不单独播报',src:'Carbon（图标固定在右侧）· Fluent UI · Polaris accessibilityLabel',dna:'—'});
+S.push({id:'T06',p:'p0',name:'页签溢出',en:'Overflow',q:'页签放不下的时候',
+  html:box(head('OVERFLOW','页签溢出','滚动 + 更多')+`<div class="tb-scroll"><span class="arrow">‹</span><div class="track"><span class="on">华东</span><span>华南</span><span>华北</span><span>西南</span><span>华中</span><span>东北</span><span>西北</span></div><span class="arrow">›</span><span class="tb-more">更多 ▾</span></div><div class="tb-note">优先横向滚动 + 边缘渐隐；方向键移动焦点时自动把目标滚进可视区。数量不可控（由数据生成）时再上「更多」菜单。</div>`),
+  anat:'两端箭头 + 渐隐边缘 + 可选「更多」菜单',act:'方向键移动并滚动到可视区；「更多」是 menu button，不是页签',src:'Carbon（滚动 + 箭头）· Ant Design（更多菜单可带搜索）· Semi（悬浮折叠）',dna:'—'});
+S.push({id:'T07',p:'p2',name:'纵向页签',en:'Vertical',q:'左边一列，右边一页',
+  html:box(head('VERTICAL','纵向页签')+`<div class="tb-vert"><div class="tb-vcol"><span class="on">经营总览</span><span>渠道</span><span>区域</span><span>客群</span><span>履约</span></div><div class="tb-panel">面板内容</div></div><div class="tb-note">适合条目多、文案长的设置型页面；<b>不建议作主导航</b>（Carbon），窄屏退化为顶部横向滚动。</div>`),
+  anat:'左列 118px + 左侧 2px 指示条',act:'↑ ↓ 移动（纵向时 ↓ 等价于 →）；Home / End 到首尾',src:'Carbon Vertical Tabs · Radix orientation=vertical · Ant Design tabPosition',dna:'—'});
+S.push({id:'T08',p:'p2',name:'动态页签',en:'Dynamic',q:'页签由用户自己加',
+  html:box(head('DYNAMIC','可关闭 / 可新增')+`<div class="tb-dyn"><span class="on">我的视图 <span class="x">✕</span></span><span>华东复盘 <span class="x">✕</span></span><span>电商专题 <span class="x">✕</span></span><span class="add">＋ 新建</span></div><div class="tb-note">新增与关闭走同一个回调；关闭当前页签后，焦点落到<b>相邻页签</b>，不能丢到页面根。</div>`),
+  anat:'页签带关闭按钮 + 末尾新增入口',act:'关闭键为独立按钮（aria-label「关闭 华东复盘」）；Delete 键可关闭当前页签',src:'Ant Design Editable-Card（统一 onEdit）',dna:'—'});
+S.push({id:'T09',p:'p1',name:'两层切换',en:'Two levels',q:'最多允许几层',
+  html:box(head('TWO LEVELS','页面级 + 卡内级','层级上限')+line(['总览','趋势','结构','明细'],'趋势')+`<div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center;gap:10px"><span style="font-size:11px;color:var(--c-text-4)">营收趋势</span>${seg(['周','月','年'],'月')}</div><div style="margin-top:8px">${mini}</div><div class="tb-note">上层页签换<b>内容区</b>，下层分段控件换<b>参数</b>——两层不同语义，才不会互相打架。禁止页签直接套页签。</div>`),
+  anat:'页面级下划线页签 + 卡内分段控件',act:'两层各自独立的方向键作用域；Tab 键在两层之间移动',src:'Grafana（Tab 不可直接嵌 Tab）· Looker Studio 页面层级上限',dna:'分区丝带做章节，不靠多层页签'});
+const DROP=new Set(['T03','T04','T09']);   // 已并入 P03 / 现有分段控件 / 统一规范，见第 02 节
+document.getElementById('type-specs').innerHTML=S.filter(s=>!DROP.has(s.id)).map(s=>`<article class="spec" aria-label="${s.id} ${s.name}"><div class="spec-stage one">${s.html}</div><div class="spec-meta"><div class="spec-title"><span class="tag p0">${s.id}</span>${s.name}<small>${s.en}</small></div><div class="spec-q">${s.q}</div><dl><dt>解剖</dt><dd>${s.anat}</dd><dt>交互</dt><dd>${s.act}</dd><dt>出处</dt><dd>${s.src}</dd><dt>DNA</dt><dd>${s.dna}</dd></dl></div></article>`).join('');
+T([
+ ['切换独立内容区','<code>role=tablist / tab / tabpanel</code> + <code>aria-selected</code> + <code>aria-controls</code>','← → 移动（纵向 ↑ ↓）；Home / End；自动或手动激活'],
+ ['切换一个参数','<code>role=radiogroup</code> + <code>role=radio</code>（或按钮组 + <code>aria-pressed</code>）','← → 直接改值，选中跟随焦点，无需确认键'],
+ ['可关闭页签','关闭键是独立 <code>button</code>，<code>aria-label="关闭 X"</code>','Delete 关闭当前页签；焦点落到相邻页签'],
+ ['溢出「更多」','<code>aria-haspopup="menu"</code> + <code>role=menu</code>','Enter / Space 打开，↑ ↓ 选择，Esc 关闭并回焦']
+],'role-rows');
+document.getElementById('states').innerHTML=[
+ ['默认','<div class="tb-line"><span>趋势</span></div>'],
+ ['悬浮','<div class="tb-line"><span style="color:var(--c-text-2)">趋势</span></div>'],
+ ['选中','<div class="tb-line"><span class="on">趋势</span></div>'],
+ ['键盘聚焦','<div class="tb-line"><span class="on" style="outline:2px solid var(--c-focus-soft);outline-offset:3px;border-radius:4px">趋势</span></div>'],
+ ['禁用','<div class="tb-line"><span class="dis">趋势</span></div>']
+].map(([cap,html])=>`<div><div class="sketch" style="display:grid;place-items:center;min-height:74px">${html}</div><div class="cap">${cap}</div></div>`).join('');
+T([
+ ['三层角色','tablist / tab / tabpanel，<code>aria-controls</code> 与 <code>aria-labelledby</code> 成对指认（APG）'],
+ ['选中态','只有一个 <code>aria-selected=true</code>，其余显式 false（APG）'],
+ ['roving tabindex','当前项 <code>tabindex=0</code>，其余 -1；Tab 键只在进出时停留（APG / Carbon / Fluent）'],
+ ['激活方式','面板可无延迟展示才用自动激活，否则 Enter / Space 手动激活（APG）'],
+ ['面板可聚焦','面板内没有可聚焦元素时，面板本身 <code>tabindex=0</code>（APG）'],
+ ['滚动跟随','方向键移动焦点时把目标页签滚进可视区（Carbon）'],
+ ['分段控件','切参数时用 radiogroup 或 <code>aria-pressed</code> 按钮组，按钮文字不随状态变（APG）'],
+ ['关闭后的焦点','关闭当前页签后焦点落到相邻页签（roving tabindex 的自然延伸，需手写）']
+],'a11y-rows');
+const decideHTML=list=>list.map(([id,title,opts,rec,pick,note,verdict])=>{
+  const custom=typeof pick==='string';
+  const lis=opts.map((o,i)=>{const p=!custom&&i===pick,r=i===rec&&!p;return `<li class="${p?'pick':'alt'}">${o}${p?'<span class="lab pick">已定</span>':''}${r?'<span class="lab was">原推荐</span>':''}</li>`;}).join('')+(custom?`<li class="pick">${pick}<span class="lab pick">已定</span></li>`:'');
+  return `<div class="decision done"><h3><span>${id}</span>${title}</h3><ol>${lis}</ol><p>${note}</p><p class="verdict"><b>落地：</b>${verdict}</p></div>`;}).join('');
+const stepsHTML=list=>list.map(([step,name,items])=>`<div class="phase"><h3><span class="step">${step}</span>${name}</h3><ul>${items.map(i=>`<li>${i}</li>`).join('')}</ul></div>`).join('');
+document.getElementById('decisions').innerHTML=decideHTML([
+ ['D1','首批范围',['P0 三项：T01 下划线页签、T02 药丸页签、T06 溢出','只做 T01 + T02','六种一次做完（再加徽标、纵向、动态）'],0,2,'原推荐先做三项；你选择一次做完。','T01 T02 T05 T06 T07 T08 六种同轮并入模板新分组「切换与导航」。'],
+ ['D2','激活方式',['按情况：内容已在页面里 → 聚焦即切换；需要重新取数 → Enter / 空格才切换','一律自动激活','一律手动激活'],0,0,'APG 的条件就是「面板能否无延迟展示」。','TabKit 按页签组声明 activation：内容已在页面里的 → 方向键聚焦即切换（T01 T02 T05 T06 T07）；要新建或重新取数的 → Enter / Space 才切换（T08）。'],
+ ['D3','选中样式',['页面级用下划线，卡内用药丸','全部药丸（DNA 主色）','全部下划线'],0,0,'Carbon 的分法：Line 表示融入页面，Contained 表示独立区域。','页面级 T01 / T05 / T06 用下划线 + 2px 指示条；卡内 T02 用反色药丸；T07 用左侧指示条；DNA 主色药丸保留为可选皮肤。'],
+ ['D4','现有分段控件的读屏语义',['保持 aria-pressed 按钮组（模板现状）','改成 radiogroup 单选组','改成 tablist 页签'],0,0,'分段控件切的是参数而不是内容区。','十多张卡的分段控件保持 aria-pressed 按钮组，不改读法；规范写明「切参数用分段控件、切内容区用页签」。'],
+ ['D5','切换层级上限',['最多两层：页面级页签 + 卡内分段控件','允许三层（页签下再放页签）'],0,0,'Grafana 与 Looker Studio 都不允许页签直接嵌套。','页面级页签 + 卡内分段控件，最多两层；纵向页签的面板里只允许分段控件。'],
+ ['D6','页签状态写入 URL',['写进 hash，与筛选方案共用一套序列化','只在当前会话保留','写进本地存储'],0,0,'Vercel Geist 要求页签状态可深链接。','与筛选方案共用序列化（<code>#t=main:trend</code>），页签 id 用稳定英文键，不用序号；刷新与分享可复原。']
+]);
+document.getElementById('phases').innerHTML=stepsHTML([
+ ['第 1 步','TabKit',['tablist / tab / tabpanel 关系 + roving tabindex + 按组声明的激活方式','URL hash 同步（与筛选共用）','新分组「切换与导航」+ md 章节（含「切内容用页签，切参数用分段控件」总则）']],
+ ['第 2 步','常用形态',['T01 下划线页签、T02 药丸页签','T05 徽标页签（数量为 0 时隐藏徽标）','T06 溢出：滚动 + 渐隐 + 箭头 + 「更多」菜单']],
+ ['第 3 步','特殊形态',['T07 纵向页签（窄屏退化为横向滚动）','T08 动态页签（新增 / 关闭 / 焦点落点）','减少动态效果与键盘路径验收']]
+]);
+
+const KEY='chart-studies-theme',btns=document.querySelectorAll('[data-theme-choice]');let timer=0;
+function setTheme(t,anim){const root=document.documentElement;if(anim&&!matchMedia('(prefers-reduced-motion: reduce)').matches){root.classList.add('theme-switching');clearTimeout(timer);timer=setTimeout(()=>root.classList.remove('theme-switching'),400);}root.setAttribute('data-chart-theme',t);btns.forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.themeChoice===t)));try{localStorage.setItem(KEY,t);}catch(e){}}
+setTheme(document.documentElement.getAttribute('data-chart-theme')==='light'?'light':'dark',false);
+btns.forEach(b=>b.addEventListener('click',()=>setTheme(b.dataset.themeChoice,true)));
+})();
+</script>

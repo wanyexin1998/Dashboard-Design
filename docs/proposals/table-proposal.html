@@ -1,0 +1,586 @@
+<title>表格组件方案</title>
+<style>
+:root{--paper:#eeede7;--ink:#20231f;--muted:#6c7166;--line:#d6d7ce;--deep:#242b20;--deep-ink:#f1f2e9;--note:#e4e5dc}
+/* Chart theme tokens — generated from tokens.py; dark = baseline values */
+:root,[data-chart-theme="dark"]{--c-surface:#111214;--c-control:#27292e;--c-panel:#202326;--c-inset:#191d1f;--c-hover:#2b3026;--c-border:#292b2b;--c-divider:#242629;--c-outline:#363a31;--c-panel-border:#42474b;--c-panel-rule:#393f40;--c-track:#2b2d31;--c-grid:#292c30;--c-baseline:#383a3f;--c-connector:#4d5748;--c-rule:#61695c;--c-leader:#8a8e86;--c-text:#f1f0e9;--c-text-2:#c0c4bd;--c-text-3:#a5aaa5;--c-text-4:#979b9f;--c-text-5:#85868f;--c-inverse:#f1f0e9;--c-on-inverse:#1b1f21;--c-dim:#3d3e43;--c-dim-dot:#64656b;--c-off:#363940;--c-focus:#f1f0e9;--c-focus-soft:#a5b7a8;--c-focus-line:#819183;--c-node-1:#2b322a;--c-node-2:#202429;--s-gold:#eac34d;--s-sage:#b8c7ab;--s-blue:#7baed0;--s-purple:#baa1d2;--s-orange:#e78b5f;--s-mint:#74cfb7;--s-coral:#de656d;--s-lime:#c2d965;--s-pink:#de88a4;--s-lavender:#c2bbf3;--s-olive:#aaa77c;--s-neutral:#efeee4;--s-ink:#f1f0e9;--s-graphite:#55555c;--s-slate:#85888c;--s-band-low:#42464b;--s-band-high:#5b5f65;--s-gold-on:#17181b;--s-sage-on:#17181b;--s-blue-on:#17181b;--s-purple-on:#17181b;--s-orange-on:#17181b;--s-mint-on:#17181b;--s-coral-on:#17181b;--s-lime-on:#17181b;--s-pink-on:#17181b;--s-lavender-on:#17181b;--s-olive-on:#17181b;--s-neutral-on:#17181b;--s-ink-on:#17181b;--s-graphite-on:#f0f0ed;--s-slate-on:#17181b;--s-band-low-on:#f0f0ed;--s-band-high-on:#f0f0ed;--s-gold-text:#eac34d;--s-sage-text:#b8c7ab;--s-blue-text:#7baed0;--s-purple-text:#baa1d2;--s-orange-text:#e78b5f;--s-mint-text:#74cfb7;--s-coral-text:#de656d;--s-lime-text:#c2d965;--s-pink-text:#de88a4;--s-lavender-text:#c2bbf3;--s-olive-text:#aaa77c;--s-neutral-text:#efeee4;--s-ink-text:#f1f0e9;--s-graphite-text:#7d7d84;--s-slate-text:#85888c;--s-band-low-text:#787d82;--s-band-high-text:#797d84;--s-gold-deep:#927127;--s-gold-soft:#51421a;--s-gold-soft-ink:#edda93;--s-sage-on-2:#435039;--seq-0:#2b2d31;--seq-1:#565c50;--seq-2:#93987b;--seq-3:#d4d6bf;--seq-4:#74cfb7;--st-good:#4cc38a;--st-good-text:#4cc38a;--st-good-soft:#1a2e27;--st-bad:#f2716a;--st-bad-text:#f2716a;--st-bad-soft:#352122;--st-warn:#f0b43f;--st-warn-text:#f0b43f;--st-warn-soft:#352c1b;--c-shadow:0 8px 30px #0005;--c-card-shadow:none;}
+[data-chart-theme="light"]{--c-surface:#fbfbf8;--c-control:#ecebe5;--c-panel:#ffffff;--c-inset:#f3f2ed;--c-hover:#efeee8;--c-border:#dddcd3;--c-divider:#ebeae3;--c-outline:#d3d2c9;--c-panel-border:#dcdbd2;--c-panel-rule:#edece6;--c-track:#e8e7e0;--c-grid:#e8e7e1;--c-baseline:#c9c8bf;--c-connector:#c3c9bb;--c-rule:#a6ada1;--c-leader:#999d94;--c-text:#20231f;--c-text-2:#454a43;--c-text-3:#585e56;--c-text-4:#676d64;--c-text-5:#8e9289;--c-inverse:#262a23;--c-on-inverse:#f6f5ef;--c-dim:#dfded7;--c-dim-dot:#c7c7c0;--c-off:#d9d8d0;--c-focus:#20231f;--c-focus-soft:#5f7a65;--c-focus-line:#7f9483;--c-node-1:#eef1ea;--c-node-2:#f6f6f2;--s-gold:#d2ab17;--s-sage:#6fa374;--s-blue:#4188b6;--s-purple:#8463a8;--s-orange:#cf5b28;--s-mint:#269b7e;--s-coral:#c94750;--s-lime:#b4c82b;--s-pink:#ad507a;--s-lavender:#8379ca;--s-olive:#7a6939;--s-neutral:#dedcd7;--s-ink:#3e413a;--s-graphite:#3d3c38;--s-slate:#babec3;--s-band-low:#e2e1dd;--s-band-high:#b7bbc0;--s-gold-on:#17181b;--s-sage-on:#17181b;--s-blue-on:#17181b;--s-purple-on:#ffffff;--s-orange-on:#17181b;--s-mint-on:#17181b;--s-coral-on:#ffffff;--s-lime-on:#17181b;--s-pink-on:#ffffff;--s-lavender-on:#17181b;--s-olive-on:#ffffff;--s-neutral-on:#17181b;--s-ink-on:#ffffff;--s-graphite-on:#ffffff;--s-slate-on:#17181b;--s-band-low-on:#17181b;--s-band-high-on:#17181b;--s-gold-text:#896e01;--s-sage-text:#4a7d50;--s-blue-text:#2f77a4;--s-purple-text:#8463a8;--s-orange-text:#c14e18;--s-mint-text:#048167;--s-coral-text:#c7454f;--s-lime-text:#6c7900;--s-pink-text:#ad507a;--s-lavender-text:#7267b6;--s-olive-text:#7a6939;--s-neutral-text:#73716d;--s-ink-text:#3e413a;--s-graphite-text:#3d3c38;--s-slate-text:#6e7276;--s-band-low-text:#72716e;--s-band-high-text:#6e7277;--s-gold-deep:#93690d;--s-gold-soft:#f6e7b6;--s-gold-soft-ink:#6f5000;--s-sage-on-2:#1a2e1f;--seq-0:#e8e7e0;--seq-1:#ced0bd;--seq-2:#a6a78b;--seq-3:#797c5d;--seq-4:#269b7e;--st-good:#18a058;--st-good-text:#03793f;--st-good-soft:#e0f0e5;--st-bad:#e64c45;--st-bad-text:#c62b2a;--st-bad-soft:#f8e6e3;--st-warn:#d9920a;--st-warn-text:#936100;--st-warn-soft:#f7eedb;--c-shadow:0 10px 28px rgba(32,35,31,.14),0 1px 3px rgba(32,35,31,.08);--c-card-shadow:0 1px 2px rgba(32,35,31,.05);}
+
+:root{--paper:#eeede7;--ink:#20231f;--muted:#6c7166;--line:#d6d7ce;--deep:#242b20;--deep-ink:#f1f2e9;--note:#e4e5dc}
+/*TOKENS*/
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:84px}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,"Segoe UI","PingFang SC","Microsoft YaHei",system-ui,sans-serif;font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+button{font:inherit;cursor:pointer;border:0}
+a{color:inherit}
+code,.mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+:focus-visible{outline:2px solid #7cac85;outline-offset:3px}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rgba(238,237,231,.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.top-in{max-width:1180px;margin:auto;padding:0 24px;height:64px;display:flex;align-items:center;gap:24px}
+.brand{font-weight:750;font-size:19px;letter-spacing:-.6px;white-space:nowrap}
+.brand span{font:10px ui-monospace,Consolas,monospace;letter-spacing:1.4px;color:var(--muted);margin-left:10px;font-weight:400}
+.top nav{display:flex;gap:18px;font-size:12px;margin-left:auto}
+.top nav a{text-decoration:none;color:#5c6455}
+.top nav a:hover{color:#111}
+.theme-switch{display:inline-flex;gap:2px;padding:2px;border:1px solid #c0c4b6;border-radius:7px;flex-shrink:0}
+.theme-switch button{display:inline-flex;align-items:center;gap:6px;background:transparent;color:#4f5946;font-size:11px;line-height:1;padding:6px 9px;border-radius:5px}
+.theme-switch button:hover{background:#dfe3d5}
+.theme-switch button[aria-pressed=true]{background:var(--deep);color:var(--deep-ink)}
+.theme-switch i{width:9px;height:9px;border-radius:50%;box-shadow:inset 0 0 0 1px #0000002e}
+.ts-dark{background:#111214}.ts-light{background:#fbfbf8}
+main{max-width:1180px;margin:auto;padding-block:44px 40px;padding-inline:24px}
+.kicker{font:11px ui-monospace,Consolas,monospace;letter-spacing:1.6px;color:#6b735f;margin:0 0 12px;text-transform:uppercase}
+h1{font-size:38px;line-height:1.2;letter-spacing:-1.4px;font-weight:650;margin:0 0 14px;text-wrap:balance}
+.lede{max-width:760px;color:#565c51;font-size:14px;line-height:1.85;margin:0}
+.status{display:inline-flex;align-items:center;gap:7px;margin-top:18px;font-size:11px;color:#4f5946;border:1px dashed #a9b09f;border-radius:99px;padding:5px 11px}
+.status i{width:6px;height:6px;border-radius:50%;background:#c49a2a}
+section{margin-top:64px;scroll-margin-top:84px}
+.sec-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,420px);gap:12px 40px;align-items:end;border-top:1px solid #c7cdbe;padding-top:24px;margin-bottom:26px}
+.sec-head .kicker{margin-bottom:8px}
+h2{font-size:26px;letter-spacing:-.6px;font-weight:600;margin:0;text-wrap:balance}
+.sec-head p{margin:0;color:var(--muted);font-size:12.5px;line-height:1.8}
+h3{font-size:15px;margin:0 0 8px;font-weight:650}
+/* TL;DR */
+.tldr{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:18px}
+.tldr > div{background:#e6e7df;border-radius:14px;padding:18px 20px}
+.tldr > div:first-child{background:var(--deep);color:var(--deep-ink)}
+.tldr > div:first-child .kicker{color:#b8c7ab}
+.tldr ul{margin:0;padding-left:18px;font-size:13px;line-height:1.85}
+.tldr p{margin:8px 0 0;font-size:12.5px;line-height:1.8;opacity:.85}
+.tag{display:inline-block;font:10px ui-monospace,Consolas,monospace;letter-spacing:.6px;padding:2px 6px;border-radius:4px;vertical-align:1px}
+.tag.p0{background:var(--deep);color:var(--deep-ink)}
+.tldr > div:first-child .tag.p0{background:#b8c7ab;color:#1d2419}
+.tag.p1{border:1px solid #8d957f;color:#3f4839}
+.tag.p2{border:1px dashed #9aa18c;color:#5c6455}
+/* tables */
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:#f5f5f0}
+table{border-collapse:collapse;width:100%;font-size:12.5px;min-width:760px}
+th,td{text-align:left;vertical-align:top;padding:10px 14px;border-bottom:1px solid #e0e1d8;line-height:1.65}
+th{font-size:11px;letter-spacing:.4px;color:#5c6455;font-weight:600;background:#ebece4;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td:first-child{font-weight:600;white-space:nowrap}
+td.dna{color:#7a5f14;font-weight:600}
+.num{text-align:right;font-variant-numeric:tabular-nums}
+.conv{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 28px;margin-top:26px}
+.conv div{border-left:2px solid #b8c7ab;padding:2px 0 2px 14px;font-size:12.5px;line-height:1.75;color:#454b41}
+.conv b{color:var(--ink)}
+details{margin-top:22px;font-size:12px;color:#565c51}
+summary{cursor:pointer;font-weight:600;color:var(--ink)}
+.sources{columns:3 260px;column-gap:28px;margin-top:12px}
+.sources p{break-inside:avoid;margin:0 0 12px;line-height:1.7}
+.sources b{display:block;color:var(--ink);font-size:11px;letter-spacing:.4px}
+.sources a{text-decoration:none;border-bottom:1px solid #b9bfae;word-break:break-word}
+/* specimen grid */
+.legend-note{font:10.5px ui-monospace,Consolas,monospace;letter-spacing:.6px;color:#6b735f;margin:-8px 0 16px}
+.specs{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:30px 24px}
+.specs.wide{grid-template-columns:repeat(auto-fill,minmax(520px,1fr))}
+.spec{min-width:0;display:flex;flex-direction:column;gap:12px}
+.spec-stage{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));align-content:start}
+.spec-stage.one{grid-template-columns:1fr}
+.spec-meta{display:grid;gap:6px;font-size:12px;color:#565c51;line-height:1.7}
+.spec-title{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px;color:var(--ink);font-weight:650}
+.spec-title small{font:10px ui-monospace,Consolas,monospace;color:#7a8070;font-weight:400;letter-spacing:.5px}
+.spec-q{font-size:12.5px;color:var(--ink)}
+.spec-meta dl{margin:0;display:grid;grid-template-columns:34px 1fr;gap:3px 10px}
+.spec-meta dt{color:#8a907f;font-size:11px}
+.spec-meta dd{margin:0}
+/* rules & states */
+.rules{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:26px}
+pre{margin:0;background:#1b1f1a;color:#dfe3d5;border-radius:12px;padding:16px 18px;font-size:11.5px;line-height:1.65;overflow-x:auto}
+pre .k{color:#b8c7ab}pre .s{color:#eac34d}pre .c{color:#8c9486}
+.states{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+.states .kpi{height:132px;display:flex;flex-direction:column}
+.skel{border-radius:5px;background:linear-gradient(90deg,var(--c-control),var(--c-track),var(--c-control));height:10px}
+.cap{font-size:11px;color:#6b7166;margin-top:6px;text-align:center}
+.retry{margin-top:auto;align-self:flex-start;font-size:10px;padding:5px 10px;border-radius:99px;border:1px solid var(--c-outline);color:var(--c-text-2);background:transparent}
+.polar{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+.polar .kpi{padding:12px 14px}
+.polar .kpi-value{font-size:20px;margin-top:4px}
+.polar .why{font-size:10px;color:var(--c-text-4);margin-top:4px}
+/* decisions */
+.decisions{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px}
+.decision{border:1px solid #c9cebf;border-radius:14px;padding:16px 18px;background:#f4f4ef}
+.decision h3{display:flex;gap:10px;align-items:baseline}
+.decision h3 span{font:11px ui-monospace,Consolas,monospace;color:#7a8070}
+.decision ol{margin:6px 0 0;padding-left:20px;font-size:12.5px;line-height:1.8;color:#454b41}
+.decision li.rec{color:var(--ink);font-weight:600}
+.decision li.rec::after{content:"推荐";font:600 10px/1 system-ui,sans-serif;margin-left:8px;padding:3px 6px;border-radius:4px;background:var(--deep);color:var(--deep-ink);vertical-align:1px}
+.decision p{margin:8px 0 0;font-size:11.5px;color:#6b7166;line-height:1.7}
+.decision.done{background:#f3f4ee}
+.decision li.alt{color:#7c8272}
+.decision li.pick{color:var(--ink);font-weight:650}
+.decision .lab{display:inline-block;font:600 10px/1 system-ui,sans-serif;margin-left:8px;padding:3px 6px;border-radius:4px;vertical-align:1px;white-space:nowrap}
+.decision .lab.pick{background:#2f5e3a;color:#f1f2e9}
+.decision .lab.was{border:1px solid #b3b9a8;color:#5f6559;font-weight:500;padding:2px 5px}
+.decision .verdict{margin-top:10px;padding-top:9px;border-top:1px dashed #c3c9b8;font-size:12px;color:#2f3a2b;line-height:1.75}
+.decision .verdict b{color:#2f5e3a}
+.phase .step{font:11px ui-monospace,Consolas,monospace;letter-spacing:.6px;color:#6b735f;margin-right:6px}
+.phases{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.phase{border-top:3px solid var(--deep);padding-top:12px}
+.phase.p1{border-top-color:#8d957f}.phase.p2{border-top-color:#c3c8b8}
+.phase ul{margin:6px 0 0;padding-left:18px;font-size:12.5px;line-height:1.85;color:#454b41}
+.plain{font-size:13px;line-height:1.9;color:#454b41;max-width:860px}
+.plain li{margin:3px 0}
+footer{margin-top:64px;padding-top:18px;border-top:1px solid var(--line);font-size:11px;color:#7a8070;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+html.theme-switching .sketch,html.theme-switching .sketch *{transition:background-color .3s,border-color .3s,color .3s,fill .3s,stroke .3s!important}
+@media(max-width:900px){.tldr,.rules,.phases{grid-template-columns:minmax(0,1fr)}.sec-head{grid-template-columns:minmax(0,1fr)}.states,.polar{grid-template-columns:repeat(2,minmax(0,1fr))}.conv{grid-template-columns:1fr}.specs.wide{grid-template-columns:minmax(0,1fr)}.top nav{display:none}.theme-switch{margin-left:auto}}
+@media(max-width:600px){main{padding-inline:16px}.top-in{padding:0 16px}h1{font-size:28px;letter-spacing:-.8px}.specs{grid-template-columns:minmax(0,1fr)}.strip{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 0}.strip > div:nth-child(odd){border-left:0;padding-left:0}.tabs{grid-template-columns:repeat(2,minmax(0,1fr))}.hero{grid-template-columns:1fr}.hero .rows{border-left:0;padding-left:0}.grid-panel{grid-template-columns:repeat(2,minmax(0,1fr))}.facts{grid-template-columns:repeat(2,minmax(0,1fr))}.chain{flex-wrap:wrap;gap:10px}.chain .arrow{display:none}.chain > div{flex:1 1 40%}.brand span{display:none}.trio .kpi-value{font-size:18px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+
+/* ---- table sketches (all colours are chart tokens) ---- */
+.sketch{background:var(--c-surface);color:var(--c-text);border:1px solid var(--c-border);border-radius:18px;padding:15px 17px;min-width:0;overflow:hidden}
+.sk-head{display:flex;align-items:center;gap:8px;font-size:10px;letter-spacing:1.4px;color:var(--c-text-4);margin-bottom:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sk-head b{font-size:11px;font-weight:550;letter-spacing:.3px;color:var(--c-text-2);margin-left:6px}
+.sk-head .right{margin-left:auto;font-size:10px;letter-spacing:0;color:var(--c-text-4)}
+.tw{overflow-x:auto}
+table.dt{width:100%;min-width:0;border-collapse:collapse;font-size:11.5px;font-variant-numeric:tabular-nums;color:var(--c-text)}
+table.dt thead th{font-size:10px;font-weight:500;letter-spacing:.4px;color:var(--c-text-4);text-align:left;padding:6px 9px;border-bottom:1px solid var(--c-divider);white-space:nowrap;background:var(--c-surface)}
+table.dt td,table.dt tbody th{padding:7px 9px;border-bottom:1px solid var(--c-divider);white-space:nowrap;text-align:left;font-weight:400;color:var(--c-text);background:var(--c-surface)}
+table.dt tbody th{font-weight:600}
+table.dt tbody tr:last-child>*{border-bottom:0}
+table.dt .num{text-align:right}
+table.dt .mut{color:var(--c-text-4)}
+table.dt tr.hov>*{background:var(--c-hover)}
+table.dt tr.zebra>*{background:var(--c-inset)}
+table.dt tr.total>*{background:var(--c-inset);font-weight:600;border-top:1px solid var(--c-outline)}
+table.dt tr.sub>*{background:color-mix(in srgb,var(--c-inset) 60%,transparent);font-weight:600}
+table.dt .grp{color:var(--c-text-3);font-size:10.5px;letter-spacing:.4px}
+table.dt th.sortable{color:var(--c-text-3)}
+table.dt th.sortable i{font-style:normal;opacity:.45;margin-left:3px}
+table.dt th.sorted{color:var(--c-text)}
+table.dt th.sorted i{opacity:1;color:var(--s-blue-text)}
+table.dt .stick{position:sticky;left:0;z-index:1;box-shadow:1px 0 0 var(--c-divider)}
+.dt-bar{position:relative;height:7px;border-radius:3px;background:var(--c-track);min-width:52px}
+.dt-bar i{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:var(--s-blue)}
+.dt-bar.alt i{background:var(--s-sage)}
+.dt-chip{display:inline-flex;align-items:center;gap:4px;height:19px;padding:0 8px;border-radius:10px;font-size:10px;font-weight:650;line-height:1;white-space:nowrap;color:var(--c-text-2);background:var(--c-control)}
+.dt-chip i{font-style:normal}
+.dt-chip.good{color:var(--st-good-text);background:var(--st-good-soft)}
+.dt-chip.warn{color:var(--st-warn-text);background:var(--st-warn-soft)}
+.dt-chip.bad{color:var(--st-bad-text);background:var(--st-bad-soft)}
+.dt-d{font-weight:600}
+.dt-d.good{color:var(--st-good-text)}.dt-d.bad{color:var(--st-bad-text)}.dt-d.flat{color:var(--c-text-3)}
+.dt-heat{display:inline-block;padding:2px 7px;border-radius:5px;min-width:46px;text-align:right}
+.dt-mini{display:block;width:62px;height:18px;overflow:visible}
+.dt-grp-head{background:var(--c-inset);color:var(--c-text-2)}
+.dt-exp{color:var(--c-text-4);font-size:10px;margin-right:5px}
+.dt-note{font-size:10.5px;color:var(--c-text-4);line-height:1.7;margin-top:10px}
+.dt-note b{color:var(--c-text-2);font-weight:600}
+.dt-scroll-hint{display:flex;justify-content:space-between;font-size:10px;color:var(--c-text-4);margin-top:7px}
+.dt-skel{height:9px;border-radius:5px;background:linear-gradient(90deg,var(--c-track),var(--c-control),var(--c-track));background-size:200% 100%;animation:dt-sh 1.3s linear infinite}
+@keyframes dt-sh{from{background-position:100% 0}to{background-position:-100% 0}}
+@media(prefers-reduced-motion:reduce){.dt-skel{animation:none}}
+.dt-empty{display:grid;gap:9px;justify-items:center;text-align:center;padding:16px 6px}
+.dt-empty .big{font-size:13px;font-weight:600;color:var(--c-text)}
+.dt-empty .sub{font-size:11px;color:var(--c-text-4)}
+.dt-btn{height:26px;padding:0 12px;border-radius:13px;font-size:11px;border:1px solid var(--c-outline);color:var(--c-text-2);display:inline-flex;align-items:center}
+.dt-states{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+.dt-states .cap{font-size:11px;color:#6b7166;margin-top:7px;text-align:center}
+.colgrp{display:flex;gap:0;margin-bottom:-1px}
+.colgrp span{font-size:10px;letter-spacing:.4px;color:var(--c-text-3);padding:4px 9px;border-radius:6px 6px 0 0}
+.colgrp span.a{background:color-mix(in srgb,var(--s-blue) 14%,transparent)}
+.colgrp span.b{background:color-mix(in srgb,var(--s-olive) 16%,transparent)}
+@media(max-width:900px){.dt-states{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+table.dt.dt-grp thead th{vertical-align:bottom}
+table.dt.dt-grp th.gh{text-align:center;color:var(--c-text-3);border-bottom:1px solid var(--c-divider);padding:5px 9px}
+table.dt.dt-grp .a{background:color-mix(in srgb,var(--s-blue) 9%,var(--c-surface))}
+table.dt.dt-grp .b{background:color-mix(in srgb,var(--s-olive) 11%,var(--c-surface))}
+table.dt.dt-grp th.gh.a{border-radius:6px 6px 0 0}
+table.dt.dt-grp th.gh.b{border-radius:6px 6px 0 0}
+</style>
+<script>try{var t=localStorage.getItem("chart-studies-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-chart-theme",t)}catch(e){}</script>
+
+<header class="top"><div class="top-in">
+  <div class="brand">图表实验室<span>PROPOSAL · TABLES</span></div>
+  <nav aria-label="方案目录"><a href="#overlap">与现有组件</a><a href="#research">调研</a><a href="#types">五种表格</a><a href="#cells">单元格与状态</a><a href="#rules">统一规范</a><a href="#integrate">并入方式</a><a href="#decide">决策</a><a href="#plan">计划</a></nav>
+  <div class="theme-switch" role="group" aria-label="草图底色"><button type="button" data-theme-choice="dark" aria-pressed="true"><i class="ts-dark" aria-hidden="true"></i>深色</button><button type="button" data-theme-choice="light" aria-pressed="false"><i class="ts-light" aria-hidden="true"></i>浅色</button></div>
+</div></header>
+
+<main>
+  <p class="kicker">Proposal / Data tables · 2026-09-23</p>
+  <h1>表格组件方案</h1>
+  <p class="lede">为图表实验室补齐「看明细」这一层。对照 Quick BI、FineBI、观远、Power BI、Tableau、Looker、Metabase、Superset、Grafana 与 Ant Design、Carbon、Polaris、Semi、TanStack、MUI 的公开文档，以及 W3C ARIA APG、Adrian Roselli、NN/g 的无障碍与排版结论，归纳出 5 种需要新增的表格、一套从已有指标组件里抽出来的单元格语法，以及一份无障碍清单。约束前提：看板级数据量（几十行），不引第三方表格库。</p>
+  <div class="status"><i aria-hidden="true"></i>第三版 · 7 项决策已定 · 进入实现，草图保留为设计依据</div>
+
+  <section id="tldr" aria-labelledby="tldr-h">
+    <div class="sec-head"><div><p class="kicker">01 / Summary</p><h2 id="tldr-h">先说结论</h2></div><p>看板里的表格不是「数据库浏览器」，是<b>兜底的明细层</b>：图回答趋势与结构，表回答「具体是哪一行、差多少」。所以先做排版与单元格语法，再做能力。</p></div>
+    <div class="tldr">
+      <div>
+        <p class="kicker">本轮范围 · 五种一次做完</p>
+        <ul>
+          <li><span class="tag p0">B01</span> 明细表　<span class="tag p0">B07</span> 对比列组</li>
+          <li><span class="tag p0">B03</span> 交叉表　<span class="tag p0">B05</span> 分组小计　<span class="tag p0">B06</span> 可展开行</li>
+          <li><span class="tag p0">规则</span> 单元格语法、三态排序、五态 —— 从 P05 / K08 / K01 抽出来统一</li>
+        </ul>
+        <p>记分卡表就是 P05，排行表就是 K08，不再新做；P05 改用 TableKit，外观不变。</p>
+      </div>
+      <div>
+        <p class="kicker">已拍板 · 7 项</p>
+        <ul>
+          <li>范围：五种一次做完</li>
+          <li>排序：三态，P05 同步</li>
+          <li>分隔线为主，长表才开斑马纹</li>
+          <li>条件格式：数据条 + 状态胶囊</li>
+          <li>行点击：可配置，不写死</li>
+          <li>列组：真跨列表头（colspan）</li>
+          <li>≤ 50 行整表，超出分页</li>
+        </ul>
+        <p>与推荐不同的三项：范围、行点击、列组表头，代价与落地方式见第 08 节。</p>
+      </div>
+      <div>
+        <p class="kicker">刻意不做</p>
+        <ul>
+          <li>虚拟滚动（看板级数据量用不上）</li>
+          <li>列拖拽、列宽拖拽、列设置面板</li>
+          <li>斑马纹 + 网格线同时开</li>
+          <li>色阶 + 数据条 + 胶囊三层颜色叠加</li>
+          <li>只靠 colspan 让读屏去猜表头</li>
+        </ul>
+        <p>最后一条来自 Adrian Roselli：主流读屏对跨列表头的推断互相矛盾，所以真跨列时一律写 <code>headers</code> 显式关联。</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="overlap" aria-labelledby="overlap-h">
+    <div class="sec-head"><div><p class="kicker">02 / Overlap</p><h2 id="overlap-h">与已实现组件的关系</h2></div><p>第一版的十种里有五种和指标组件重叠：两种就是同一个组件，三种其实是已有组件里的规则。去重后只剩五种真正要新增的表格。</p></div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>方案项</th><th>已实现组件</th><th>交叠在哪</th><th>处理</th></tr></thead>
+      <tbody id="overlap-rows"></tbody>
+    </table></div>
+  </section>
+
+  <section id="research" aria-labelledby="research-h">
+    <div class="sec-head"><div><p class="kicker">03 / Research</p><h2 id="research-h">调研：各家的表格能力</h2></div><p>BI 工具给的是「能力清单」，组件库给的是「交互约定」，排版与无障碍权威给的是「该不该」。下表只列实际读到官方文档的做法。</p></div>
+    <h3>原型清单</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>原型</th><th>回答什么问题</th><th>典型出处</th><th>本方案</th></tr></thead>
+      <tbody id="proto-rows"></tbody>
+    </table></div>
+    <h3 style="margin-top:28px">能力矩阵</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>能力</th><th>各家默认做法</th><th>看板级 · 无第三方库下的建议</th></tr></thead>
+      <tbody id="matrix-rows"></tbody>
+    </table></div>
+    <div class="conv" id="conv"></div>
+    <details>
+      <summary>来源（均为调研时实际打开的官方文档与公开文章）</summary>
+      <div class="sources" id="sources"></div>
+    </details>
+  </section>
+
+  <section id="types" aria-labelledby="types-h">
+    <div class="sec-head"><div><p class="kicker">04 / Types</p><h2 id="types-h">五种表格</h2></div><p>草图用模板 token 画，右上角可切深浅两套底色。数据与模板同源：9 月 1–22 日、营收 1,286.4 万元、订单 2,418 单、六个区域。编号沿用第一版。</p></div>
+    <p class="legend-note">静态草图 · 非最终实现</p>
+    <div class="specs wide" id="type-specs"></div>
+  </section>
+
+  <section id="cells" aria-labelledby="cells-h">
+    <div class="sec-head"><div><p class="kicker">05 / Cells &amp; states</p><h2 id="cells-h">单元格语法与五种状态</h2></div><p>从 P05 记分卡（涨跌、迷你线、状态胶囊）、K08 排行卡（数据条）与 K01 数值卡（五态）里抽出来，统一成表格的一套规则。一列只做一件事，全表共用 <code>KpiKit</code> 的数字格式与好坏色。</p></div>
+    <div class="specs wide" style="margin-bottom:26px"><div class="spec"><div class="spec-stage one" id="cell-demo"></div></div><div class="spec"><div class="spec-stage one" id="narrow-demo"></div></div></div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>列类型</th><th>对齐</th><th>格式</th><th>示例</th><th>可排序</th></tr></thead>
+      <tbody id="cell-rows"></tbody>
+    </table></div>
+
+    <h3 style="margin-top:34px">五种状态（沿用 K01 数值卡）</h3>
+    <div class="dt-states" id="states"></div>
+  </section>
+
+  <section id="rules" aria-labelledby="rules-h">
+    <div class="sec-head"><div><p class="kicker">06 / Rules</p><h2 id="rules-h">统一规范</h2></div><p>排版、交互、无障碍三块；能落到代码里的都写成具体数值。</p></div>
+    <div class="rules">
+      <div>
+        <h3>排版</h3>
+        <ul class="plain">
+          <li>行高 34px（密集）/ 38px（默认），表头与数据行同高；字号 11.5px，表头 10px。</li>
+          <li>默认用<b>水平分隔线</b>（<code>--c-divider</code>）+ 悬浮高亮（<code>--c-hover</code>），不同时开网格线；行数 &gt; 20 且列数 ≥ 6 时自动开斑马纹（<code>--c-inset</code>，D3）。</li>
+          <li>数值列右对齐 + 等宽数字，<b>表头跟着列内容右对齐</b>；文本列左对齐；不要居中。</li>
+          <li>列宽固定（<code>table-layout: fixed</code>），长文本截断 + <code>title</code> 全名，避免切换数据时列宽跳动。</li>
+          <li>合计行放最后，<code>--c-inset</code> 底 + 加粗 + 上分隔线；小计行用 60% 浓度的同一底色。</li>
+          <li>一张卡最多一张表；表放在章节末尾兜底，不与图争第一屏。</li>
+        </ul>
+        <h3 style="margin-top:22px">交互</h3>
+        <ul class="plain">
+          <li>排序：<b>三态</b>（默认 → 降序 → 升序 → 默认，D2 已定，P05 同步）；排序列用<b>箭头填充 + 文字加粗</b>标识，不只靠颜色；一次只有一列排序。</li>
+          <li>行悬浮 / 聚焦高亮整行，读数浮层给这一行的算式与口径（沿用模板的读数浮层）。</li>
+          <li>排序动画：FLIP 位移 420ms；减少动态效果时直接重排。</li>
+          <li>行点击：<code>rowAction</code> 按表配置（D5）—— inspect / drill / select / filter，一张表只取一种主动作；展开按钮与复选框始终是独立控件。</li>
+          <li>列组：真跨列两行表头（D6），每个数据格写 <code>headers</code> 显式关联。</li>
+          <li>窄屏：容器横向滚动，首列 sticky；滚动容器 <code>tabindex=0</code> + <code>role=region</code>，键盘可进入并用方向键滚动。</li>
+        </ul>
+      </div>
+      <div>
+        <div id="sort-demo" style="margin-bottom:22px"></div>
+        <h3>无障碍</h3>
+        <div class="table-wrap"><table style="min-width:0">
+          <thead><tr><th>要点</th><th>做法</th></tr></thead>
+          <tbody id="a11y-rows"></tbody>
+        </table></div>
+        <h3 style="margin-top:22px">数据契约</h3>
+<pre><span class="c">// 一张表 = 列定义 + 行数据；格式与判定都由列定义决定</span>
+{
+  <span class="k">"columns"</span>: [
+    { <span class="k">"id"</span>: <span class="s">"name"</span>,  <span class="k">"label"</span>: <span class="s">"区域"</span>, <span class="k">"type"</span>: <span class="s">"text"</span>,
+      <span class="k">"rowHeader"</span>: true, <span class="k">"sticky"</span>: true },
+    { <span class="k">"id"</span>: <span class="s">"rev"</span>,   <span class="k">"label"</span>: <span class="s">"本月"</span>, <span class="k">"type"</span>: <span class="s">"amount"</span>,
+      <span class="k">"sortable"</span>: true },
+    { <span class="k">"id"</span>: <span class="s">"share"</span>, <span class="k">"label"</span>: <span class="s">"占比"</span>, <span class="k">"type"</span>: <span class="s">"bar"</span>,
+      <span class="k">"max"</span>: <span class="s">"auto"</span> },
+    { <span class="k">"id"</span>: <span class="s">"mom"</span>,   <span class="k">"label"</span>: <span class="s">"环比"</span>, <span class="k">"type"</span>: <span class="s">"delta"</span>,
+      <span class="k">"polarity"</span>: <span class="s">"up"</span>, <span class="k">"change"</span>: <span class="s">"ratio"</span> },
+    { <span class="k">"id"</span>: <span class="s">"status"</span>,<span class="k">"label"</span>: <span class="s">"状态"</span>, <span class="k">"type"</span>: <span class="s">"status"</span> }
+  ],
+  <span class="k">"rows"</span>: [ { <span class="k">"name"</span>: <span class="s">"华东"</span>, <span class="k">"rev"</span>: 412.6, <span class="k">"mom"</span>: 0.074, … } ],
+  <span class="k">"total"</span>: { <span class="k">"name"</span>: <span class="s">"合计"</span>, <span class="k">"rev"</span>: 1286.4 },  <span class="c">// 由行派生，不手填</span>
+  <span class="k">"groups"</span>: [ <span class="c">// 真 colspan（D6）</span>
+    { <span class="k">"id"</span>: <span class="s">"cur"</span>, <span class="k">"label"</span>: <span class="s">"本期"</span>, <span class="k">"cols"</span>: [<span class="s">"rev"</span>,<span class="s">"ord"</span>] } ],
+  <span class="k">"sort"</span>: { <span class="k">"by"</span>: <span class="s">"rev"</span>, <span class="k">"dir"</span>: <span class="s">"desc"</span> }, <span class="c">// 三态（D2）</span>
+  <span class="k">"rowAction"</span>: <span class="s">"inspect"</span>, <span class="c">// 或 drill / select / filter</span>
+  <span class="k">"page"</span>: { <span class="k">"size"</span>: 20 },  <span class="c">// &gt; 50 行才分页</span>
+  <span class="k">"state"</span>: <span class="s">"ok"</span>   <span class="c">// ok | loading | empty | error | stale</span>
+}</pre>
+      </div>
+    </div>
+  </section>
+
+  <section id="integrate" aria-labelledby="int-h">
+    <div class="sec-head"><div><p class="kicker">07 / Integration</p><h2 id="int-h">并入模板的方式</h2></div><p>模板已有记分卡表（P05），这一步是把它抽象成可复用的一层。</p></div>
+    <ul class="plain">
+      <li><b>新分组「表格与明细」</b>：明细表、对比列组、分组小计、可展开行、交叉表各一张样本卡，均跨两列；记分卡与排行不另立样本，直接指向 P05、K08。</li>
+      <li><b>P05 改用 TableKit</b>：记分卡表作为 TableKit 的第一个使用者，外观不变，只把渲染、排序、单元格换成共享实现；排序改为三态（D2）。</li>
+      <li><b>新增 <code>TableKit</code></b>：<code>render(container, {columns, rows, total})</code> 按列定义渲染并套用 <code>KpiKit</code> 的格式；<code>sort()</code> 管三态与 <code>aria-sort</code> + FLIP；<code>cells</code> 提供 bar / delta / status / mini 四种单元格渲染器；<code>scrollRegion()</code> 处理窄屏滚动容器的无障碍属性。</li>
+      <li><b>复用现有能力</b>：读数浮层（行级读数）、状态色与 <code>--st-*-soft</code> 胶囊、数字格式、K01 的五态模型（含「数据延迟」）、主题 token、减少动态效果。</li>
+      <li><b>与筛选 / 页签方案的接口</b>：筛选状态变化 → 表重排并更新合计行；页签切换 → 同一张表换列定义（原位变形不适用于表格，走 160ms 淡入）。</li>
+      <li><b>文档</b>：md 文档新增「表格与明细」章节，含列类型表与无障碍清单；验收跑深 / 浅 × 三档宽度 + 键盘排序路径。</li>
+    </ul>
+  </section>
+
+  <section id="decide" aria-labelledby="decide-h">
+    <div class="sec-head"><div><p class="kicker">08 / Decisions</p><h2 id="decide-h">七项决策（已定）</h2></div><p>每项标出最终选择；与推荐不同的项写明代价与落地方式。</p></div>
+    <div class="decisions" id="decisions"></div>
+  </section>
+
+  <section id="plan" aria-labelledby="plan-h">
+    <div class="sec-head"><div><p class="kicker">09 / Plan</p><h2 id="plan-h">一次做完：实现顺序</h2></div><p>三步在同一轮内完成；每步结束跑深 / 浅 × 三档宽度 + 键盘路径验收，并同步 md 文档。</p></div>
+    <div class="phases" id="phases"></div>
+  </section>
+
+
+  <footer><span>图表实验室 · 表格组件方案 · 2026-09-23</span><span>基于 chart-studies.html（REFERENCE EDITION / 01，当时 29 个组件）· 2026-09-23 已全部并入模板（现 51 个组件）</span></footer>
+</main>
+
+<script>
+(() => {
+'use strict';
+const T=(rows,el)=>document.getElementById(el).innerHTML=rows.map(r=>'<tr>'+r.map(c=>`<td>${c}</td>`).join('')+'</tr>').join('');
+T([
+ ['<b>B02</b> 记分卡表','P05 记分卡表格','同一个组件：指标 × 本月 / 目标 / 达成 / 同比 / 走势 / 状态','删除 B02；P05 作为 TableKit 的第一个使用者，外观不变'],
+ ['<b>B08</b> 排行表','K08 排行卡','同一份数据、同一套规则：名次 + 条 + 数值，「其他」不参与排名','删除 B08；排行用 K08，需要多列排行时用 B01 + 排序'],
+ ['<b>B04</b> 单元格视觉','P05 的涨跌 / 迷你线 / 状态胶囊，K08 的数据条','是从已有组件里抽出来的，不是新组件','移出类型，归入第 05 节「单元格语法」'],
+ ['<b>B09</b> 排序与表头','P05 的「达成」「状态」列排序（两态 + aria-sort + FLIP）','是规则；且与 P05 现状不一致（方案三态、P05 两态）','移入统一规范；两态还是三态由 <b>D2</b> 定，定了之后 P05 同步'],
+ ['<b>B10</b> 四态','K01 数值卡的五种状态','同一套状态模型，第一版还少了「数据延迟」','删除 B10；表格沿用 K01 五态，窄屏首列固定示意并入第 05 节'],
+ ['<b>B07</b> 对比列组','K02 对比卡','同一语义（本期 / 基期 / 差异），尺度不同','保留：K02 管一两个指标，B07 管多行多列']
+],'overlap-rows');
+T([
+ ['明细表','逐行看全量记录','Quick BI 明细表 · Polaris DataTable','<b>B01</b>'],
+ ['记分卡表','一屏看完「本期 / 目标 / 达成 / 趋势 / 状态」','平衡计分卡 · Looker 表格','<b>B02</b>（已实现）'],
+ ['交叉表 / Matrix','两个维度交叉看一个指标','Quick BI / FineBI 交叉表 · Power BI Matrix · Metabase / Superset 透视表','<b>B03</b>'],
+ ['带视觉的单元格','趋势、占比在行内直读，不用跳图','Grafana Table 单元格类型（sparkline / gauge / 背景色）','<b>B04</b>'],
+ ['分组表（小计）','组内比、组间比','FineBI 字段分组 · Quick BI 小计位置配置','<b>B05</b>'],
+ ['可展开行','汇总下面还想看明细，但不常驻','Ant Design expandable · Carbon 可展开变体','<b>B06</b>'],
+ ['对比列组','本期 vs 基期 vs 差异，一次看清','Power BI 条件格式 · Quick BI 总计 / 小计配置','<b>B07</b>'],
+ ['排行表','谁高谁低、谁在涨','单指标降序 + 数据条','<b>B08</b>'],
+ ['排序与表头','让人能自己换一个看法','Ant Design sorter · TanStack sorting · Adrian Roselli','<b>B09</b>'],
+ ['四态','没数据、在加载、出错、放不下时怎么办','Carbon（骨架优于转圈）· Polaris emptyState','<b>B10</b>']
+],'proto-rows');
+T([
+ ['排序','点表头三态轮转；多列排序用 Shift+点（TanStack）或 sorter.multiple（Ant Design）','单列三态（D2）；方向用箭头填充变化 + 加粗，不只靠颜色'],
+ ['筛选 / 搜索','表头漏斗菜单，支持包含 / 比较 / 区间（Ant Design、Grafana）','交给筛选器方案的全局筛选条，表内不再放一套'],
+ ['分页 / 虚拟滚动','虚拟滚动面向万行（Ant Design virtual、MUI X Pro）；BI 工具默认分页','≤ 50 行整表渲染；更多则 20 行分页，不引虚拟滚动（D7）'],
+ ['固定表头 / 列','sticky / fixed 属性（Ant Design、Semi）；Quick BI 可冻结表头或列','首列 sticky + 表头 sticky 即可'],
+ ['列宽与截断','ellipsis + title；<code>tableLayout=fixed</code> 防止内容变化导致宽度跳动（Ant Design）','固定布局 + 截断 + title 全名'],
+ ['列显隐 / 列设置','Looker 悬停列头出调整菜单','不做：模板里列是设计出来的，不是用户配的'],
+ ['行选择','复选框多选 + 全选，Shift 区间选（Ant Design、Polaris）','仅 rowAction=select 时出现：首列复选框 + 表头全选 / 半选（D5）'],
+ ['行点击','Polaris 双轨：复选框 = 选中，行内主链接 = 下钻','rowAction 可配置：inspect / drill / select / filter，一表一种主动作（D5）'],
+ ['条件格式','背景色 / 字体色 / 色阶 / 数据条 / 图标集并存（Power BI、Quick BI、观远）','只用数据条 + 状态胶囊，不叠色阶背景'],
+ ['合计 / 小计','位置可配置：行合计左右、列合计顶底（Quick BI）；FineBI 交叉表支持多维小计','一表一个总计行，固定末尾'],
+ ['密度','3–5 档行高，表头与数据行同高（Carbon 五档、Ant Design 三档）','两档：默认 38px / 密集 34px'],
+ ['导出','BI 工具普遍支持 Excel / 图片','不做'],
+ ['空 / 加载 / 错误','骨架屏优于转圈（Carbon）；emptyState 插槽（Polaris）','骨架 + 空态出路 + 错误重试，三态等高'],
+ ['多级表头','Power BI Matrix 把「行列标题」与「值 / 小计」作为两类格式化目标','真 colspan 两行表头 + <code>headers</code> 显式关联（D6）']
+],'matrix-rows');
+document.getElementById('conv').innerHTML=[
+ ['数值右对齐 + 等宽数字。','数字按位对齐、从右往左比较，这是数值列唯一正确的对齐方式（Matthew Ström-Awn）。'],
+ ['表头跟着列内容对齐。','数值列的表头也右对齐，不要居中（Matthew Ström-Awn）。'],
+ ['长表优先分隔线。','水平分隔线压缩纵向空间、降低噪音；作者明确反对斑马纹（Matthew Ström-Awn）。'],
+ ['表格配色要克制。','颜色承载额外含义会增加误读风险，对视障用户尤甚（Matthew Ström-Awn）。'],
+ ['排序按钮嵌在 th 里。','正确写法是 <code>th</code> 内放 <code>button</code>、<code>aria-sort</code> 挂在 <code>th</code> 上，而不是给整个 <code>th</code> 绑点击（Adrian Roselli、W3C APG）。'],
+ ['同时只有一列带 aria-sort。','未排序列应移除该属性，而不是写 <code>aria-sort="none"</code>（Adrian Roselli）。'],
+ ['排序方向不能只靠颜色。','要配合图形描边 / 填充变化或文字（Adrian Roselli、WCAG 1.4.1）。'],
+ ['条件格式挑一种用。','背景色 / 色阶 / 数据条 / 图标集按数据形态选一种，不要全上（Power BI）。'],
+ ['合计位置是可配置项。','行合计左右可选、列合计顶底可选，不存在唯一正确答案（Quick BI）。'],
+ ['交叉表要设规模阈值。','行列乘积会指数增长，要有性能阈值提示（FineBI）。'],
+ ['横向滚动容器要能聚焦。','<code>tabindex="0"</code> + <code>role="region"</code> + <code>aria-labelledby</code> 指向 caption，键盘才进得去（Adrian Roselli）。'],
+ ['避免跨行 / 跨列表头。','NVDA / JAWS / VoiceOver 行为互相矛盾；替代方案是重复表头文字或拆成多张简单表（Adrian Roselli）。本方案按 D6 仍用真跨列，但每格写 <code>headers</code> 显式关联来补偿。'],
+ ['首列固定是窄屏标准解。','组件库普遍以 <code>column.fixed</code> / sticky 提供（Ant Design、Polaris）。'],
+ ['选中与下钻是两套语义。','复选框管批量，行内主链接管导航，可共存但不能混（Polaris IndexTable、APG grid 的 aria-selected）。'],
+ ['列序按关心程度排。','表格服务四类任务——查找、对比、看单行、批量操作；列顺序要按用户关心程度，不是数据库字段顺序（NN/g）。'],
+ ['静态表用 table，不要用 grid。','只有大量可交互控件或单元格可编辑时才升级为 <code>role=grid</code>，那是复合部件，要自己写焦点管理（W3C APG）。'],
+ ['迷你图对读屏隐藏。','sparkline 属装饰图形，容器 <code>aria-hidden</code>，关键读数放进相邻文本或读数浮层。'],
+ ['骨架优于转圈。','加载态用骨架条，且与正常态等高，避免切换时跳动（Carbon）。']
+].map(([b,t])=>`<div><b>${b}</b>${t}</div>`).join('');
+document.getElementById('sources').innerHTML=[
+ ['无障碍与排版',[['W3C APG Table Pattern','https://www.w3.org/WAI/ARIA/apg/patterns/table/'],['W3C APG Grid Pattern','https://www.w3.org/WAI/ARIA/apg/patterns/grid/'],['W3C Grid and Table Properties','https://w3c.github.io/wai-website/ARIA/apg/practices/grid-and-table-properties/'],['WebAIM Creating Accessible Tables','https://webaim.org/techniques/tables/'],['Adrian Roselli · A Responsive Accessible Table','http://adrianroselli.com/2017/11/a-responsive-accessible-table.html'],['Adrian Roselli · Sortable Table Columns','https://adrianroselli.com/2021/04/sortable-table-columns.html'],['Adrian Roselli · Avoid Spanning Table Headers','http://adrianroselli.com/2023/02/avoid-spanning-table-headers.html'],['WCAG 1.4.1 Use of Color','https://www.wcag.com/designers/1-4-1-use-of-color/'],['Matthew Ström-Awn · Design better data tables','https://mattstromawn.com/writing/tables/'],['NN/g · Data Tables: Four Major User Tasks','https://www.nngroup.com/articles/data-tables/']]],
+ ['BI 工具',[['Quick BI 交叉表','https://help.aliyun.com/zh/quick-bi/user-guide/configure-a-cross-table-1'],['Quick BI 明细表','https://help.aliyun.com/zh/quick-bi/user-guide/configure-a-fact-table-1'],['Quick BI 样式配置','https://help.aliyun.com/zh/quick-bi/user-guide/spreadsheet-style-configuration'],['FineBI 交叉表','https://help.fanruan.com/finebi/doc-view-122.html'],['观远 复杂报表条件格式','https://docs.guandata.com/product/bi/428167398722371584'],['Power BI 条件格式','https://learn.microsoft.com/en-us/power-bi/create-reports/desktop-conditional-table-formatting'],['Tableau 文本表','https://help.tableau.com/current/pro/desktop/en-us/buildexamples_text.htm'],['Looker 表格选项','https://docs.cloud.google.com/looker/docs/table-options'],['Metabase 透视表','https://www.metabase.com/docs/latest/questions/visualizations/pivot-table'],['Superset 数据探索','https://superset.apache.org/user-docs/using-superset/exploring-data/'],['Grafana Table 可视化','https://grafana.com/docs/grafana/latest/visualizations/panels-visualizations/visualizations/table/']]],
+ ['组件库',[['Ant Design Table','https://ant.design/components/table/'],['Arco Design table patterns','https://github.com/arco-design/arco-design-skill/blob/main/skills/arco-design/references/patterns/table-patterns.md'],['Semi Design Table','https://semi.design/zh-CN/show/table'],['Carbon Data table usage','https://carbondesignsystem.com/components/data-table/usage/'],['Polaris Index table','https://polaris-react.shopify.com/components/tables/index-table'],['MUI X Data Grid','https://mui.com/x/react-data-grid/'],['TanStack Table Sorting','https://tanstack.com/table/v8/docs/guide/sorting'],['AG Grid Cell Styles','https://www.ag-grid.com/javascript-data-grid/cell-styles/']]]
+].map(([g,list])=>`<p><b>${g}</b>${list.map(([t,u])=>`<a href="${u}" target="_blank" rel="noopener">${t}</a>`).join(' · ')}</p>`).join('');
+/* ---------- sketches ---------- */
+const box=(inner,cls='')=>`<div class="sketch ${cls}">${inner}</div>`;
+const head=(en,name,right='')=>`<div class="sk-head">${en}<b>${name}</b>${right?`<span class="right">${right}</span>`:''}</div>`;
+const R=[['华东',412.6,.074,32.1],['华南',298.3,.133,23.2],['华北',236.5,.035,18.4],['西南',171.2,.193,13.3],['华中',102.4,-.028,8.0],['其他',65.4,.090,5.1]];
+const n1=v=>v.toLocaleString('en-US',{minimumFractionDigits:1,maximumFractionDigits:1});
+const d=(v)=>{const up=v>0,s=(up?'+':'−')+Math.abs(v*100).toFixed(1)+'%';return `<span class="dt-d ${up?'good':'bad'}"><i style="font-style:normal">${up?'↑':'↓'}</i>${s}</span>`;};
+const bar=(w,cls='')=>`<span class="dt-bar ${cls}" style="display:inline-block;width:64px;vertical-align:middle"><i style="width:${w}%"></i></span>`;
+const chip=(t,l)=>`<span class="dt-chip ${t}"><i>${t==='good'?'✓':t==='warn'?'!':'✕'}</i>${l}</span>`;
+const mini=vals=>{const max=Math.max(...vals),min=Math.min(...vals),x=i=>2+i*58/(vals.length-1),y=v=>15-(v-min)/((max-min)||1)*12;
+ return `<svg class="dt-mini" viewBox="0 0 62 18" aria-hidden="true"><path d="${vals.map((v,i)=>(i?'L':'M')+x(i).toFixed(1)+','+y(v).toFixed(1)).join('')}" fill="none" stroke="var(--s-blue)" stroke-width="1.3"/><circle cx="${x(vals.length-1).toFixed(1)}" cy="${y(vals[vals.length-1]).toFixed(1)}" r="1.9" fill="var(--s-blue)"/></svg>`;};
+const S=[];
+S.push({id:'B01',p:'p0',name:'明细表',en:'Detail table',q:'具体是哪一行',
+ html:box(head('DETAIL','明细表','行高 38 · 分隔线')+`<div class="tw"><table class="dt"><thead><tr><th>区域</th><th class="num">营收（万元）</th><th class="num">订单</th><th class="num">客单价</th><th class="num">占比</th></tr></thead><tbody>
+ ${(()=>{const ord=R.map(r=>Math.round(r[1]*1e4/5320));ord[ord.length-1]=2418-ord.slice(0,-1).reduce((a,b)=>a+b,0); // 末行吸收取整误差，保证合计勾稽
+   return R.map((r,i)=>`<tr class="${i===1?'hov':''}"><th scope="row">${r[0]}</th><td class="num">${n1(r[1])}</td><td class="num">${ord[i].toLocaleString()}</td><td class="num mut">${Math.round(r[1]*1e4/ord[i]).toLocaleString()}</td><td class="num">${r[3].toFixed(1)}%</td></tr>`).join('');})()}
+ <tr class="total"><th scope="row">合计</th><td class="num">1,286.4</td><td class="num">2,418</td><td class="num">5,320</td><td class="num">100.0%</td></tr></tbody></table></div>
+ <div class="dt-note">第二行为悬浮态。合计行由行数据派生，不手填；<b>数值右对齐、表头也右对齐</b>。</div>`),
+ anat:'行头列（th scope=row）+ 数值列 + 合计行',act:'rowAction 可配置（D5）：默认 inspect 只读 + 读数浮层；drill / select / filter 按表的用途切换',src:'Quick BI 明细表 · Polaris DataTable · Matthew Ström-Awn',dna:'行高 36–40px、数值右对齐 tabular-nums'});
+S.push({id:'B02',p:'p1',name:'记分卡表',en:'Scorecard',q:'所有指标对目标的全貌',
+ html:box(head('SCORECARD','记分卡表','模板已实现')+`<div class="tw"><table class="dt"><thead><tr><th>指标</th><th class="num">本月</th><th class="num">目标</th><th class="num sorted">达成 <i>↓</i></th><th class="num">同比</th><th>1–9 月</th><th>状态</th></tr></thead><tbody>
+ <tr><th scope="row">营收</th><td class="num">1,286.4 万</td><td class="num">1,800.0 万</td><td class="num">71.5%</td><td class="num">${d(.213)}</td><td>${mini([38.3,35.8,38.0,40.2,40.3,43.2,45.3,53.4,58.5])}</td><td>${chip('warn','关注')}</td></tr>
+ <tr><th scope="row">订单数</th><td class="num">2,418 单</td><td class="num">3,300</td><td class="num">73.3%</td><td class="num">${d(.183)}</td><td>${mini([75.9,72,74.7,78.3,77.7,82.5,85,97.5,109.9])}</td><td>${chip('good','正常')}</td></tr>
+ <tr><th scope="row">毛利率</th><td class="num">38.4%</td><td class="num">≥ 38.0%</td><td class="num">101.1%</td><td class="num">${d(-.006)}</td><td>${mini([36.6,35.9,37.1,37.4,37.8,37.6,38,37.3,38.4])}</td><td>${chip('good','正常')}</td></tr>
+ <tr><th scope="row">交付及时率</th><td class="num">96.4%</td><td class="num">≥ 98.0%</td><td class="num">98.4%</td><td class="num">${d(-.008)}</td><td>${mini([97.8,96.9,97.6,97.9,98.2,98.4,97.6,94.8,96.4])}</td><td>${chip('warn','关注')}</td></tr>
+ </tbody></table></div><div class="dt-note">累计型指标的走势用<b>日均</b>，避免当月未满造成假下跌——这条规则在模板里已经生效。</div>`),
+ anat:'指标行 × 本期 / 目标 / 达成 / 同比 / 走势 / 状态',act:'点「达成」「状态」排序；行悬浮出判定依据',src:'平衡计分卡 · Looker 表格 · 模板 P05',dna:'表格 + 嵌入迷你条'});
+S.push({id:'B03',p:'p2',name:'交叉表',en:'Cross tab',q:'两个维度交叉看一个指标',
+ html:box(head('CROSS TAB','交叉表','行列 + 小计')+`<div class="tw"><table class="dt"><thead><tr><th>区域 / 渠道</th><th class="num">直营</th><th class="num">分销</th><th class="num">电商</th><th class="num">小计</th></tr></thead><tbody>
+ <tr><th scope="row">华东</th><td class="num">186.4</td><td class="num">121.0</td><td class="num">105.2</td><td class="num sub" style="font-weight:600">412.6</td></tr>
+ <tr><th scope="row">华南</th><td class="num">130.2</td><td class="num">96.7</td><td class="num">71.4</td><td class="num sub" style="font-weight:600">298.3</td></tr>
+ <tr><th scope="row">华北</th><td class="num">101.8</td><td class="num">80.2</td><td class="num">54.5</td><td class="num sub" style="font-weight:600">236.5</td></tr>
+ <tr class="sub"><th scope="row">小计</th><td class="num">418.4</td><td class="num">297.9</td><td class="num">231.1</td><td class="num">947.4</td></tr>
+ <tr><th scope="row" class="mut">其余三个区域</th><td class="num mut">…</td><td class="num mut">…</td><td class="num mut">…</td><td class="num mut">339.0</td></tr>
+ <tr class="total"><th scope="row">合计</th><td class="num">556.1</td><td class="num">402.7</td><td class="num">327.6</td><td class="num">1,286.4</td></tr></tbody></table></div>
+ <div class="dt-note">小计与合计位置可配置（Quick BI）；行列<b>乘积</b>要设阈值，超过就提示换成图或先筛选（FineBI）。</div>`),
+ anat:'行维度 × 列维度 + 小计行列 + 总计',act:'点单元格可下钻到明细（需配合筛选方案）',src:'Quick BI / FineBI 交叉表 · Power BI Matrix · Metabase 透视表',dna:'合计行加底色加粗'});
+S.push({id:'B04',p:'p0',name:'单元格视觉',en:'Cell visuals',q:'数字之外，再给一点形状',
+ html:box(head('CELL VISUALS','单元格视觉','一列只做一件事')+`<div class="tw"><table class="dt"><thead><tr><th>区域</th><th class="num">营收</th><th>占比</th><th class="num">环比</th><th>近 9 月</th><th>状态</th></tr></thead><tbody>
+ ${R.slice(0,4).map(r=>`<tr><th scope="row">${r[0]}</th><td class="num">${n1(r[1])}</td><td>${bar(r[3]/32.1*100)}<span class="mut" style="margin-left:6px">${r[3].toFixed(1)}%</span></td><td class="num">${d(r[2])}</td><td>${mini([30,33,31,36,38,41,44,50,r[1]/8])}</td><td>${chip(r[2]>.1?'good':r[2]>0?'warn':'bad',r[2]>.1?'正常':r[2]>0?'关注':'异常')}</td></tr>`).join('')}
+ </tbody></table></div><div class="dt-note">四种单元格：<b>数据条</b>看量、<b>迷你线</b>看走势、<b>涨跌</b>看方向与好坏、<b>胶囊</b>看状态。三层颜色不叠加：有胶囊就不再上色阶背景。</div>`),
+ anat:'数据条 64px + 迷你线 62×18 + 涨跌 + 状态胶囊',act:'迷你图对读屏隐藏，读数放进行级读数浮层',src:'Grafana 单元格类型 · Power BI 条件格式 · 观远条件格式',dna:'占比列内嵌渐变微条'});
+S.push({id:'B05',p:'p1',name:'分组小计',en:'Grouped',q:'组内比完，再组间比',
+ html:box(head('GROUPED','分组小计')+`<div class="tw"><table class="dt"><tbody>
+ <tr class="dt-grp-head"><th scope="rowgroup" colspan="2" style="background:var(--c-inset)"><span class="grp">南方 · 3 个区域</span></th><td class="num" style="background:var(--c-inset)">582.1</td><td class="num" style="background:var(--c-inset)">45.3%</td></tr>
+ <tr><th scope="row" style="padding-left:22px">华东</th><td class="mut">江浙沪</td><td class="num">412.6</td><td class="num">32.1%</td></tr>
+ <tr><th scope="row" style="padding-left:22px">华南</th><td class="mut">粤闽</td><td class="num">169.5</td><td class="num">13.2%</td></tr>
+ <tr class="dt-grp-head"><th scope="rowgroup" colspan="2" style="background:var(--c-inset)"><span class="grp">北方 · 2 个区域</span></th><td class="num" style="background:var(--c-inset)">339.0</td><td class="num" style="background:var(--c-inset)">26.4%</td></tr>
+ <tr><th scope="row" style="padding-left:22px">华北</th><td class="mut">京津冀</td><td class="num">236.5</td><td class="num">18.4%</td></tr>
+ <tr><th scope="row" style="padding-left:22px">东北</th><td class="mut">辽吉黑</td><td class="num">102.5</td><td class="num">8.0%</td></tr>
+ <tr class="total"><th scope="row" colspan="2">合计</th><td class="num">1,286.4</td><td class="num">100.0%</td></tr></tbody></table></div>
+ <div class="dt-note">组头用 <code>scope="rowgroup"</code>，组内行左缩进 12px；小计写在组头行右侧，读者不用滚到组尾才看到。</div>`),
+ anat:'组头行（含组内小计）+ 缩进的成员行 + 总计',act:'组头可折叠（可选）；折叠状态写 aria-expanded',src:'FineBI 字段分组 · Quick BI 小计位置配置',dna:'小计 / 合计加底色加粗'});
+S.push({id:'B06',p:'p1',name:'可展开行',en:'Expandable',q:'看汇总，偶尔想看明细',
+ html:box(head('EXPANDABLE','可展开行')+`<div class="tw"><table class="dt"><thead><tr><th>区域</th><th class="num">营收</th><th class="num">订单</th><th class="num">环比</th></tr></thead><tbody>
+ <tr><th scope="row"><span class="dt-exp">▸</span>华南</th><td class="num">298.3</td><td class="num">561</td><td class="num">${d(.133)}</td></tr>
+ <tr class="hov"><th scope="row"><span class="dt-exp">▾</span>华东</th><td class="num">412.6</td><td class="num">776</td><td class="num">${d(.074)}</td></tr>
+ <tr><td colspan="4" style="padding:0 9px 9px 30px;background:var(--c-inset)"><table class="dt" style="margin-top:2px"><tbody>
+   <tr><th scope="row" class="mut">上海</th><td class="num">168.2</td><td class="num">316</td><td class="num">${d(.091)}</td></tr>
+   <tr><th scope="row" class="mut">江苏</th><td class="num">142.9</td><td class="num">269</td><td class="num">${d(.062)}</td></tr>
+   <tr><th scope="row" class="mut">浙江</th><td class="num">101.5</td><td class="num">191</td><td class="num">${d(.058)}</td></tr></tbody></table></td></tr>
+ <tr><th scope="row"><span class="dt-exp">▸</span>华北</th><td class="num">236.5</td><td class="num">445</td><td class="num">${d(.035)}</td></tr></tbody></table></div>
+ <div class="dt-note">展开按钮是行内独立按钮（<code>aria-expanded</code> + <code>aria-controls</code>），不是整行可点——整行可点会和「下钻」语义打架。</div>`),
+ anat:'展开箭头 + 子表（inset 底、左缩进）',act:'Enter / Space 展开；展开行插在父行之后，不改变父行位置',src:'Ant Design expandable · Carbon 可展开数据表',dna:'—'});
+S.push({id:'B07',p:'p0',name:'对比列组',en:'Column groups',q:'本期、基期、差多少',
+ html:box(head('COLUMN GROUPS','对比列组','真跨列表头 · headers 显式关联')+`<div class="tw"><table class="dt dt-grp"><colgroup><col></colgroup><colgroup span="2" class="g-a"></colgroup><colgroup span="2" class="g-b"></colgroup><colgroup span="2"></colgroup>
+ <thead><tr><th rowspan="2" id="b7-name">区域</th><th colspan="2" scope="colgroup" id="b7-a" class="gh a">本期 9/1–9/22</th><th colspan="2" scope="colgroup" id="b7-b" class="gh b">基期 8/1–8/22</th><th colspan="2" scope="colgroup" id="b7-c" class="gh">变化</th></tr>
+ <tr><th class="num a" id="b7-ar">营收</th><th class="num a" id="b7-ao">订单</th><th class="num b" id="b7-br">营收</th><th class="num b" id="b7-bo">订单</th><th class="num" id="b7-cd">差额</th><th class="num" id="b7-cp">环比</th></tr></thead><tbody>
+ ${[['华东',412.6,384.0],['华南',298.3,263.2],['华北',236.5,228.4],['西南',171.2,143.5]].map((r,i)=>`<tr><th scope="row" id="b7-r${i}">${r[0]}</th><td class="num" headers="b7-r${i} b7-a b7-ar">${n1(r[1])}</td><td class="num" headers="b7-r${i} b7-a b7-ao">${Math.round(r[1]*1e4/5320).toLocaleString()}</td><td class="num mut" headers="b7-r${i} b7-b b7-br">${n1(r[2])}</td><td class="num mut" headers="b7-r${i} b7-b b7-bo">${Math.round(r[2]*1e4/5512).toLocaleString()}</td><td class="num" headers="b7-r${i} b7-c b7-cd">+${n1(r[1]-r[2])}</td><td class="num" headers="b7-r${i} b7-c b7-cp">${d(r[1]/r[2]-1)}</td></tr>`).join('')}
+ </tbody></table></div><div class="dt-note"><b>真跨列表头（D6）</b>：列组 <code>th</code> 用 colspan + <code>scope="colgroup"</code>，并配 <code>&lt;colgroup span&gt;</code>；每个数据格再写 <code>headers="行 组 列"</code> 显式关联——读屏不必推断，Adrian Roselli 指出的分歧就绕开了。</div>`),
+ anat:'两行表头：本期 / 基期 / 变化三个列组 + 行头列',act:'差额与环比由两个列组派生，不单独给数据；列组底色带与表头同色',src:'Power BI Matrix 格式化目标 · HTML headers / id 关联 · Adrian Roselli（跨列表头的读屏分歧）',dna:'多指标家族用不同浅底色区分口径组'});
+S.push({id:'B08',p:'p1',name:'排行表',en:'Ranking',q:'谁高谁低，谁在涨',
+ html:box(head('RANKING','排行表','其他不参与排名')+`<div class="tw"><table class="dt"><thead><tr><th class="num" style="width:34px">#</th><th>区域</th><th>营收</th><th class="num">金额</th><th class="num">环比</th></tr></thead><tbody>
+ ${R.slice(0,5).sort((a,b)=>b[1]-a[1]).map((r,i)=>`<tr><td class="num mut">${String(i+1).padStart(2,'0')}</td><th scope="row">${r[0]}</th><td>${bar(r[1]/412.6*100)}</td><td class="num">${n1(r[1])}</td><td class="num">${d(r[2])}</td></tr>`).join('')}
+ <tr><td class="num mut">—</td><th scope="row" class="mut">其他</th><td>${bar(65.4/412.6*100,'alt')}</td><td class="num mut">65.4</td><td class="num mut">+9.0%</td></tr></tbody></table></div>
+ <div class="dt-note">名次列等宽两位；「其他」固定末尾、弱化、名次为「—」——和模板 K08 排行卡同一套规则。</div>`),
+ anat:'名次 + 名称 + 数据条 + 数值 + 变化',act:'切换排序依据时行位移（FLIP），与 K08 一致',src:'Tremor BarList · Power BI 多行卡 · 模板 K08',dna:'TOP-N 每行 ≥28px'});
+S.push({id:'B09',p:'p0',name:'排序与表头',en:'Sorting',q:'让人自己换一个看法',
+ html:box(head('SORTING','排序与表头','三态轮转')+`<div class="tw"><table class="dt"><thead><tr><th>区域</th><th class="num sortable">营收 <i>↕</i></th><th class="num sorted">环比 <i>↓</i></th><th class="num sortable">占比 <i>↕</i></th></tr></thead><tbody>
+ ${[...R].sort((a,b)=>b[2]-a[2]).slice(0,4).map(r=>`<tr><th scope="row">${r[0]}</th><td class="num">${n1(r[1])}</td><td class="num">${d(r[2])}</td><td class="num">${r[3].toFixed(1)}%</td></tr>`).join('')}
+ </tbody></table></div>
+ <div class="dt-note"><b>默认 ↕ → 降序 ↓ → 升序 ↑ → 默认</b>；排序列同时加粗 + 箭头填充，不只靠颜色。按钮嵌在 <code>th</code> 内，<code>aria-sort</code> 挂在 <code>th</code> 上，一次只有一列有该属性。</div>`),
+ anat:'可排序表头（按钮 + 箭头）+ 当前排序列强调',act:'Enter / Space 切换；排序后行用 FLIP 位移 420ms，变化播报进 aria-live',src:'Adrian Roselli · W3C APG · Ant Design sorter · TanStack sorting',dna:'表头可带排序图标'});
+S.push({id:'B10',p:'p0',name:'窄屏与滚动',en:'Narrow',q:'放不下时怎么滚',
+ html:box(head('NARROW','窄屏：首列固定 + 横向滚动','沿用 P05')+`<div class="tw"><table class="dt"><thead><tr><th class="stick">区域</th><th class="num">营收</th><th class="num">订单</th><th class="num">客单价</th><th class="num">环比</th><th>状态</th></tr></thead><tbody>
+ <tr><th scope="row" class="stick">华东</th><td class="num">412.6</td><td class="num">776</td><td class="num">5,317</td><td class="num">${d(.074)}</td><td>${chip('good','正常')}</td></tr>
+ <tr><th scope="row" class="stick">华南</th><td class="num">298.3</td><td class="num">561</td><td class="num">5,317</td><td class="num">${d(.133)}</td><td>${chip('good','正常')}</td></tr>
+ <tr><th scope="row" class="stick">华北</th><td class="num">236.5</td><td class="num">445</td><td class="num">5,315</td><td class="num">${d(.035)}</td><td>${chip('warn','关注')}</td></tr></tbody></table></div>
+ <div class="dt-scroll-hint"><span>← 首列固定，其余横向滚动</span><span>滚动容器 role=region · 可聚焦</span></div>
+ <div class="dt-note">首列 <code>position: sticky</code> + 右侧 1px 分隔阴影；滚动容器 <code>tabindex=0</code> + <code>role=region</code> + <code>aria-labelledby</code>，键盘可进入并用方向键滚动。</div>`)});
+const KEEP=new Set(['B01','B03','B05','B06','B07']);   // B02=P05、B08=K08、B04/B09/B10 改为规则，见第 02 节
+const byId=id=>S.find(x=>x.id===id);
+document.getElementById('cell-demo').innerHTML=byId('B04').html;
+document.getElementById('narrow-demo').innerHTML=byId('B10').html;
+document.getElementById('sort-demo').innerHTML=byId('B09').html.replace('三态轮转','三态（D2 已定）');
+document.getElementById('type-specs').innerHTML=S.filter(s=>KEEP.has(s.id)).map(s=>`<article class="spec" aria-label="${s.id} ${s.name}"><div class="spec-stage one">${s.html}</div><div class="spec-meta"><div class="spec-title"><span class="tag p0">${s.id}</span>${s.name}<small>${s.en}</small></div><div class="spec-q">${s.q}</div><dl><dt>解剖</dt><dd>${s.anat}</dd><dt>交互</dt><dd>${s.act}</dd><dt>出处</dt><dd>${s.src}</dd><dt>DNA</dt><dd>${s.dna}</dd></dl></div></article>`).join('');
+T([
+ ['文本 / 行头','左','截断 + title 全名；行头用 <code>th scope=row</code>','华东','否'],
+ ['金额','右','<code>KpiKit.fmt</code>：≥1 万写万、≥1 亿写亿','412.6 万','是'],
+ ['计数','右','千分位；≥1 万写万','2,418 单','是'],
+ ['比率','右','1 位小数；浮层可给 2 位','38.4%','是'],
+ ['涨跌 delta','右','箭头 + 好坏色，比率之差写 pp','↑ +8.6%','是（按数值）'],
+ ['数据条 bar','左（条）+ 右（值）','条长 = 值 ÷ 列内最大值；负值向左发散','▇▇▇ 32.1%','是'],
+ ['迷你走势 mini','左','62×18，末点强调；累计型用日均','▁▂▃▅▆','否'],
+ ['状态 status','左','胶囊 = 图标 + 文字 + 颜色','✓ 正常','是（按严重度）'],
+ ['目标 / 阈值','右','写成「≥ 98.0%」「≤ 2.0%」，带比较符','≥ 38.0%','否']
+],'cell-rows');
+document.getElementById('states').innerHTML=[
+ ['正常',`<table class="dt"><tbody><tr><th scope="row">华东</th><td class="num">412.6</td></tr><tr><th scope="row">华南</th><td class="num">298.3</td></tr></tbody></table>`],
+ ['加载中',`<div style="display:grid;gap:9px;width:100%"><div class="dt-skel" style="width:76%"></div><div class="dt-skel" style="width:92%"></div><div class="dt-skel" style="width:68%"></div></div>`],
+ ['暂无数据',`<div style="text-align:center"><div style="font-size:13px;font-weight:600">—</div><div style="font-size:11px;color:var(--c-text-4);margin-top:6px">没有符合条件的行</div><div style="margin-top:8px"><span class="dt-btn">清除「渠道」</span></div></div>`],
+ ['加载失败',`<div style="text-align:center"><div style="font-size:11.5px;color:var(--c-text-2)">数据源超时</div><div style="margin-top:8px"><span class="dt-btn">重试</span></div></div>`],
+ ['数据延迟',`<div style="width:100%"><table class="dt"><tbody><tr><th scope="row">华东</th><td class="num">412.6</td></tr></tbody></table><div style="margin-top:8px"><span class="dt-chip warn"><i>!</i>更新于 8 小时前</span></div></div>`]
+].map(([cap,html])=>`<div><div class="sketch" style="display:grid;place-items:center;min-height:122px">${html}</div><div class="cap">${cap}</div></div>`).join('');
+T([
+ ['表格语义','用原生 <code>table</code> + <code>caption</code> + <code>thead</code>；首列用 <code>th scope="row"</code>（W3C APG · WebAIM）'],
+ ['何时用 grid','只有单元格里有大量可交互控件或可编辑时才升级 <code>role=grid</code>，那需要自己写方向键焦点管理（W3C APG）'],
+ ['排序','按钮放在 <code>th</code> 内，<code>aria-sort</code> 挂 <code>th</code>；同时只有一列带该属性（Adrian Roselli）'],
+ ['跨列表头','真 colspan（D6）：列组 <code>th scope="colgroup"</code> + <code>&lt;colgroup span&gt;</code>；每个数据格写 <code>headers</code> 指向行头、列组与列，显式关联不靠推断'],
+ ['行动作','drill 行以行头里的链接承载焦点；select 用原生复选框，表头全选 <code>aria-checked="mixed"</code> 表示半选；filter 行按钮带 <code>aria-pressed</code>（D5）'],
+ ['横向滚动','容器 <code>tabindex="0"</code> + <code>role="region"</code> + <code>aria-labelledby</code> 指向 caption（Adrian Roselli）'],
+ ['颜色','状态、涨跌、数据条都不能只靠颜色：配图标、箭头或数值（WCAG 1.4.1）'],
+ ['迷你图','<code>aria-hidden="true"</code>，读数放进行级读数浮层或相邻文本'],
+ ['展开行','展开按钮独立、带 <code>aria-expanded</code> 与 <code>aria-controls</code>，不要整行绑点击']
+],'a11y-rows');
+const decideHTML=list=>list.map(([id,title,opts,rec,pick,note,verdict])=>{
+  const custom=typeof pick==='string';
+  const lis=opts.map((o,i)=>{const p=!custom&&i===pick,r=i===rec&&!p;return `<li class="${p?'pick':'alt'}">${o}${p?'<span class="lab pick">已定</span>':''}${r?'<span class="lab was">原推荐</span>':''}</li>`;}).join('')+(custom?`<li class="pick">${pick}<span class="lab pick">已定</span></li>`:'');
+  return `<div class="decision done"><h3><span>${id}</span>${title}</h3><ol>${lis}</ol><p>${note}</p><p class="verdict"><b>落地：</b>${verdict}</p></div>`;}).join('');
+const stepsHTML=list=>list.map(([step,name,items])=>`<div class="phase"><h3><span class="step">${step}</span>${name}</h3><ul>${items.map(i=>`<li>${i}</li>`).join('')}</ul></div>`).join('');
+document.getElementById('decisions').innerHTML=decideHTML([
+ ['D1','首批范围',['P0：B01 明细表 + B07 对比列组 + 规则回填（单元格、排序、五态）','再加 B03 交叉表','再加 B05 分组小计 + B06 可展开行','五种一次做完'],0,3,'原推荐先做明细与对比两种；你选择一次做完。','B01 B03 B05 B06 B07 五种同轮并入模板新分组「表格与明细」，P05 同步改用 TableKit。'],
+ ['D2','排序态数',['三态：默认 → 降序 → 升序 → 默认，P05 同步改','两态：降序 ↔ 升序（P05 现状）'],0,0,'交叠带出来的问题。三态能回到设计好的行序。','TableKit 统一三态；只有排序列带 aria-sort，其余列移除该属性；P05 改为三态，外观不变。'],
+ ['D3','斑马纹还是分隔线',['默认分隔线 + 悬浮高亮；行数 &gt; 20 且列多时才开斑马纹','一律斑马纹（贴近 DNA）','一律分隔线'],0,0,'深色主题下斑马纹更容易显脏。','默认分隔线 + 悬浮高亮；行数 &gt; 20 且列数 ≥ 6 时 TableKit 自动开斑马纹，可按表覆盖。'],
+ ['D4','条件格式',['只用数据条 + 状态胶囊，不叠色阶背景','色阶背景 + 数据条都用','只用色阶'],0,0,'色阶看「位置」、数据条看「量」；两套配色会互相干扰。','单元格只用数据条（看量）与状态胶囊（看状态），不叠色阶背景。'],
+ ['D5','行点击',['默认只读 + 悬浮读数浮层；需要下钻的表单独给下钻图标','行点击 = 下钻','行点击 = 选中（带复选框）'],0,'都兼容：按表的用途配置，不写死','你的原话：「都兼容吧，看用户具体需求是什么就用哪种，不写死」。','TableKit 的 <code>rowAction</code> 四选一：<b>inspect</b>（默认，只读 + 读数浮层）· <b>drill</b>（整行可点 + 行尾 › + 返回链接）· <b>select</b>（首列复选框 + 全选 / 半选）· <b>filter</b>（点行写入筛选条件，与 F09 同一机制）。一张表只取一种主动作；展开按钮、复选框始终是独立控件。模板里 B01 可现场切换四种。'],
+ ['D6','列组表头',['浅底色带视觉分组，每列保持独立表头','真跨列表头（colspan）'],0,1,'代价：读屏对跨列表头的推断互相矛盾（Adrian Roselli），所以不能只靠 colspan。','两行表头：列组 th 用 colspan + <code>scope="colgroup"</code>，配 <code>&lt;colgroup span&gt;</code>；每个数据格写 <code>headers="组 id 列 id"</code> 显式关联，读屏不必推断；列组底色带保留。'],
+ ['D7','长表策略',['≤ 50 行整表渲染；超过则 20 行分页，脚注写「共 N 行」','一律分页','虚拟滚动'],0,0,'看板级数据量用不上虚拟滚动。','≤ 50 行整表渲染；超过则 20 行分页，脚注写「共 N 行 · 第 x / y 页」，翻页不改变排序。']
+]);
+document.getElementById('phases').innerHTML=stepsHTML([
+ ['第 1 步','TableKit',['列定义 → 渲染 + 格式（复用 KpiKit）；单元格语法（数据条 / 涨跌 / 迷你线 / 胶囊）','三态排序 + aria-sort + FLIP；五态；&gt; 50 行分页','P05 改用 TableKit（三态，外观不变）']],
+ ['第 2 步','明细与对比',['B01 明细表 + rowAction 四种（inspect / drill / select / filter）','B07 对比列组（真 colspan + headers）','新分组「表格与明细」+ md 章节']],
+ ['第 3 步','结构化',['B05 分组小计（组头可折叠）','B06 可展开行','B03 交叉表（含规模阈值提示）']]
+]);
+
+const KEY='chart-studies-theme',btns=document.querySelectorAll('[data-theme-choice]');let timer=0;
+function setTheme(t,anim){const root=document.documentElement;if(anim&&!matchMedia('(prefers-reduced-motion: reduce)').matches){root.classList.add('theme-switching');clearTimeout(timer);timer=setTimeout(()=>root.classList.remove('theme-switching'),400);}root.setAttribute('data-chart-theme',t);btns.forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.themeChoice===t)));try{localStorage.setItem(KEY,t);}catch(e){}}
+setTheme(document.documentElement.getAttribute('data-chart-theme')==='light'?'light':'dark',false);
+btns.forEach(b=>b.addEventListener('click',()=>setTheme(b.dataset.themeChoice,true)));
+})();
+</script>

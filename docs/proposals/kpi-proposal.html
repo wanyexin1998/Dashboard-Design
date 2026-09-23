@@ -1,0 +1,598 @@
+<title>指标组件方案</title>
+<style>
+:root{--paper:#eeede7;--ink:#20231f;--muted:#6c7166;--line:#d6d7ce;--deep:#242b20;--deep-ink:#f1f2e9;--note:#e4e5dc}
+/* Chart theme tokens — generated from tokens.py; dark = baseline values */
+:root,[data-chart-theme="dark"]{--c-surface:#111214;--c-control:#27292e;--c-panel:#202326;--c-inset:#191d1f;--c-hover:#2b3026;--c-border:#292b2b;--c-divider:#242629;--c-outline:#363a31;--c-panel-border:#42474b;--c-panel-rule:#393f40;--c-track:#2b2d31;--c-grid:#292c30;--c-baseline:#383a3f;--c-connector:#4d5748;--c-rule:#61695c;--c-leader:#8a8e86;--c-text:#f1f0e9;--c-text-2:#c0c4bd;--c-text-3:#a5aaa5;--c-text-4:#979b9f;--c-text-5:#85868f;--c-inverse:#f1f0e9;--c-on-inverse:#1b1f21;--c-dim:#3d3e43;--c-dim-dot:#64656b;--c-off:#363940;--c-focus:#f1f0e9;--c-focus-soft:#a5b7a8;--c-focus-line:#819183;--c-node-1:#2b322a;--c-node-2:#202429;--s-gold:#eac34d;--s-sage:#b8c7ab;--s-blue:#7baed0;--s-purple:#baa1d2;--s-orange:#e78b5f;--s-mint:#74cfb7;--s-coral:#de656d;--s-lime:#c2d965;--s-pink:#de88a4;--s-lavender:#c2bbf3;--s-olive:#aaa77c;--s-neutral:#efeee4;--s-ink:#f1f0e9;--s-graphite:#55555c;--s-slate:#85888c;--s-band-low:#42464b;--s-band-high:#5b5f65;--s-gold-on:#17181b;--s-sage-on:#17181b;--s-blue-on:#17181b;--s-purple-on:#17181b;--s-orange-on:#17181b;--s-mint-on:#17181b;--s-coral-on:#17181b;--s-lime-on:#17181b;--s-pink-on:#17181b;--s-lavender-on:#17181b;--s-olive-on:#17181b;--s-neutral-on:#17181b;--s-ink-on:#17181b;--s-graphite-on:#f0f0ed;--s-slate-on:#17181b;--s-band-low-on:#f0f0ed;--s-band-high-on:#f0f0ed;--s-gold-text:#eac34d;--s-sage-text:#b8c7ab;--s-blue-text:#7baed0;--s-purple-text:#baa1d2;--s-orange-text:#e78b5f;--s-mint-text:#74cfb7;--s-coral-text:#de656d;--s-lime-text:#c2d965;--s-pink-text:#de88a4;--s-lavender-text:#c2bbf3;--s-olive-text:#aaa77c;--s-neutral-text:#efeee4;--s-ink-text:#f1f0e9;--s-graphite-text:#7d7d84;--s-slate-text:#85888c;--s-band-low-text:#787d82;--s-band-high-text:#797d84;--s-gold-deep:#927127;--s-gold-soft:#51421a;--s-gold-soft-ink:#edda93;--s-sage-on-2:#435039;--seq-0:#2b2d31;--seq-1:#565c50;--seq-2:#93987b;--seq-3:#d4d6bf;--seq-4:#74cfb7;--st-good:#4cc38a;--st-good-text:#4cc38a;--st-bad:#f2716a;--st-bad-text:#f2716a;--st-warn:#f0b43f;--st-warn-text:#f0b43f;--c-shadow:0 8px 30px #0005;--c-card-shadow:none;}
+[data-chart-theme="light"]{--c-surface:#fbfbf8;--c-control:#ecebe5;--c-panel:#ffffff;--c-inset:#f3f2ed;--c-hover:#efeee8;--c-border:#dddcd3;--c-divider:#ebeae3;--c-outline:#d3d2c9;--c-panel-border:#dcdbd2;--c-panel-rule:#edece6;--c-track:#e8e7e0;--c-grid:#e8e7e1;--c-baseline:#c9c8bf;--c-connector:#c3c9bb;--c-rule:#a6ada1;--c-leader:#999d94;--c-text:#20231f;--c-text-2:#454a43;--c-text-3:#585e56;--c-text-4:#676d64;--c-text-5:#8e9289;--c-inverse:#262a23;--c-on-inverse:#f6f5ef;--c-dim:#dfded7;--c-dim-dot:#c7c7c0;--c-off:#d9d8d0;--c-focus:#20231f;--c-focus-soft:#5f7a65;--c-focus-line:#7f9483;--c-node-1:#eef1ea;--c-node-2:#f6f6f2;--s-gold:#d2ab17;--s-sage:#6fa374;--s-blue:#4188b6;--s-purple:#8463a8;--s-orange:#cf5b28;--s-mint:#269b7e;--s-coral:#c94750;--s-lime:#b4c82b;--s-pink:#ad507a;--s-lavender:#8379ca;--s-olive:#7a6939;--s-neutral:#dedcd7;--s-ink:#3e413a;--s-graphite:#3d3c38;--s-slate:#babec3;--s-band-low:#e2e1dd;--s-band-high:#b7bbc0;--s-gold-on:#17181b;--s-sage-on:#17181b;--s-blue-on:#17181b;--s-purple-on:#ffffff;--s-orange-on:#17181b;--s-mint-on:#17181b;--s-coral-on:#ffffff;--s-lime-on:#17181b;--s-pink-on:#ffffff;--s-lavender-on:#17181b;--s-olive-on:#ffffff;--s-neutral-on:#17181b;--s-ink-on:#ffffff;--s-graphite-on:#ffffff;--s-slate-on:#17181b;--s-band-low-on:#17181b;--s-band-high-on:#17181b;--s-gold-text:#896e01;--s-sage-text:#4a7d50;--s-blue-text:#2f77a4;--s-purple-text:#8463a8;--s-orange-text:#c14e18;--s-mint-text:#048167;--s-coral-text:#c7454f;--s-lime-text:#6c7900;--s-pink-text:#ad507a;--s-lavender-text:#7267b6;--s-olive-text:#7a6939;--s-neutral-text:#73716d;--s-ink-text:#3e413a;--s-graphite-text:#3d3c38;--s-slate-text:#6e7276;--s-band-low-text:#72716e;--s-band-high-text:#6e7277;--s-gold-deep:#93690d;--s-gold-soft:#f6e7b6;--s-gold-soft-ink:#6f5000;--s-sage-on-2:#1a2e1f;--seq-0:#e8e7e0;--seq-1:#ced0bd;--seq-2:#a6a78b;--seq-3:#797c5d;--seq-4:#269b7e;--st-good:#18a058;--st-good-text:#028345;--st-bad:#e64c45;--st-bad-text:#d23834;--st-warn:#d9920a;--st-warn-text:#9c6803;--c-shadow:0 10px 28px rgba(32,35,31,.14),0 1px 3px rgba(32,35,31,.08);--c-card-shadow:0 1px 2px rgba(32,35,31,.05);}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:84px}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,"Segoe UI","PingFang SC","Microsoft YaHei",system-ui,sans-serif;font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+button{font:inherit;cursor:pointer;border:0}
+a{color:inherit}
+code,.mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+:focus-visible{outline:2px solid #7cac85;outline-offset:3px}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rgba(238,237,231,.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.top-in{max-width:1180px;margin:auto;padding:0 24px;height:64px;display:flex;align-items:center;gap:24px}
+.brand{font-weight:750;font-size:19px;letter-spacing:-.6px;white-space:nowrap}
+.brand span{font:10px ui-monospace,Consolas,monospace;letter-spacing:1.4px;color:var(--muted);margin-left:10px;font-weight:400}
+.top nav{display:flex;gap:18px;font-size:12px;margin-left:auto}
+.top nav a{text-decoration:none;color:#5c6455}
+.top nav a:hover{color:#111}
+.theme-switch{display:inline-flex;gap:2px;padding:2px;border:1px solid #c0c4b6;border-radius:7px;flex-shrink:0}
+.theme-switch button{display:inline-flex;align-items:center;gap:6px;background:transparent;color:#4f5946;font-size:11px;line-height:1;padding:6px 9px;border-radius:5px}
+.theme-switch button:hover{background:#dfe3d5}
+.theme-switch button[aria-pressed=true]{background:var(--deep);color:var(--deep-ink)}
+.theme-switch i{width:9px;height:9px;border-radius:50%;box-shadow:inset 0 0 0 1px #0000002e}
+.ts-dark{background:#111214}.ts-light{background:#fbfbf8}
+main{max-width:1180px;margin:auto;padding-block:44px 40px;padding-inline:24px}
+.kicker{font:11px ui-monospace,Consolas,monospace;letter-spacing:1.6px;color:#6b735f;margin:0 0 12px;text-transform:uppercase}
+h1{font-size:38px;line-height:1.2;letter-spacing:-1.4px;font-weight:650;margin:0 0 14px;text-wrap:balance}
+.lede{max-width:760px;color:#565c51;font-size:14px;line-height:1.85;margin:0}
+.status{display:inline-flex;align-items:center;gap:7px;margin-top:18px;font-size:11px;color:#4f5946;border:1px dashed #a9b09f;border-radius:99px;padding:5px 11px}
+.status i{width:6px;height:6px;border-radius:50%;background:#c49a2a}
+section{margin-top:64px;scroll-margin-top:84px}
+.sec-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,420px);gap:12px 40px;align-items:end;border-top:1px solid #c7cdbe;padding-top:24px;margin-bottom:26px}
+.sec-head .kicker{margin-bottom:8px}
+h2{font-size:26px;letter-spacing:-.6px;font-weight:600;margin:0;text-wrap:balance}
+.sec-head p{margin:0;color:var(--muted);font-size:12.5px;line-height:1.8}
+h3{font-size:15px;margin:0 0 8px;font-weight:650}
+/* TL;DR */
+.tldr{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:18px}
+.tldr > div{background:#e6e7df;border-radius:14px;padding:18px 20px}
+.tldr > div:first-child{background:var(--deep);color:var(--deep-ink)}
+.tldr > div:first-child .kicker{color:#b8c7ab}
+.tldr ul{margin:0;padding-left:18px;font-size:13px;line-height:1.85}
+.tldr p{margin:8px 0 0;font-size:12.5px;line-height:1.8;opacity:.85}
+.tag{display:inline-block;font:10px ui-monospace,Consolas,monospace;letter-spacing:.6px;padding:2px 6px;border-radius:4px;vertical-align:1px}
+.tag.p0{background:var(--deep);color:var(--deep-ink)}
+.tldr > div:first-child .tag.p0{background:#b8c7ab;color:#1d2419}
+.tag.p1{border:1px solid #8d957f;color:#3f4839}
+.tag.p2{border:1px dashed #9aa18c;color:#5c6455}
+/* tables */
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:#f5f5f0}
+table{border-collapse:collapse;width:100%;font-size:12.5px;min-width:760px}
+th,td{text-align:left;vertical-align:top;padding:10px 14px;border-bottom:1px solid #e0e1d8;line-height:1.65}
+th{font-size:11px;letter-spacing:.4px;color:#5c6455;font-weight:600;background:#ebece4;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td:first-child{font-weight:600;white-space:nowrap}
+td.dna{color:#7a5f14;font-weight:600}
+.num{text-align:right;font-variant-numeric:tabular-nums}
+.conv{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 28px;margin-top:26px}
+.conv div{border-left:2px solid #b8c7ab;padding:2px 0 2px 14px;font-size:12.5px;line-height:1.75;color:#454b41}
+.conv b{color:var(--ink)}
+details{margin-top:22px;font-size:12px;color:#565c51}
+summary{cursor:pointer;font-weight:600;color:var(--ink)}
+.sources{columns:3 260px;column-gap:28px;margin-top:12px}
+.sources p{break-inside:avoid;margin:0 0 12px;line-height:1.7}
+.sources b{display:block;color:var(--ink);font-size:11px;letter-spacing:.4px}
+.sources a{text-decoration:none;border-bottom:1px solid #b9bfae;word-break:break-word}
+/* specimen grid */
+.legend-note{font:10.5px ui-monospace,Consolas,monospace;letter-spacing:.6px;color:#6b735f;margin:-8px 0 16px}
+.specs{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:30px 24px}
+.specs.wide{grid-template-columns:repeat(auto-fill,minmax(520px,1fr))}
+.spec{min-width:0;display:flex;flex-direction:column;gap:12px}
+.spec-stage{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));align-content:start}
+.spec-stage.one{grid-template-columns:1fr}
+.spec-meta{display:grid;gap:6px;font-size:12px;color:#565c51;line-height:1.7}
+.spec-title{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px;color:var(--ink);font-weight:650}
+.spec-title small{font:10px ui-monospace,Consolas,monospace;color:#7a8070;font-weight:400;letter-spacing:.5px}
+.spec-q{font-size:12.5px;color:var(--ink)}
+.spec-meta dl{margin:0;display:grid;grid-template-columns:34px 1fr;gap:3px 10px}
+.spec-meta dt{color:#8a907f;font-size:11px}
+.spec-meta dd{margin:0}
+/* KPI sketch anatomy (all colors from chart tokens) */
+.kpi{position:relative;background:var(--c-surface);color:var(--c-text);border:1px solid var(--c-border);border-radius:16px;box-shadow:var(--c-card-shadow);padding:15px 17px;min-width:0;font-variant-numeric:tabular-nums}
+.kpi-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.kpi-label{font-size:12px;color:var(--c-text-3);display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.info{display:inline-grid;place-items:center;width:13px;height:13px;border-radius:50%;border:1px solid var(--c-outline);font:600 8.5px/1 Georgia,serif;color:var(--c-text-4)}
+.kpi-period{font-size:10px;color:var(--c-text-4);white-space:nowrap}
+.kpi-value{font-size:30px;font-weight:650;letter-spacing:-.8px;line-height:1.15;margin-top:8px;white-space:nowrap}
+.kpi-value small{font-size:12px;font-weight:500;color:var(--c-text-4);letter-spacing:0;margin-left:4px}
+.kpi-value.hero{font-size:44px;letter-spacing:-1.4px}
+.kpi-row{display:flex;flex-wrap:wrap;gap:3px 12px;margin-top:6px;font-size:11px;color:var(--c-text-4);white-space:nowrap}
+.delta{font-weight:650;margin-left:4px}
+.delta i{font-style:normal;margin-right:1px}
+.delta.good{color:var(--st-good-text)}.delta.bad{color:var(--st-bad-text)}.delta.flat{color:var(--c-text-3)}
+.chip{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:650;line-height:1;padding:4px 8px;border-radius:99px;white-space:nowrap;background:var(--c-control);color:var(--c-text-2)}
+.chip.good{background:color-mix(in srgb,var(--st-good) 17%,var(--c-surface));color:var(--st-good-text)}
+.chip.warn{background:color-mix(in srgb,var(--st-warn) 20%,var(--c-surface));color:var(--st-warn-text)}
+.chip.bad{background:color-mix(in srgb,var(--st-bad) 17%,var(--c-surface));color:var(--st-bad-text)}
+.kpi svg{display:block;width:100%;height:auto;overflow:visible}
+.kpi .foot{display:flex;justify-content:space-between;gap:8px;margin-top:8px;font-size:10px;color:var(--c-text-4)}
+.bar{position:relative;height:8px;border-radius:4px;background:var(--c-track);margin-top:14px}
+.bar > i{position:absolute;left:0;top:0;bottom:0;border-radius:4px;background:var(--s-blue)}
+.bar > b{position:absolute;top:-6px;bottom:-6px;width:0;border-left:1.5px dashed var(--st-bad)}
+.bar-label{position:absolute;top:-22px;transform:translateX(-50%);font-size:10px;color:var(--st-bad-text);white-space:nowrap}
+.facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:14px}
+.facts div{font-size:10px;color:var(--c-text-4);line-height:1.5}
+.facts b{display:block;font-size:13px;color:var(--c-text);font-weight:600}
+.rows{display:grid;gap:5px;font-size:11px;color:var(--c-text-4)}
+.rows div{display:flex;justify-content:space-between;gap:10px}
+.rows b{color:var(--c-text);font-weight:600}
+.rows b.bad{color:var(--st-bad-text)}
+.ring-card{display:grid;grid-template-columns:88px 1fr;gap:12px;align-items:center;margin-top:8px}
+.seg{display:flex;gap:3px;height:10px;margin-top:14px}
+.seg i{display:block;border-radius:3px}
+.leg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 12px;margin-top:10px;font-size:11px;color:var(--c-text-2)}
+.leg span{display:flex;align-items:center;gap:6px}
+.leg span i{width:7px;height:7px;border-radius:50%;flex:none}
+.leg span b{margin-left:auto;font-weight:600;color:var(--c-text)}
+.toplist{display:grid;gap:8px;margin-top:10px}
+.toplist div{display:grid;grid-template-columns:34px 1fr 52px;align-items:center;gap:8px;font-size:11px;color:var(--c-text-2)}
+.toplist em{font-style:normal;height:8px;border-radius:3px;background:var(--c-track);position:relative;overflow:hidden}
+.toplist em i{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:var(--s-blue)}
+.toplist em i.dim{background:var(--c-dim)}
+.toplist b{text-align:right;font-weight:600;color:var(--c-text)}
+.trio{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:6px}
+.trio > div{padding:4px 12px 2px;border-left:1px solid var(--c-divider)}
+.trio > div:first-child{border-left:0;padding-left:0}
+.trio .kpi-value{font-size:22px;letter-spacing:-.4px}
+.trio .t{font-size:10px;color:var(--c-text-4);letter-spacing:.5px}.trio .kpi-row{white-space:normal}
+.digits{display:flex;gap:4px;margin-top:12px;align-items:flex-end}
+.digits span{display:grid;place-items:center;width:30px;height:42px;border-radius:6px;background:var(--c-control);font-size:26px;font-weight:650;color:var(--c-text)}
+.digits span.sep{width:auto;background:none;font-size:22px;color:var(--c-text-4);padding:0 1px}
+.scale{position:relative;margin-top:16px}
+.scale .bands{display:flex;gap:2px;height:8px}
+.scale .bands i{display:block;border-radius:2px}
+.scale .mark{position:absolute;top:-5px;width:2px;height:18px;border-radius:1px;background:var(--c-text);transform:translateX(-1px)}
+.scale .ticks{position:relative;height:14px;font-size:9.5px;color:var(--c-text-4);margin-top:5px}.scale .ticks span{position:absolute;top:0;transform:translateX(-50%);white-space:nowrap}
+/* panels */
+.strip{display:grid;grid-template-columns:repeat(5,minmax(0,1fr))}
+.strip > div{padding:2px 14px;border-left:1px solid var(--c-divider);position:relative}
+.strip > div:first-child{border-left:0;padding-left:0}
+.strip .kpi-value{font-size:20px;letter-spacing:-.4px}
+.strip .sel::before{content:"";position:absolute;left:0;right:14px;top:-16px;height:2px;border-radius:2px;background:var(--s-blue)}
+.strip > div:first-child.sel::before{left:0}
+.hero{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:22px}
+.hero .rows{font-size:12px;gap:9px;padding-left:18px;border-left:1px solid var(--c-divider)}
+.hero .rows div{padding-bottom:7px;border-bottom:1px solid var(--c-divider)}
+.hero .rows div:last-child{border-bottom:0}
+.insight{margin-top:8px;font-size:11px;color:var(--c-text-2)}
+.tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.tabs > div{border-radius:10px;padding:9px 11px;border:1px solid var(--c-divider)}
+.tabs > div.on{background:var(--c-inverse);border-color:var(--c-inverse);color:var(--c-on-inverse)}
+.tabs .t{font-size:11px;color:var(--c-text-3)}
+.tabs .on .t,.tabs .on .v{color:var(--c-on-inverse)}
+.tabs .v{font-size:18px;font-weight:650;letter-spacing:-.3px;color:var(--c-text);margin-top:2px;white-space:nowrap}
+.tabs .on .delta.good{color:var(--c-on-inverse)}
+.grid-panel{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}
+.grid-panel > div{background:var(--c-inset);border-radius:10px;padding:10px 12px}
+.grid-panel .kpi-value{font-size:20px;margin-top:4px;letter-spacing:-.3px}
+.seg-ctl{display:inline-flex;background:var(--c-control);border-radius:20px;padding:3px;gap:2px}
+.seg-ctl span{font-size:10px;padding:5px 10px;border-radius:20px;color:var(--c-text-3)}
+.seg-ctl span.on{background:var(--c-inverse);color:var(--c-on-inverse)}
+.score{width:100%;border-collapse:collapse;font-size:11.5px;min-width:0;margin-top:8px}
+.score th{background:none;color:var(--c-text-4);font-weight:500;font-size:10px;letter-spacing:.4px;border-bottom:1px solid var(--c-divider);padding:6px 8px}
+.score td{border-bottom:1px solid var(--c-divider);padding:8px;color:var(--c-text);font-weight:400;white-space:nowrap}
+.score td:first-child{font-weight:600}
+.score tr:last-child td{border-bottom:0}
+.score td.num,.score th.num{text-align:right}
+.tree{position:relative;height:210px;margin-top:6px}
+.tree svg{position:absolute;inset:0;width:100%;height:100%}
+.node{position:absolute;transform:translate(-50%,-50%);background:var(--c-inset);border:1px solid var(--c-connector);border-radius:10px;padding:6px 10px;text-align:center;min-width:112px;white-space:nowrap}.node .delta{font-size:11px}
+.node.root{background:var(--s-sage);border-color:var(--s-sage);color:var(--s-sage-on)}
+.node .t{font-size:10px;color:var(--c-text-3)}
+.node.root .t{color:var(--s-sage-on);opacity:.8}
+.node .v{font-size:15px;font-weight:650;white-space:nowrap}
+.node .delta{margin:0}
+.node.root .delta{color:var(--s-sage-on)}
+.op{position:absolute;transform:translate(-50%,-50%);font-size:13px;color:var(--c-text-4);font-weight:600}
+.chain{display:flex;align-items:stretch;gap:0;margin-top:12px}
+.chain > div{flex:1;min-width:0}
+.chain .c{height:30px;border-radius:8px;display:flex;align-items:center;padding:0 10px;font-size:11px;font-weight:600}
+.chain .v{font-size:16px;font-weight:650;margin-top:6px;white-space:nowrap}
+.chain .r{font-size:10px;color:var(--c-text-4)}
+.chain .arrow{flex:0 0 22px;display:grid;place-items:center;color:var(--c-text-4);font-size:12px;padding-bottom:26px}
+/* rules & states */
+.rules{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:26px}
+pre{margin:0;background:#1b1f1a;color:#dfe3d5;border-radius:12px;padding:16px 18px;font-size:11.5px;line-height:1.65;overflow-x:auto}
+pre .k{color:#b8c7ab}pre .s{color:#eac34d}pre .c{color:#8c9486}
+.states{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+.states .kpi{height:132px;display:flex;flex-direction:column}
+.skel{border-radius:5px;background:linear-gradient(90deg,var(--c-control),var(--c-track),var(--c-control));height:10px}
+.cap{font-size:11px;color:#6b7166;margin-top:6px;text-align:center}
+.retry{margin-top:auto;align-self:flex-start;font-size:10px;padding:5px 10px;border-radius:99px;border:1px solid var(--c-outline);color:var(--c-text-2);background:transparent}
+.polar{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+.polar .kpi{padding:12px 14px}
+.polar .kpi-value{font-size:20px;margin-top:4px}
+.polar .why{font-size:10px;color:var(--c-text-4);margin-top:4px}
+/* decisions */
+.decisions{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px}
+.decision{border:1px solid #c9cebf;border-radius:14px;padding:16px 18px;background:#f4f4ef}
+.decision h3{display:flex;gap:10px;align-items:baseline}
+.decision h3 span{font:11px ui-monospace,Consolas,monospace;color:#7a8070}
+.decision ol{margin:6px 0 0;padding-left:20px;font-size:12.5px;line-height:1.8;color:#454b41}
+.decision li.rec{color:var(--ink);font-weight:600}
+.decision li.rec::after{content:"推荐";font:600 10px/1 system-ui,sans-serif;margin-left:8px;padding:3px 6px;border-radius:4px;background:var(--deep);color:var(--deep-ink);vertical-align:1px}
+.decision p{margin:8px 0 0;font-size:11.5px;color:#6b7166;line-height:1.7}
+.phases{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.phase{border-top:3px solid var(--deep);padding-top:12px}
+.phase.p1{border-top-color:#8d957f}.phase.p2{border-top-color:#c3c8b8}
+.phase ul{margin:6px 0 0;padding-left:18px;font-size:12.5px;line-height:1.85;color:#454b41}
+.plain{font-size:13px;line-height:1.9;color:#454b41;max-width:860px}
+.plain li{margin:3px 0}
+footer{margin-top:64px;padding-top:18px;border-top:1px solid var(--line);font-size:11px;color:#7a8070;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+html.theme-switching .kpi,html.theme-switching .kpi *{transition:background-color .3s,border-color .3s,color .3s,fill .3s,stroke .3s!important}
+@media(max-width:900px){.tldr,.rules,.phases{grid-template-columns:minmax(0,1fr)}.sec-head{grid-template-columns:minmax(0,1fr)}.states,.polar{grid-template-columns:repeat(2,minmax(0,1fr))}.conv{grid-template-columns:1fr}.specs.wide{grid-template-columns:minmax(0,1fr)}.top nav{display:none}.theme-switch{margin-left:auto}}
+@media(max-width:600px){main{padding-inline:16px}.top-in{padding:0 16px}h1{font-size:28px;letter-spacing:-.8px}.specs{grid-template-columns:minmax(0,1fr)}.strip{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 0}.strip > div:nth-child(odd){border-left:0;padding-left:0}.tabs{grid-template-columns:repeat(2,minmax(0,1fr))}.hero{grid-template-columns:1fr}.hero .rows{border-left:0;padding-left:0}.grid-panel{grid-template-columns:repeat(2,minmax(0,1fr))}.facts{grid-template-columns:repeat(2,minmax(0,1fr))}.chain{flex-wrap:wrap;gap:10px}.chain .arrow{display:none}.chain > div{flex:1 1 40%}.brand span{display:none}.trio .kpi-value{font-size:18px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+</style>
+<script>try{var t=localStorage.getItem("kpi-proposal-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-chart-theme",t)}catch(e){}</script>
+
+<header class="top"><div class="top-in">
+  <div class="brand">图表实验室<span>PROPOSAL · KPI</span></div>
+  <nav aria-label="方案目录"><a href="#research">调研</a><a href="#cards">指标卡</a><a href="#panels">指标面板</a><a href="#rules">统一规范</a><a href="#decide">待决问题</a></nav>
+  <div class="theme-switch" role="group" aria-label="草图底色"><button type="button" data-theme-choice="dark" aria-pressed="true"><i class="ts-dark" aria-hidden="true"></i>深色</button><button type="button" data-theme-choice="light" aria-pressed="false"><i class="ts-light" aria-hidden="true"></i>浅色</button></div>
+</div></header>
+
+<main>
+  <p class="kicker">Proposal / KPI cards &amp; metric panels · 2026-09-23</p>
+  <h1>指标卡与指标面板方案</h1>
+  <p class="lede">为图表实验室新增「指标与概览」分组做的调研与方案。对照约 28 个国际 BI、中文 BI、组件库与产品看板，归纳出 10 种指标卡、7 种指标面板，并与你的 BI Visual DNA（KPI 家族、目标与进度家族）逐项对齐。下方草图为静态示意，右上角可切换深 / 浅两套 token 查看；确认范围后再并入模板。</p>
+  <div class="status"><i aria-hidden="true"></i>方案阶段 · 未改动基准模板 · 草图数据为示例，派生值由同一数据源计算</div>
+
+  <section id="tldr" aria-labelledby="tldr-h">
+    <div class="sec-head"><div><p class="kicker">01 / Summary</p><h2 id="tldr-h">先说结论</h2></div><p>首批八项覆盖「现在多少 → 比以前如何 → 能否完成」三问，正好对应你 DNA 里的目标管理四件套：目标、达成、差距、时间进度。</p></div>
+    <div class="tldr">
+      <div>
+        <p class="kicker">建议首批 · P0</p>
+        <ul>
+          <li><span class="tag p0">K01</span> 数值卡　<span class="tag p0">K02</span> 对比卡　<span class="tag p0">K03</span> 趋势卡</li>
+          <li><span class="tag p0">K04</span> 目标进度卡（含时间进度虚线）</li>
+          <li><span class="tag p0">K05</span> 进度环卡（月蓝年橙）</li>
+          <li><span class="tag p0">P01</span> 指标条　<span class="tag p0">P02</span> 主次面板</li>
+          <li><span class="tag p0">P03</span> 指标页签驱动图表</li>
+        </ul>
+        <p>K04 / K05 是你 DNA 的签名组件；P03 把指标卡和现有 15 个图表连起来。</p>
+      </div>
+      <div>
+        <p class="kicker">需要你拍板 · 6 项</p>
+        <ul>
+          <li>首批范围</li>
+          <li>涨跌配色（好坏色 vs 涨红跌绿）</li>
+          <li>数字单位（万 / 亿 vs K / M）</li>
+          <li>命名：现有悬浮层也叫"指标面板"</li>
+          <li>外观走模板语言还是 DNA 白卡</li>
+          <li>悬浮迷你图时主数值是否跟随</li>
+        </ul>
+        <p>每项都附了推荐默认，见第 07 节。</p>
+      </div>
+      <div>
+        <p class="kicker">刻意不做</p>
+        <ul>
+          <li>水波、3D、发光等大屏装饰</li>
+          <li>每个数字配一个图标</li>
+          <li>"目标"与"当期"同色</li>
+          <li>无上限的对比口径（最多两个）</li>
+          <li>只靠颜色表达涨跌或状态</li>
+        </ul>
+        <p>前四条来自你的 DNA 反模式清单，最后一条来自无障碍要求。</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="research" aria-labelledby="research-h">
+    <div class="sec-head"><div><p class="kicker">02 / Research</p><h2 id="research-h">调研：各家都在用哪些样式</h2></div><p>国际 BI 与监控（Power BI、Tableau、Looker Studio、Grafana、Datadog、Metabase、Superset、Mixpanel）、中文 BI 与组件库（Quick BI、FineBI、观远、网易有数、Sugar BI、DataV、Ant Design、Arco），以及组件库与产品看板（Tremor、shadcn、Carbon、Polaris、Stripe、GA4、Vercel、Linear、Apple）。</p></div>
+
+    <h3>指标卡原型</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>原型</th><th>国际 BI / 监控</th><th>中文 BI / 组件库</th><th>组件库 / 产品看板</th><th>你的 DNA</th><th>本方案</th></tr></thead>
+      <tbody>
+        <tr><td>数值</td><td>Power BI Card</td><td>Quick BI 翻牌器 · Ant Design Statistic</td><td>Tremor Metric · shadcn · Carbon "KPI"</td><td class="dna">2.1 裸数字卡</td><td>K01</td></tr>
+        <tr><td>数值 + 对比</td><td>Looker Scorecard · Metabase Trend（≤3 个对比）· Datadog · Tableau Pulse</td><td>Quick BI（≤2，按日期粒度自动派生）· 网易有数 · 观远同环比公式</td><td>Tremor BadgeDelta · shadcn · Polaris</td><td class="dna">2.2 涨跌卡</td><td>K02</td></tr>
+        <tr><td>数值 + 迷你趋势</td><td>Grafana Stat · Superset · Datadog 背景曲线 · Power BI 图片位</td><td>Quick BI 小趋势图（上下 / 左右）· 观远 · AntD Pro MiniArea</td><td>Tremor SparkChart · Stripe · GA4 概览卡</td><td class="dna">2.7 KPI + 迷你趋势</td><td>K03</td></tr>
+        <tr><td>数值 vs 目标</td><td>Power BI KPI（距目标、高 / 低为好）· Looker 进度 · Metabase Progress</td><td>Quick BI 进度条（条 / 环 / 水波）· DataV 进度条 · AntD Pro MiniProgress</td><td>Tremor ProgressBar · CategoryBar 标记</td><td class="dna">3.2 目标条 + 时间进度</td><td>K04</td></tr>
+        <tr><td>进度环 + 指标行</td><td>Tableau Pulse 目标</td><td>Quick BI 环形进度</td><td>Apple 活动圆环</td><td class="dna">3.1 进度环 + 指标行</td><td>K05</td></tr>
+        <tr><td>阈值着色 / 状态</td><td>Grafana 阈值 · Datadog 条件格式（按原始值判断）· Power BI KPI 图标</td><td>Quick BI 条件格式（默认 &gt;0 绿、&lt;0 红，可翻转）· FineBI 区间变色</td><td>Tremor 状态色 · Polaris 徽标</td><td>—</td><td>K06</td></tr>
+        <tr><td>构成</td><td>Power BI 类别卡</td><td>—</td><td>Tremor CategoryBar</td><td>—</td><td>K07</td></tr>
+        <tr><td>列表 / 排行</td><td>Power BI 多行卡</td><td>—</td><td>Tremor BarList · Vercel 面板</td><td>—</td><td>K08</td></tr>
+        <tr><td>多时间尺度</td><td>Power BI 多卡</td><td>FineBI 并列指标</td><td>—</td><td class="dna">2.3 日 / 月 / 年三联</td><td>K09</td></tr>
+        <tr><td>翻牌 / 数字滚动</td><td>—</td><td>DataV 翻牌器（可只涨不跌）· Sugar BI 逐位底色 · Arco countUp · FineReport 轮播卡</td><td>—</td><td>—</td><td>K10</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3 style="margin-top:28px">指标面板原型</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>原型</th><th>出处</th><th>你的 DNA</th><th>本方案</th></tr></thead>
+      <tbody>
+        <tr><td>指标条 / 横排</td><td>shadcn SectionCards（1→4 列）· Polaris 指标卡（分隔线，&lt;400px 堆叠）· Stripe 首页</td><td class="dna">行型 KPI-4 / KPI-6</td><td>P01</td></tr>
+        <tr><td>主次面板</td><td>Apple 三层图表（小趋势 → 可交互 → 深挖）· Stripe 主指标在图上方</td><td class="dna">3.1 进度环 + 指标行</td><td>P02</td></tr>
+        <tr><td>页签驱动图表</td><td>GA4 概览卡切换指标 · Vercel Visitors / Page Views 页签 · Quick BI Tab 趋势图 · Linear Measure 选择</td><td>—</td><td>P03</td></tr>
+        <tr><td>宫格看板</td><td>Quick BI 指标看板 · FineBI 并列指标 · 观远卡片管理 · Power BI 多卡</td><td class="dna">行型 KPI-组</td><td>P04</td></tr>
+        <tr><td>记分卡表格</td><td>平衡计分卡 · Looker 表格</td><td class="dna">表格 + 嵌入迷你条</td><td>P05</td></tr>
+        <tr><td>指标树</td><td>Mixpanel Metric Trees（节点带对比、连线带相关系数）</td><td>—</td><td>P06</td></tr>
+        <tr><td>转化链</td><td>漏斗</td><td class="dna">2.4 强度编码 chip 行</td><td>P07</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="conv">
+      <div><b>对比最多两个。</b>Quick BI 上限 2、Metabase 与 Mixpanel 上限 3；主对比（环比 / 同期）加一个次对比（同比）已覆盖绝大多数经营场景。</div>
+      <div><b>方向要显式声明。</b>Power BI、Datadog、Tremor、Tableau Pulse 都有"增加为好 / 减少为好"开关；中文 BI 只提供"颜色翻转"，没有按指标方向识别。数据契约里放 <code>polarity</code>。</div>
+      <div><b>颜色表好坏，箭头表方向。</b>Quick BI 默认 &gt;0 绿、&lt;0 红，与你 DNA 的"绿 = 向好、红 = 向差"一致；证券的涨红跌绿是另一套语义，不混用。</div>
+      <div><b>中文单位是标配。</b>Quick BI、FineBI、观远、腾讯云 BI 都有万 / 亿；国际工具用 K / M / B。默认万 / 亿。</div>
+      <div><b>空值与零值分开。</b>Looker 提供"无数据 / 0 / - / 空白"多种显示，网易有数分别设置空值与零值样式。空值显示"—"并说明原因，零值照常显示 0。</div>
+      <div><b>四种状态等高。</b>Stripe 的加载、错误、空、正常四态保持同一高度避免跳动；Tableau Pulse 在当期为空时提示"可能延迟"。再加一个"数据延迟"态。</div>
+      <div><b>数字动画要克制。</b>Arco 内置 countUp（默认 2000ms），Ant Design 借 react-countup；模板已有"数字同步"，时长压到 700ms，并用等宽数字防止宽度抖动。</div>
+      <div><b>阈值按原始值判断。</b>Datadog 的条件格式看原始值而不是缩写后的显示值；96.44% 不能因为显示成 96.4% 就换档。</div>
+      <div><b>口径就近可查。</b>GA4 摘要卡悬浮标签显示指标定义；卡片标签旁放 ⓘ，悬浮或聚焦显示口径、统计区间、更新时间。</div>
+      <div><b>面板用页签驱动图表。</b>GA4、Vercel、Stripe 都是"上方一排指标，下方一张图"；这是把指标卡和现有 15 个图表接起来最自然的方式。</div>
+    </div>
+
+    <details>
+      <summary>来源（均为调研时实际读过的官方文档或官方仓库）</summary>
+      <div class="sources">
+        <p><b>国际 BI / 监控</b><a href="https://learn.microsoft.com/en-us/power-bi/visuals/power-bi-visualization-card">Power BI Card</a> · <a href="https://learn.microsoft.com/en-us/power-bi/visuals/power-bi-visualization-kpi">Power BI KPI</a> · <a href="https://help.tableau.com/current/online/en-us/pulse_create_metrics.htm">Tableau Pulse</a> · <a href="https://docs.cloud.google.com/data-studio/scorecard-reference">Looker Studio Scorecard</a> · <a href="https://grafana.com/docs/grafana/latest/visualizations/panels-visualizations/visualizations/stat/">Grafana Stat</a> · <a href="https://grafana.com/docs/grafana/latest/visualizations/panels-visualizations/visualizations/bar-gauge/">Grafana Bar gauge</a> · <a href="https://docs.datadoghq.com/dashboards/widgets/query_value/">Datadog Query Value</a> · <a href="https://www.metabase.com/docs/latest/questions/visualizations/trend">Metabase Trend</a> · <a href="https://www.metabase.com/docs/latest/questions/visualizations/progress-bar">Metabase Progress</a> · <a href="https://github.com/apache/superset/discussions/32755">Superset Big Number</a> · <a href="https://docs.mixpanel.com/docs/metric_tree">Mixpanel Metric Trees</a></p>
+        <p><b>中文 BI / 组件库</b><a href="https://help.aliyun.com/zh/quick-bi/user-guide/configure-a-kanban">Quick BI 指标看板</a> · <a href="https://help.aliyun.com/zh/quick-bi/user-guide/configure-a-ticker-board">Quick BI 翻牌器</a> · <a href="https://help.aliyun.com/zh/quick-bi/user-guide/configure-a-progress-bar">Quick BI 进度条</a> · <a href="https://help.aliyun.com/zh/quick-bi/user-guide/configure-an-indicator-trend-chart">Quick BI 指标趋势图</a> · <a href="https://help.fanruan.com/finebi/doc-view-192.html">FineBI KPI 指标卡</a> · <a href="https://help.fanruan.com/finereport/doc-view-2480.html">FineReport 轮播指标卡</a> · <a href="https://docs.guandata.com/product/bi/656322637655441408">观远 同环比</a> · <a href="https://study.sf.163.com/documents/read/manualV8.6/10indicator.md">网易有数 指标卡</a> · <a href="https://cloud.baidu.com/doc/SUGAR/s/Jk6z5x0cz">Sugar BI 数字翻牌器</a> · <a href="https://help.aliyun.com/zh/datav/datav-7-0/user-guide/digital-ticker-board">DataV 数字翻牌器</a> · <a href="https://ant.design/components/statistic-cn">Ant Design Statistic</a> · <a href="https://github.com/arco-design/arco-design/blob/main/components/Statistic/README.zh-CN.md">Arco Statistic</a></p>
+        <p><b>组件库 / 产品看板</b><a href="https://npm.tremor.so/docs/ui/badges">Tremor BadgeDelta</a> · <a href="https://www.tremor.so/docs/visualizations/category-bar">Tremor CategoryBar</a> · <a href="https://www.tremor.so/docs/visualizations/barlist">Tremor BarList</a> · <a href="https://www.tremor.so/docs/visualizations/spark-chart">Tremor SparkChart</a> · <a href="https://github.com/shadcn-ui/ui/blob/main/apps/v4/registry/new-york-v4/blocks/dashboard-01/components/section-cards.tsx">shadcn SectionCards</a> · <a href="https://carbondesignsystem.com/data-visualization/dashboards/">Carbon Dashboards</a> · <a href="https://shopify.dev/docs/api/app-home/latest/patterns/compositions/metrics-card">Shopify Metrics card</a> · <a href="https://docs.stripe.com/stripe-apps/patterns/chart-layout">Stripe chart layout</a> · <a href="https://support.google.com/analytics/answer/11197963">GA4 概览卡</a> · <a href="https://support.google.com/analytics/answer/13817100">GA4 摘要卡</a> · <a href="https://vercel.com/docs/analytics">Vercel Analytics</a> · <a href="https://linear.app/docs/insights">Linear Insights</a> · <a href="https://developer.apple.com/videos/play/wwdc2022/110342/">Apple WWDC22 图表设计</a></p>
+      </div>
+    </details>
+  </section>
+
+  <section id="cards" aria-labelledby="cards-h">
+    <div class="sec-head"><div><p class="kicker">03 / Cards</p><h2 id="cards-h">指标卡：十种类型</h2></div><p>每种类型回答一个问题。首批 K01–K05；K06–K09 次之；K10 偏大屏，按需。所有颜色来自图表主题 token，切换深 / 浅可对照。</p></div>
+    <p class="legend-note">静态草图 · 非最终实现 · 示例数据：9 月 1–22 日（月度进度 22 / 30 天）</p>
+    <div class="specs" id="card-specs"></div>
+  </section>
+
+  <section id="panels" aria-labelledby="panels-h">
+    <div class="sec-head"><div><p class="kicker">04 / Panels</p><h2 id="panels-h">指标面板：七种组合</h2></div><p>面板 = 多个指标 + 一种组织关系（并列、主次、驱动、拆解、转化）。首批 P01–P03；面板在模板里跨两列展示。</p></div>
+    <div class="specs wide" id="panel-specs"></div>
+  </section>
+
+  <section id="rules" aria-labelledby="rules-h">
+    <div class="sec-head"><div><p class="kicker">05 / Rules</p><h2 id="rules-h">统一规范</h2></div><p>所有类型共用一份数据契约、一套数字格式与涨跌语义；派生值（达成率、差额、对比、状态）一律由组件计算，不手填。</p></div>
+    <div class="rules">
+      <div>
+        <h3>数据契约</h3>
+<pre><span class="c">// 一个指标 = 一个对象；卡片与面板都只接收它</span>
+{
+  <span class="k">"id"</span>: <span class="s">"revenue_mtd"</span>,
+  <span class="k">"label"</span>: <span class="s">"本月营收"</span>,
+  <span class="k">"note"</span>: <span class="s">"确认收入，按签收日；不含退款"</span>,   <span class="c">// ⓘ 口径</span>
+  <span class="k">"unit"</span>: <span class="s">"元"</span>,
+  <span class="k">"format"</span>: { <span class="k">"type"</span>: <span class="s">"currency"</span>, <span class="k">"compact"</span>: <span class="s">"auto"</span>, <span class="k">"precision"</span>: 1 },
+  <span class="k">"value"</span>: 12863760,
+  <span class="k">"period"</span>: { <span class="k">"label"</span>: <span class="s">"9 月 1–22 日"</span>, <span class="k">"grain"</span>: <span class="s">"day"</span>,
+              <span class="k">"partial"</span>: true, <span class="k">"elapsed"</span>: 22, <span class="k">"total"</span>: 30 },
+  <span class="k">"compare"</span>: [                                 <span class="c">// ≤ 2 个</span>
+    { <span class="k">"kind"</span>: <span class="s">"mom"</span>, <span class="k">"label"</span>: <span class="s">"环比（同期）"</span>, <span class="k">"base"</span>: 11845083 },
+    { <span class="k">"kind"</span>: <span class="s">"yoy"</span>, <span class="k">"label"</span>: <span class="s">"同比"</span>, <span class="k">"base"</span>: 10604913 }
+  ],
+  <span class="k">"target"</span>: { <span class="k">"value"</span>: 18000000, <span class="k">"label"</span>: <span class="s">"月目标"</span> },
+  <span class="k">"polarity"</span>: <span class="s">"up"</span>,                           <span class="c">// up | down | neutral</span>
+  <span class="k">"thresholds"</span>: null,                          <span class="c">// [{ "min": 0.98, "status": "good" }, …]</span>
+  <span class="k">"series"</span>: [{ <span class="k">"t"</span>: <span class="s">"2026-09-01"</span>, <span class="k">"v"</span>: 557000 }, …],
+  <span class="k">"updatedAt"</span>: <span class="s">"2026-09-22T09:30:00+08:00"</span>,
+  <span class="k">"freshness"</span>: <span class="s">"PT6H"</span>                         <span class="c">// 超时显示"数据延迟"</span>
+}</pre>
+      </div>
+      <div>
+        <h3>数字格式</h3>
+        <div class="table-wrap"><table style="min-width:0">
+          <thead><tr><th>情形</th><th>输入</th><th>显示</th><th>规则</th></tr></thead>
+          <tbody id="fmt-rows"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <h3 style="margin-top:34px">涨跌语义：颜色表好坏，箭头表方向</h3>
+    <div class="polar" id="polar"></div>
+
+    <h3 style="margin-top:34px">五种状态（同一高度，切换不跳动）</h3>
+    <div class="states" id="states"></div>
+
+    <h3 style="margin-top:34px">交互约定</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>环节</th><th>约定</th><th>沿用模板</th></tr></thead>
+      <tbody>
+        <tr><td>进场</td><td>主数值从 0 同步增长 700ms（等宽数字，宽度不抖）；迷你图从左描出；进度条与进度环从零画起</td><td>数字同步 · 从零画起</td></tr>
+        <tr><td>悬浮 / 聚焦</td><td>对比项显示基期值与计算式；迷你图显示竖线与当日读数；标签 ⓘ 显示口径、区间、更新时间</td><td>读数浮层（ChartInspector）</td></tr>
+        <tr><td>选中</td><td>点击或 Enter 选中卡片 / 页签，驱动同面板里的图表；再次点击或 Esc 取消。指标之间不做降噪，避免暗示"其它指标不重要"</td><td>选中约定（aria-pressed）</td></tr>
+        <tr><td>时间切换</td><td>放在面板级，一次切换所有指标（本月 / 本季 / 本年）；数值插值过渡，不清空重画</td><td>范围切换不重画</td></tr>
+        <tr><td>键盘</td><td>面板内方向键在指标间移动（roving tabindex），Tab 进出整组；Home / End 到首尾</td><td>键盘替代方式</td></tr>
+        <tr><td>减少动态效果</td><td>直接显示终值与终态，悬浮、选中照常</td><td>减少动态效果开关</td></tr>
+        <tr><td>读屏</td><td>每张卡是一个 group，<code>aria-label</code> 读作"本月营收 1,286.4 万元，环比上升 8.6%，向好"；箭头图标对读屏隐藏</td><td>aria-live 播报</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3 style="margin-top:34px">尺寸与主题</h3>
+    <ul class="plain">
+      <li>卡片最小宽 200px；高度三档 112 / 132 / 168（单值 / 带图 / 带明细），同行等高。主数值 30px，面板主指标 44px，标签 12px，对比 11px；超过 7 位先降字号（30→26→22）再升单位，不溢出。</li>
+      <li>颜色全部走图表主题 token：好坏用 <code>--st-good / --st-bad</code>（文字用其 <code>-text</code> 变体），迷你图与进度用系列色，轨道 <code>--c-track</code>，时间进度虚线用 <code>--st-bad</code>（沿用 DNA 的红色虚线）。深 / 浅两套已在模板里定义，无需新增系列色。</li>
+      <li>状态色 <code>--st-*</code> 只用于好坏与状态，不作为系列色；珊瑚色（仪表 NORMAL）与向差红在同一屏时，靠图标与文字区分。</li>
+    </ul>
+  </section>
+
+  <section id="integrate" aria-labelledby="int-h">
+    <div class="sec-head"><div><p class="kicker">06 / Integration</p><h2 id="int-h">并入模板的方式</h2></div><p>不改现有 15 个图表，只新增一个分组与一组模块。</p></div>
+    <ul class="plain">
+      <li><b>新分组「指标与概览」</b>：筛选条新增按钮与计数；每种指标卡一张样本卡，内含 2–3 个变体（如 K02 同时展示向好与向差）；面板类样本跨两列。</li>
+      <li><b>新增 <code>KpiKit</code></b>：<code>format()</code>（万 / 亿、pp、真减号、空值）、<code>compare()</code>（对比与好坏判定）、<code>spark()</code>、<code>progress()</code>、<code>statusOf()</code>（按原始值判档）；每种类型一个 <code>ChartDemos.kpi_*</code> 模块，只接收数据契约对象。</li>
+      <li><b>复用现有能力</b>：<code>ChartKit.animate</code>（数字同步）、<code>ChartInspector</code>（对比基期、计算式进读数浮层）、图表主题 token、减少动态效果、重播、键盘约定。</li>
+      <li><b>文档</b>：<code>视频图表设计蒸馏.md</code> 新增「指标组件」章节，逐类型写法与第 4 节一致；验收同样跑深 / 浅 × 三档宽度。</li>
+    </ul>
+  </section>
+
+  <section id="decide" aria-labelledby="decide-h">
+    <div class="sec-head"><div><p class="kicker">07 / Decisions</p><h2 id="decide-h">需要你拍板的六件事</h2></div><p>每项给出推荐默认；你没有异议的项，按推荐执行。</p></div>
+    <div class="decisions">
+      <div class="decision"><h3><span>D1</span>首批范围</h3><ol><li class="rec">P0 八项：K01–K05 + P01–P03</li><li>全部十七项一次做完</li><li>只做指标卡，面板下一轮</li></ol><p>八项已覆盖目标管理四件套；其余类型依赖同一套 KpiKit，后续增量很小。</p></div>
+      <div class="decision"><h3><span>D2</span>涨跌配色</h3><ol><li class="rec">颜色表好坏：绿 = 向好、红 = 向差，按 polarity 判断</li><li>涨红跌绿（证券惯例）</li><li>提供全局开关</li></ol><p>推荐项与你的 DNA、Quick BI 默认一致；退款率这类逆向指标下降显示为绿。</p></div>
+      <div class="decision"><h3><span>D3</span>数字单位</h3><ol><li class="rec">中文单位：万 / 亿</li><li>K / M / B</li><li>两者可切换</li></ol><p>中文 BI 普遍采用万 / 亿；若模板要给海外同事看，再加切换。</p></div>
+      <div class="decision"><h3><span>D4</span>命名</h3><ol><li class="rec">新组件叫「指标面板」，现有悬浮层改称「读数浮层」</li><li>新组件改叫「指标组」，悬浮层保持原名</li></ol><p>页面文案里"悬浮查看指标面板"指的是悬浮层；推荐项只改文案，代码里的 ChartInspector 不改名。</p></div>
+      <div class="decision"><h3><span>D5</span>外观</h3><ol><li class="rec">沿用模板语言：18px 圆角、英文眉标、柔和系列色</li><li>采用 DNA：8px 白卡、居中标题、渐变柱</li><li>做成可切换皮肤</li></ol><p>模板是组件样本库，保持一种语言更利于比较；DNA 皮肤可在正式看板里通过 token 套用。</p></div>
+      <div class="decision"><h3><span>D6</span>悬浮迷你图时主数值是否跟随</h3><ol><li class="rec">不跟随：主数值保持当期，读数写在迷你图旁</li><li>跟随：主数值临时显示悬浮日的值</li></ol><p>跟随式在 Stripe 一类产品里常见，但容易把历史值误读成当前值。</p></div>
+    </div>
+  </section>
+
+  <section id="plan" aria-labelledby="plan-h">
+    <div class="sec-head"><div><p class="kicker">08 / Plan</p><h2 id="plan-h">分三步做</h2></div><p>每一步都同步更新模板页面与 md 文档，并跑深 / 浅 × 三档宽度验收。</p></div>
+    <div class="phases">
+      <div class="phase"><h3><span class="tag p0">P0</span> 第一步</h3><ul><li>KpiKit 与数据契约</li><li>K01–K05 五种指标卡</li><li>P01 指标条、P02 主次面板、P03 页签驱动图表</li><li>「指标与概览」分组、文档章节</li></ul></div>
+      <div class="phase p1"><h3><span class="tag p1">P1</span> 第二步</h3><ul><li>K06 阈值状态、K07 构成、K08 排行、K09 日 / 月 / 年三联</li><li>P04 宫格看板、P05 记分卡表格</li><li>五种状态的正式实现</li></ul></div>
+      <div class="phase p2"><h3><span class="tag p2">P2</span> 第三步</h3><ul><li>K10 翻牌器（大屏）</li><li>P06 指标树、P07 转化链</li><li>按需：DNA 皮肤</li></ul></div>
+    </div>
+  </section>
+
+  <footer><span>图表实验室 · 指标组件方案 · 2026-09-23</span><span>基于 chart-studies.html（REFERENCE EDITION / 01 + 浅色主题）</span></footer>
+</main>
+
+<script>
+(() => {
+'use strict';
+/* ---------- single data source; every derived value below is computed ---------- */
+const DAILY=[55.7,54.7,60.1,55.3,43.5,42.8,57.1,62.2,58.1,62.8,59.7,43.6,46.6,69.7,62.9,64.6,69.7,73.9,50.8,49.8,76.4,66.4]; // 万元, 9/1–9/22
+const D={
+  days:22,total:30,dayOfYear:265,daysInYear:365,
+  revenue:{value:DAILY.reduce((a,b)=>a+b,0),mom:.086,yoy:.213,target:1800},
+  year:{value:9842.7,yoy:.179,target:14000},
+  orders:{value:2418,mom:.125,yoy:.183,target:3300,newOrders:1012,newMom:.182,repeat:1406,repeatMom:.087},
+  aov:{value:5320,mom:-.035,yoy:.025,target:5500},
+  margin:{value:.384,momPP:1.2,yoyPP:-.6,target:.40},
+  refund:{value:.018,momPP:-.4,yoyPP:-.3,target:.02},
+  ontime:{value:.9644,bands:[.95,.98],yoyPP:-.8},
+  channels:[['直营',591.7,'--s-gold'],['渠道',398.8,'--s-sage'],['线上',218.7,'--s-olive'],['其他',77.2,'--s-neutral']],
+  regions:[['华东',412.6],['华南',298.3],['华北',236.5],['西南',171.2],['其他',167.8]],
+  funnel:[['访客',48210],['线索',6532],['商机',3988],['成交',2418]],
+  weekly:{rev:[262,259,255,251,249,258,255,260,266,268,271,286],margin:[36.9,36.7,36.9,37.0,36.9,37.1,37.2,37.1,37.5,37.8,38.1,38.4],orders:[478,503,522,519,552,539,543,565,554,561,544,582],aov:[5520,5560,5610,5580,5640,5600,5560,5520,5480,5450,5390,5320],refund:[2.25,2.25,2.24,2.30,2.33,2.23,2.16,2.16,2.01,1.96,1.86,1.80],ontime:[97.2,97.3,96.9,96.6,96.4,96.6,96.2,96.0,96.0,96.2,96.3,96.4]}
+};
+const R=D.revenue;
+R.rate=R.value/R.target; R.gap=R.target-R.value; R.left=D.total-D.days; R.need=R.gap/R.left; R.time=D.days/D.total;
+R.last7=DAILY.slice(-7).reduce((a,b)=>a+b,0)/7; R.today=DAILY[DAILY.length-1]; R.weekAgo=DAILY[DAILY.length-8];
+const Y=D.year; Y.rate=Y.value/Y.target; Y.gap=Y.target-Y.value; Y.time=D.dayOfYear/D.daysInYear;
+const total=D.channels.reduce((a,c)=>a+c[1],0), regionTotal=D.regions.reduce((a,c)=>a+c[1],0);
+console.assert(Math.abs(total-R.value)<.05 && Math.abs(regionTotal-R.value)<.05,'breakdowns must sum to revenue');
+/* ---------- formatting ---------- */
+const MINUS='−';
+const n=(v,d=1)=>v.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
+const pct=(r,d=1)=>n(r*100,d)+'%';
+function delta(v,{unit='%',polarity='up',d=1}={}){ // v already in % or pp
+  const flat=Math.abs(v)<0.05, good=polarity==='neutral'?null:(polarity==='up'?v>0:v<0);
+  const cls=(flat||good===null)?'flat':good?'good':'bad', arrow=flat?'→':v>0?'↑':'↓', txt=(flat?'±':v>0?'+':MINUS)+n(Math.abs(v),d)+unit;
+  return `<span class="delta ${cls}"><i aria-hidden="true">${arrow}</i>${txt}</span>`;
+}
+const cmp=(label,v,o={})=>`<span>${label}${delta(v,o)}</span>`;
+const head=(label,period='',info=true)=>`<div class="kpi-head"><span class="kpi-label">${label}${info?'<i class="info" title="口径说明" aria-hidden="true">i</i>':''}</span>${period?`<span class="kpi-period">${period}</span>`:''}</div>`;
+const card=(inner,cls='')=>`<div class="kpi ${cls}">${inner}</div>`;
+/* ---------- tiny svg builders ---------- */
+function linePath(vals,w,h,pad=2,min,max){min=min??Math.min(...vals);max=max??Math.max(...vals);const sx=i=>pad+i*(w-2*pad)/(vals.length-1),sy=v=>h-pad-(v-min)/(max-min||1)*(h-2*pad);return {d:vals.map((v,i)=>(i?'L':'M')+sx(i).toFixed(1)+','+sy(v).toFixed(1)).join(''),sx,sy};}
+function spark(vals,{w=240,h=46,color='--s-blue',hover=null,labels=null}={}){
+  const {d,sx,sy}=linePath(vals,w,h,3);const last=vals.length-1;
+  let s=`<svg viewBox="0 0 ${w} ${h+(labels?14:0)}" role="img" aria-label="迷你趋势"><path d="${d}L${sx(last)},${h}L${sx(0)},${h}Z" style="fill:var(${color});fill-opacity:.14"/><path d="${d}" style="fill:none;stroke:var(${color});stroke-width:1.6;stroke-linejoin:round;stroke-linecap:round"/>`;
+  if(hover!==null){const x=sx(hover.i),y=sy(vals[hover.i]);s+=`<line x1="${x}" x2="${x}" y1="0" y2="${h}" style="stroke:var(--c-text);stroke-opacity:.35" stroke-dasharray="2 3"/><circle cx="${x}" cy="${y}" r="3" style="fill:var(--c-surface);stroke:var(--c-text);stroke-width:1.5"/><g transform="translate(${Math.min(x+6,w-74)},2)"><rect width="72" height="17" rx="4" style="fill:var(--c-inverse)"/><text x="36" y="12" text-anchor="middle" style="fill:var(--c-on-inverse);font-size:9.5px;font-weight:600">${hover.label}</text></g>`;}
+  s+=`<circle cx="${sx(last)}" cy="${sy(vals[last])}" r="3.2" style="fill:var(${color});stroke:var(--c-surface);stroke-width:2"/>`;
+  if(labels)labels.forEach(([i,t])=>{s+=`<text x="${sx(i)}" y="${h+12}" text-anchor="${i===0?'start':i===last?'end':'middle'}" style="fill:var(--c-text-4);font-size:9px">${t}</text>`;});
+  return s+'</svg>';
+}
+function ring(rate,color,label){const r=34,c=2*Math.PI*r,len=Math.min(rate,1)*c;return `<svg viewBox="0 0 88 88" role="img" aria-label="${label} ${pct(rate)}"><circle cx="44" cy="44" r="${r}" style="fill:none;stroke:var(--c-track)" stroke-width="9"/><circle cx="44" cy="44" r="${r}" style="fill:none;stroke:var(${color})" stroke-width="9" stroke-linecap="round" stroke-dasharray="${len.toFixed(1)} ${c.toFixed(1)}" transform="rotate(-90 44 44)"/><text x="44" y="42" text-anchor="middle" style="fill:var(--c-text);font-size:15px;font-weight:650">${pct(rate)}</text><text x="44" y="56" text-anchor="middle" style="fill:var(--c-text-4);font-size:9px">${label}</text></svg>`;}
+const leadLag=(rate,time)=>{const pp=Math.round(rate*1000)/10-Math.round(time*1000)/10; /* from the displayed values, so the card adds up */return Math.abs(pp)<.5?'<span class="chip">持平</span>':pp>0?`<span class="chip good">超前 ${n(pp)}pp</span>`:`<span class="chip warn">滞后 ${n(-pp)}pp</span>`;};
+/* ---------- K01–K10 ---------- */
+const C=[];
+C.push({id:'K01',p:'p0',name:'数值卡',en:'Value',q:'现在是多少？',one:false,
+  html:card(head('本月营收','9 月 1–22 日')+`<div class="kpi-value">${n(R.value)}<small>万元</small></div><div class="foot"><span>更新于 09:30</span><span>确认收入口径</span></div>`)
+      +card(head('订单数','9 月 1–22 日')+`<div class="kpi-value">${n(D.orders.value,0)}<small>单</small></div><div class="foot"><span>更新于 09:30</span><span>含新客与复购</span></div>`),
+  anat:'标签（含口径 ⓘ）· 主数值 · 单位 · 统计区间 · 更新时间',act:'悬浮 ⓘ 显示口径；进场数字同步',src:'Power BI Card · Quick BI 指标看板 · Tremor · shadcn',dna:'2.1 裸数字卡'});
+C.push({id:'K02',p:'p0',name:'对比卡',en:'Delta',q:'比上期好还是差？',
+  html:card(head('客单价','9 月')+`<div class="kpi-value">${n(D.aov.value,0)}<small>元</small></div><div class="kpi-row">${cmp('环比',D.aov.mom*100)}${cmp('同比',D.aov.yoy*100)}</div>`)
+      +card(head('退款率','9 月')+`<div class="kpi-value">${pct(D.refund.value)}</div><div class="kpi-row">${cmp('环比',D.refund.momPP,{unit:'pp',polarity:'down'})}${cmp('同比',D.refund.yoyPP,{unit:'pp',polarity:'down'})}</div>`),
+  anat:'主数值 + 主对比（环比）+ 次对比（同比）；箭头 = 方向，颜色 = 好坏；比率变化用 pp',act:'悬浮对比项显示基期值与计算式',src:'Looker Scorecard · Metabase Trend · Quick BI · 网易有数 · Tremor BadgeDelta',dna:'2.2 涨跌卡',note:'右卡为逆向指标：退款率下降显示为绿'});
+C.push({id:'K03',p:'p0',name:'趋势卡',en:'Sparkline',q:'这个数是怎么走到今天的？',one:true,
+  html:card(head('本月营收','9 月 1–22 日')+`<div class="kpi-value">${n(R.value)}<small>万元</small></div><div class="kpi-row">${cmp('环比（同期）',R.mom*100)}${cmp('同比',R.yoy*100)}</div><div style="margin-top:10px">${spark(DAILY,{hover:{i:13,label:'9/14 · '+n(DAILY[13])+' 万'},labels:[[0,'9/1'],[21,'9/22']]})}</div>`),
+  anat:'主数值 + 对比 + 迷你面积图（末点强调，首尾标日期）',act:'沿迷你图悬浮显示逐日读数（示意：9/14）；主数值不跟随，见 D6',src:'Grafana Stat · Superset · Tableau Pulse · Quick BI 小趋势图 · Tremor SparkChart · Stripe',dna:'2.7 KPI + 迷你趋势'});
+C.push({id:'K04',p:'p0',name:'目标进度卡',en:'Target',q:'照这个节奏能不能完成？',one:true,
+  html:card(head('月营收目标达成','截至 9/22')+`<div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px"><div class="kpi-value">${pct(R.rate)}</div>${leadLag(R.rate,R.time)}</div><div class="bar" style="margin-top:26px"><i style="width:${(R.rate*100).toFixed(2)}%"></i><b style="left:${(R.time*100).toFixed(2)}%"><span class="bar-label">时间进度 ${pct(R.time)}</span></b></div><div class="facts"><div>目标<b>${n(R.target,0)} 万</b></div><div>差额<b>${n(R.gap)} 万</b></div><div>剩余<b>${R.left} 天</b></div><div>日均需<b>${n(R.need)} 万</b></div></div>`),
+  anat:'达成率 + 进度条 + 时间进度虚线 + 目标 / 差额 / 剩余天数 / 日均需',act:'条头与虚线的相对位置直接给出超前 / 滞后；悬浮虚线显示时间进度算法',src:'Power BI KPI · Looker 进度 · Metabase Progress · Quick BI 进度条 · AntD MiniProgress',dna:'3.2 目标条 + 时间进度虚线（最强签名）'});
+C.push({id:'K05',p:'p0',name:'进度环卡',en:'Ring',q:'月 / 年目标完成到哪了？',one:true,
+  html:card(head('月业绩','9 月',false)+`<div class="ring-card">${ring(R.rate,'--s-blue','月度')}<div class="rows"><div>目标<b>${n(R.target,0)}</b></div><div>差额<b class="bad">${n(R.gap)}</b></div><div>时间进度<b>${pct(R.time)}</b></div></div></div>`)
+      +card(head('年业绩','2026',false)+`<div class="ring-card">${ring(Y.rate,'--s-orange','年度')}<div class="rows"><div>目标<b>${n(Y.target,0)}</b></div><div>差额<b class="bad">${n(Y.gap)}</b></div><div>时间进度<b>${pct(Y.time)}</b></div></div></div>`),
+  anat:'小进度环（中心达成率 + 维度名）+ 指标行；月蓝年橙（万元）',act:'环与指标行联动高亮；进场从零画起（沿用 01 圆环）',src:'Apple 活动圆环 · Tableau Pulse 目标 · Quick BI 环形进度',dna:'3.1 进度环 + 指标行（签名）'});
+const [b1,b2]=D.ontime.bands, lo=.90, hi=1.0, pos=v=>((v-lo)/(hi-lo)*100).toFixed(2)+'%';
+const ontimeStatus=D.ontime.value>=b2?['good','✓ 正常']:D.ontime.value>=b1?['warn','! 关注']:['bad','✕ 异常'];
+C.push({id:'K06',p:'p1',name:'阈值状态卡',en:'Status',q:'是否正常？',one:true,
+  html:card(head('交付及时率','近 30 天')+`<div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px"><div class="kpi-value">${pct(D.ontime.value)}</div><span class="chip ${ontimeStatus[0]}">${ontimeStatus[1]}</span></div><div class="scale"><div class="bands"><i style="flex:${((b1-lo)*100).toFixed(1)};background:var(--st-bad);opacity:.55"></i><i style="flex:${((b2-b1)*100).toFixed(1)};background:var(--st-warn);opacity:.55"></i><i style="flex:${((hi-b2)*100).toFixed(1)};background:var(--st-good);opacity:.55"></i></div><span class="mark" style="left:${pos(D.ontime.value)}"></span><div class="ticks"><span style="left:0;transform:none">90%</span><span style="left:${pos(b1)}">95%</span><span style="left:${pos(b2)}">98%</span><span style="left:100%;transform:translateX(-100%)">100%</span></div></div><div class="foot" style="margin-top:22px"><span>&lt;95% 异常 · 95–98% 关注 · ≥98% 正常</span><span>目标 ≥98%</span></div>`),
+  anat:'主数值 + 状态胶囊（图标 + 文字）+ 三段阈值刻度',act:'悬浮刻度显示阈值定义；换档时胶囊颜色过渡；按原始值判档（96.44%）',src:'Grafana 阈值 · Datadog 条件格式 · Metabase 区间 · Power BI KPI 图标',dna:'—'});
+C.push({id:'K07',p:'p1',name:'构成卡',en:'Composition',q:'这个总数由什么组成？',one:true,
+  html:card(head('本月营收','按渠道')+`<div class="kpi-value">${n(total)}<small>万元</small></div><div class="seg">${D.channels.map(c=>`<i style="flex:${c[1]};background:var(${c[2]})"></i>`).join('')}</div><div class="leg">${D.channels.map(c=>`<span><i style="background:var(${c[2]})"></i>${c[0]}<b>${pct(c[1]/total,0)}</b></span>`).join('')}</div>`),
+  anat:'主数值 + 细分段条（段间缝隙）+ 名称与占比',act:'悬浮分段读金额；点击分段联动（沿用 08 占比条）',src:'Tremor CategoryBar · Power BI 类别卡',dna:'—'});
+const rmax=Math.max(...D.regions.map(r=>r[1]));
+C.push({id:'K08',p:'p1',name:'排行卡',en:'Top-N',q:'谁贡献最多？',one:true,
+  html:card(head('区域营收 TOP 5','9 月 · 万元')+`<div class="toplist">${D.regions.map((r,i)=>`<div><span>${r[0]}</span><em><i class="${r[0]==='其他'?'dim':''}" style="width:${(r[1]/rmax*100).toFixed(1)}%"></i></em><b>${n(r[1])}</b></div>`).join('')}</div>`),
+  anat:'3–5 行：名称 · 条 · 数值；"其他"弱化',act:'悬浮行显示占比；点击钻取到区域',src:'Tremor BarList · Power BI 多行卡 · Vercel 面板',dna:'—'});
+C.push({id:'K09',p:'p1',name:'日 / 月 / 年三联卡',en:'Trio',q:'不同时间尺度下各是多少？',one:true,
+  html:card(head('营收','万元',false)+`<div class="trio"><div><div class="t">今日 9/22</div><div class="kpi-value">${n(R.today)}</div><div class="kpi-row">${cmp('较上周同日',(R.today/R.weekAgo-1)*100)}</div></div><div><div class="t">本月</div><div class="kpi-value">${n(R.value)}</div><div class="kpi-row">${cmp('环比',R.mom*100)}</div></div><div><div class="t">本年</div><div class="kpi-value">${n(Y.value)}</div><div class="kpi-row">${cmp('同比',Y.yoy*100)}</div></div></div>`),
+  anat:'一卡三列，列间细线；每列数值 + 最合适的对比口径',act:'点列切换联动图的时间粒度',src:'Power BI 多卡 · FineBI 并列指标',dna:'2.3 日 / 月 / 年三联卡',note:'日数据用"较上周同日"，避开周末效应'});
+const digits=n(Y.value).split('').map(ch=>/[0-9]/.test(ch)?`<span>${ch}</span>`:`<span class="sep">${ch}</span>`).join('');
+C.push({id:'K10',p:'p2',name:'翻牌器',en:'Counter',q:'累计到多少了？',one:true,
+  html:card(head('年度累计营收','万元',false)+`<div class="digits">${digits}</div><div class="foot"><span>同比 ${delta(Y.yoy*100)}</span><span>每 5 分钟刷新</span></div>`),
+  anat:'逐位数字方块 + 标签；适合大屏远距离读',act:'刷新时逐位滚动；只增指标可开"只涨不跌"',src:'DataV 数字翻牌器 · Sugar BI · Arco countUp · FineReport 轮播卡',dna:'—'});
+/* ---------- P01–P07 ---------- */
+const P=[];
+const stripItems=[['本月营收',n(R.value),'万元',cmp('环比',R.mom*100)],['订单数',n(D.orders.value,0),'单',cmp('环比',D.orders.mom*100)],['客单价',n(D.aov.value,0),'元',cmp('环比',D.aov.mom*100)],['毛利率',pct(D.margin.value),'',cmp('环比',D.margin.momPP,{unit:'pp'})],['退款率',pct(D.refund.value),'',cmp('环比',D.refund.momPP,{unit:'pp',polarity:'down'})]];
+P.push({id:'P01',p:'p0',name:'指标条',en:'KPI strip',q:'一眼看完核心指标',
+  html:card(`<div class="strip">${stripItems.map((it,i)=>`<div class="${i===0?'sel':''}"><div class="kpi-label">${it[0]}</div><div class="kpi-value">${it[1]}<small>${it[2]}</small></div><div class="kpi-row">${it[3]}</div></div>`).join('')}</div>`),
+  anat:'3–6 个指标同处一卡，细竖线分隔；宽屏一行，窄屏 2×N',act:'方向键在指标间移动；选中项（顶部色条）联动下方图表',src:'shadcn SectionCards · Polaris 指标卡 · Quick BI 指标看板',dna:'行型 KPI-4 / KPI-6'});
+const cum=DAILY.reduce((a,v)=>(a.push((a.length?a[a.length-1]:0)+v),a),[]);
+const pace=Array.from({length:D.total},(_,i)=>R.target*(i+1)/D.total);
+function heroChart(){const w=420,h=120,max=R.target,sx=i=>6+i*(w-12)/(D.total-1),sy=v=>h-4-v/max*(h-14);
+  const line=cum.map((v,i)=>(i?'L':'M')+sx(i).toFixed(1)+','+sy(v).toFixed(1)).join('');
+  return `<svg viewBox="0 0 ${w} ${h+14}" role="img" aria-label="累计营收与目标节奏"><line x1="6" x2="${w-6}" y1="${sy(R.target)}" y2="${sy(R.target)}" style="stroke:var(--c-grid)"/><text x="${w-6}" y="${sy(R.target)-4}" text-anchor="end" style="fill:var(--c-text-4);font-size:9px">目标 ${n(R.target,0)}</text><path d="M${sx(0)},${sy(pace[0])}L${sx(D.total-1)},${sy(pace[D.total-1])}" style="stroke:var(--st-bad);fill:none" stroke-dasharray="4 4" stroke-width="1.3"/><path d="${line}L${sx(cum.length-1)},${h-4}L${sx(0)},${h-4}Z" style="fill:var(--s-blue);fill-opacity:.12"/><path d="${line}" style="fill:none;stroke:var(--s-blue);stroke-width:2"/><circle cx="${sx(cum.length-1)}" cy="${sy(cum[cum.length-1])}" r="3.5" style="fill:var(--s-blue);stroke:var(--c-surface);stroke-width:2"/><text x="${sx(cum.length-1)+6}" y="${sy(cum[cum.length-1])+12}" style="fill:var(--c-text-3);font-size:9px">实际</text><text x="${sx(24)}" y="${sy(pace[24])+13}" style="fill:var(--st-bad-text);font-size:9px">目标节奏</text><text x="6" y="${h+12}" style="fill:var(--c-text-4);font-size:9px">9/1</text><text x="${sx(21)}" y="${h+12}" text-anchor="middle" style="fill:var(--c-text-4);font-size:9px">9/22</text><text x="${w-6}" y="${h+12}" text-anchor="end" style="fill:var(--c-text-4);font-size:9px">9/30</text></svg>`;}
+const behind=pace[D.days-1]-R.value;
+P.push({id:'P02',p:'p0',name:'主次面板',en:'Hero + list',q:'主指标怎么样，还差什么？',
+  html:card(`<div class="hero"><div>${head('本月营收','9 月 1–22 日')}<div class="kpi-value hero">${n(R.value)}<small>万元</small></div><div class="kpi-row">${cmp('环比（同期）',R.mom*100)}${cmp('同比',R.yoy*100)}</div><div style="margin-top:10px">${heroChart()}</div></div><div class="rows"><div>达成率<b>${pct(R.rate)}</b></div><div>时间进度<b>${pct(R.time)}</b></div><div>落后目标节奏<b class="bad">${n(behind)} 万</b></div><div>剩余 ${R.left} 天日均需<b>${n(R.need)} 万</b></div><div>近 7 日日均<b>${n(R.last7)} 万</b></div><p class="insight">${R.last7>=R.need?'按近 7 日节奏，月底可以完成目标。':'按近 7 日节奏，月底完不成目标。'}</p></div></div>`),
+  anat:'一个主指标（44px）+ 累计曲线与目标节奏虚线 + 右侧 4–5 行次级指标 + 一句结论',act:'悬浮曲线读累计值；次级指标悬浮显示算法',src:'Apple 三层图表 · Stripe 主指标在图上方',dna:'3.1 进度环 + 指标行 · 3.2 时间进度'});
+const tabs=[['营收',n(R.value)+' 万',delta(R.mom*100)],['订单数',n(D.orders.value,0),delta(D.orders.mom*100)],['客单价',n(D.aov.value,0)+' 元',delta(D.aov.mom*100)],['退款率',pct(D.refund.value),delta(D.refund.momPP,{unit:'pp',polarity:'down'})]];
+P.push({id:'P03',p:'p0',name:'指标页签驱动图表',en:'Tabs → chart',q:'从一排指标进入一张图',
+  html:card(`<div class="tabs" role="tablist">${tabs.map((t,i)=>`<div class="${i===0?'on':''}" role="tab" aria-selected="${i===0}"><div class="t">${t[0]}</div><div class="v">${t[1]}</div><div class="kpi-row" style="margin-top:2px">${t[2]}</div></div>`).join('')}</div><div style="margin-top:16px">${spark(DAILY,{w:480,h:92,labels:[[0,'9/1'],[7,'9/8'],[14,'9/15'],[21,'9/22']]})}</div><div class="foot"><span>日营收 · 万元</span><span>选中页签 → 图表原位变形到新指标</span></div>`),
+  anat:'顶部指标页签（名称 · 数值 · 对比），选中为反色；下方复用模板现有图表',act:'切换页签时图表原位变形（沿用"范围切换不重画"）；左右键切换页签',src:'GA4 概览卡 · Vercel Analytics · Quick BI Tab 趋势图 · Stripe',dna:'—'});
+const gridItems=[['营收',n(R.value)+'<small>万</small>',cmp('环比',R.mom*100)],['订单数',n(D.orders.value,0),cmp('环比',D.orders.mom*100)],['客单价',n(D.aov.value,0)+'<small>元</small>',cmp('环比',D.aov.mom*100)],['毛利率',pct(D.margin.value),cmp('环比',D.margin.momPP,{unit:'pp'})],['退款率',pct(D.refund.value),cmp('环比',D.refund.momPP,{unit:'pp',polarity:'down'})],['交付及时率',pct(D.ontime.value),cmp('同比',D.ontime.yoyPP,{unit:'pp'})]];
+P.push({id:'P04',p:'p1',name:'宫格看板',en:'Grid',q:'同一时间尺度下的一组指标',
+  html:card(`<div class="kpi-head"><span class="kpi-label" style="color:var(--c-text);font-weight:600">经营看板</span><span class="seg-ctl"><span class="on">本月</span><span>本季</span><span>本年</span></span></div><div class="grid-panel">${gridItems.map(g=>`<div><div class="kpi-label">${g[0]}</div><div class="kpi-value">${g[1]}</div><div class="kpi-row">${g[2]}</div></div>`).join('')}</div>`),
+  anat:'等尺寸指标格 + 共享标题与时间切换',act:'时间切换放在面板级，所有格同时过渡',src:'Quick BI 指标看板 · FineBI 并列指标 · 观远卡片管理',dna:'行型 KPI-组'});
+function mini(vals,color){const {d}=linePath(vals,64,18,2);return `<svg viewBox="0 0 64 18" style="width:64px;height:18px;display:inline-block;vertical-align:middle"><path d="${d}" style="fill:none;stroke:var(${color});stroke-width:1.4"/></svg>`;}
+const scoreRows=[
+  ['营收',n(R.value)+' 万',n(R.target,0)+' 万',pct(R.rate),delta(R.yoy*100),mini(D.weekly.rev,'--s-blue'),R.rate>=R.time?'<span class="chip good">✓ 正常</span>':'<span class="chip warn">! 关注</span>'],
+  ['毛利率',pct(D.margin.value),pct(D.margin.target,0),pct(D.margin.value/D.margin.target),delta(D.margin.yoyPP,{unit:'pp'}),mini(D.weekly.margin,'--s-blue'),'<span class="chip good">✓ 正常</span>'],
+  ['订单数',n(D.orders.value,0),n(D.orders.target,0),pct(D.orders.value/D.orders.target),delta(D.orders.yoy*100),mini(D.weekly.orders,'--s-blue'),'<span class="chip good">✓ 正常</span>'],
+  ['客单价',n(D.aov.value,0)+' 元',n(D.aov.target,0)+' 元',pct(D.aov.value/D.aov.target),delta(D.aov.yoy*100),mini(D.weekly.aov,'--s-blue'),'<span class="chip warn">! 关注</span>'],
+  ['退款率',pct(D.refund.value),'≤ '+pct(D.refund.target,0),D.refund.value<=D.refund.target?'达标':'未达标',delta(D.refund.yoyPP,{unit:'pp',polarity:'down'}),mini(D.weekly.refund,'--s-blue'),'<span class="chip good">✓ 正常</span>'],
+  ['交付及时率',pct(D.ontime.value),'≥ 98%',pct(D.ontime.value/.98),delta(D.ontime.yoyPP,{unit:'pp'}),mini(D.weekly.ontime,'--s-blue'),`<span class="chip ${ontimeStatus[0]}">${ontimeStatus[1]}</span>`]];
+P.push({id:'P05',p:'p1',name:'记分卡表格',en:'Scorecard',q:'所有指标对目标的全貌',
+  html:card(`<div style="overflow-x:auto"><table class="score"><thead><tr><th>指标</th><th class="num">当前</th><th class="num">目标</th><th class="num">达成</th><th class="num">同比</th><th>近 12 周</th><th>状态</th></tr></thead><tbody>${scoreRows.map(r=>`<tr><td>${r[0]}</td><td class="num">${r[1]}</td><td class="num">${r[2]}</td><td class="num">${r[3]}</td><td class="num">${r[4]}</td><td>${r[5]}</td><td>${r[6]}</td></tr>`).join('')}</tbody></table></div>`),
+  anat:'行 = 指标；列 = 当前 / 目标 / 达成 / 同比 / 趋势 / 状态；数值右对齐等宽',act:'行悬浮高亮；点行展开该指标的 P02 主次面板',src:'平衡计分卡 · Looker 表格',dna:'表格 + 嵌入迷你条'});
+const O=D.orders;
+P.push({id:'P06',p:'p2',name:'指标树',en:'Metric tree',q:'变化来自哪个驱动因子？',
+  html:card(`<div style="overflow-x:auto"><div class="tree" style="min-width:520px"><svg viewBox="0 0 520 210" preserveAspectRatio="none" aria-hidden="true"><path d="M260 44 C260 70 156 70 156 94 M260 44 C260 70 374 70 374 94 M156 126 C156 148 73 148 73 166 M156 126 C156 148 229 148 229 166" style="fill:none;stroke:var(--c-connector);stroke-width:1.2"/></svg>
+    <div class="node root" style="left:50%;top:22px"><div class="t">营收（万元）</div><div class="v">${n(R.value)} ${delta(R.mom*100)}</div></div>
+    <div class="node" style="left:30%;top:110px"><div class="t">订单数</div><div class="v">${n(O.value,0)} ${delta(O.mom*100)}</div></div>
+    <span class="op" style="left:51%;top:110px">×</span>
+    <div class="node" style="left:72%;top:110px"><div class="t">客单价（元）</div><div class="v">${n(D.aov.value,0)} ${delta(D.aov.mom*100)}</div></div>
+    <div class="node" style="left:14%;top:182px"><div class="t">新客订单</div><div class="v">${n(O.newOrders,0)} ${delta(O.newMom*100)}</div></div>
+    <span class="op" style="left:29%;top:182px">+</span>
+    <div class="node" style="left:44%;top:182px"><div class="t">复购订单</div><div class="v">${n(O.repeat,0)} ${delta(O.repeatMom*100)}</div></div></div></div>`),
+  anat:'把 KPI 拆成可乘 / 可加的驱动因子，每个节点带对比',act:'点节点展开 / 收起；悬浮显示对上层变化的贡献',src:'Mixpanel Metric Trees · 图表 15 树状图',dna:'—',note:`勾稽：${n(O.value,0)} × ${n(D.aov.value,0)} 元 ≈ ${n(O.value*D.aov.value/1e4)} 万；${n(O.newOrders,0)} + ${n(O.repeat,0)} = ${n(O.newOrders+O.repeat,0)}`});
+const chainBg=['var(--s-blue)','color-mix(in srgb,var(--s-blue) 62%,var(--c-surface))','color-mix(in srgb,var(--s-blue) 36%,var(--c-surface))','color-mix(in srgb,var(--s-blue) 18%,var(--c-surface))'];
+P.push({id:'P07',p:'p2',name:'转化链',en:'Chip chain',q:'每一步留下了多少？',
+  html:card(head('本月销售转化','9 月',false)+`<div class="chain">${D.funnel.map((f,i)=>`${i?'<span class="arrow" aria-hidden="true">→</span>':''}<div><div class="c" style="background:${chainBg[i]};color:${i===0?'var(--s-blue-on)':'var(--c-text)'}">${f[0]}</div><div class="v">${n(f[1],0)}</div><div class="r">${i?'转化 '+pct(f[1]/D.funnel[i-1][1]):'起点'}</div></div>`).join('')}</div>`),
+  anat:'一行 4–9 枚阶段 chip，底色深浅表示阶段顺序，数值与转化率在下方',act:'悬浮 chip 显示相邻两步的流失量',src:'漏斗',dna:'2.4 强度编码 chip 行'});
+/* ---------- render specimens ---------- */
+const meta=s=>`<div class="spec-meta"><div class="spec-title"><span class="tag ${s.p}">${s.id}</span>${s.name}<small>${s.en}</small></div><div class="spec-q">${s.q}</div><dl><dt>解剖</dt><dd>${s.anat}</dd><dt>交互</dt><dd>${s.act}</dd><dt>出处</dt><dd>${s.src}${s.dna&&s.dna!=='—'?` · <b style="color:#7a5f14">DNA ${s.dna}</b>`:''}</dd>${s.note?`<dt>备注</dt><dd>${s.note}</dd>`:''}</dl></div>`;
+document.getElementById('card-specs').innerHTML=C.map(s=>`<article class="spec" aria-label="${s.id} ${s.name}"><div class="spec-stage ${s.one?'one':''}">${s.html}</div>${meta(s)}</article>`).join('');
+document.getElementById('panel-specs').innerHTML=P.map(s=>`<article class="spec" aria-label="${s.id} ${s.name}"><div class="spec-stage one">${s.html}</div>${meta(s)}</article>`).join('');
+/* ---------- rules: formats, polarity, states ---------- */
+const fmtRows=[['金额 ≥ 1 万','12,863,760 元',n(12863760/1e4)+' 万','万，保留 1 位'],['金额 ≥ 1 亿','984,270,000 元',n(984270000/1e8,2)+' 亿','亿，保留 2 位'],['计数','2418','2,418','千分位；不足 1 万不换单位'],['比率','0.3842','38.4%','保留 1 位'],['比率的变化','38.4% vs 37.2%','+1.2pp','写百分点，不写 %'],['负数','−0.035',MINUS+'3.5%','用减号 U+2212，不用连字符'],['空值','null','—','悬浮说明原因：未上报 / 无权限 / 不适用'],['零值','0','0','零是数据，不当空值'],['超长数值','8 位以上','降字号或升单位','30→26→22px，不溢出卡片']];
+document.getElementById('fmt-rows').innerHTML=fmtRows.map(r=>`<tr><td>${r[0]}</td><td class="mono">${r[1]}</td><td><b>${r[2]}</b></td><td>${r[3]}</td></tr>`).join('');
+const polar=[['本月营收',n(R.value)+'<small>万</small>',delta(R.mom*100),'增加为好 · 上升'],['客单价',n(D.aov.value,0)+'<small>元</small>',delta(D.aov.mom*100),'增加为好 · 下降'],['退款率',pct(D.refund.value),delta(D.refund.momPP,{unit:'pp',polarity:'down'}),'减少为好 · 下降'],['在职人数','412',delta(1.2,{polarity:'neutral'}),'中性指标 · 只标方向不着色'],['复购率',pct(D.orders.repeat/D.orders.value),delta(.03,{unit:'pp'}),'变化不足 0.05pp · 视为持平']];
+document.getElementById('polar').innerHTML=polar.map(p=>card(`<div class="kpi-label">${p[0]}</div><div class="kpi-value">${p[1]}</div><div class="kpi-row">${p[2]}</div><div class="why">${p[3]}</div>`)).join('');
+const st=[['正常',head('本月营收','9 月 1–22 日')+`<div class="kpi-value">${n(R.value)}<small>万元</small></div><div class="kpi-row">${cmp('环比',R.mom*100)}</div>`],
+ ['加载中',`<div class="skel" style="width:40%"></div><div class="skel" style="width:70%;height:26px;margin-top:14px"></div><div class="skel" style="width:52%;margin-top:12px"></div>`],
+ ['暂无数据',head('本月营收','9 月 1–22 日')+`<div class="kpi-value" style="color:var(--c-text-4)">—</div><div class="kpi-row">本月尚无确认收入</div>`],
+ ['加载失败',head('本月营收','9 月 1–22 日')+`<div class="kpi-row" style="margin-top:14px;color:var(--c-text-2);white-space:normal">数据源超时，未取到本月数据</div><button type="button" class="retry">重试</button>`],
+ ['数据延迟',head('本月营收','9 月 1–22 日')+`<div class="kpi-value">${n(R.value)}<small>万元</small></div><div class="kpi-row"><span class="chip warn">! 更新于 8 小时前</span></div>`]];
+document.getElementById('states').innerHTML=st.map(s=>`<div>${card(s[1])}<div class="cap">${s[0]}</div></div>`).join('');
+/* ---------- theme switch ---------- */
+const KEY='kpi-proposal-theme',btns=document.querySelectorAll('[data-theme-choice]');let timer=0;
+function setTheme(t,anim){const root=document.documentElement;if(anim&&!matchMedia('(prefers-reduced-motion: reduce)').matches){root.classList.add('theme-switching');clearTimeout(timer);timer=setTimeout(()=>root.classList.remove('theme-switching'),380);}root.setAttribute('data-chart-theme',t);btns.forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.themeChoice===t)));try{localStorage.setItem(KEY,t);}catch(e){}}
+setTheme(document.documentElement.getAttribute('data-chart-theme')==='light'?'light':'dark',false);
+btns.forEach(b=>b.addEventListener('click',()=>setTheme(b.dataset.themeChoice,true)));
+})();
+</script>

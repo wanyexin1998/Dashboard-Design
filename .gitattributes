@@ -1,0 +1,4 @@
+# Keep LF everywhere (the build also normalises CRLF, so a Windows checkout can never change the output)
+* text=auto eol=lf
+*.png binary
+*.jpg binary
