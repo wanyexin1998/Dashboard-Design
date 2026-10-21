@@ -31,6 +31,7 @@ tools/build.mjs           构建脚本，只依赖 Node
 tools/data/               示例数据的生成脚本（留档，构建不运行）
 tests/                    Playwright 验收脚本；tests/run.mjs 一键跑全部
 docs/proposals/           第一阶段四份组件方案的离线副本（指标、筛选、页签、表格）
+docs/产品功能文档.md       用户侧功能架构：只写能看见、点到、拖到、听到、分享到的能力
 docs/phase-2-kickoff.md   第二阶段准备：交付清单、验收基线、技术债、可选方向、待定问题
 ```
 
