@@ -1,0 +1,1628 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<meta name="description" content="图表实验室的产品功能架构：五层、阅读协议、九种任务、页面外壳、经营判断与本版边界。">
+<title>图表实验室 · 产品功能架构</title>
+<style>
+  :root {
+    --paper: #eeede7;
+    --ink: #20231f;
+    --muted: #5c6158;
+    --faint: #73776e;
+    --line: #d6d7ce;
+    --card: #fbfbf8;
+    --soft: #e7e6df;
+    --accent: #242b20;
+    --on-accent: #f4f3ee;
+    --focus: #3f6b4a;
+    --info: #eef1ea;
+    --info-line: #c9d2c4;
+    --warn: #8a5a00;
+    --warn-bg: #f7eedb;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-padding-top: 72px; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font: 16px/1.6 "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  }
+  .skip {
+    position: absolute;
+    left: 12px;
+    top: -40px;
+    background: var(--accent);
+    color: var(--on-accent);
+    padding: 6px 10px;
+    border-radius: 8px;
+  }
+  .skip:focus { top: 12px; }
+  a { color: #245c38; }
+  a:hover { text-decoration: none; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+  .wrap { width: min(1080px, calc(100% - 32px)); margin: 0 auto; }
+  header.top {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: #eeede7;
+    background: color-mix(in srgb, var(--paper) 92%, transparent);
+    border-bottom: 1px solid var(--line);
+    backdrop-filter: blur(10px);
+  }
+  header.top .wrap {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-height: 58px;
+  }
+  .brand { font-weight: 650; letter-spacing: -0.02em; text-decoration: none; color: inherit; }
+  .brand small { display: block; font: 10px/1.2 ui-monospace, Consolas, monospace; letter-spacing: 0.12em; color: var(--faint); font-weight: 500; }
+  nav.crumbs { display: flex; gap: 14px; margin-left: auto; font-size: 13px; }
+  nav.crumbs a { color: var(--muted); text-decoration: none; }
+  nav.crumbs a:hover { color: var(--ink); }
+  main { padding: 28px 0 72px; }
+  h1 { font-size: 34px; line-height: 1.2; letter-spacing: -0.03em; font-weight: 650; margin: 8px 0 10px; }
+  h2 { font-size: 22px; letter-spacing: -0.02em; font-weight: 650; margin: 36px 0 8px; }
+  h3 { font-size: 18px; margin: 0 0 6px; font-weight: 650; }
+  h3 span { font-weight: 450; color: var(--muted); font-size: 15px; }
+  .lede { margin: 0; max-width: 68ch; color: var(--muted); }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 22px 0; }
+  .stat { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px 12px; }
+  .stat b { display: block; font-size: 28px; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; line-height: 1.1; }
+  .stat span { color: var(--muted); font-size: 13px; }
+  .callout { background: var(--info); border: 1px solid var(--info-line); border-radius: 14px; padding: 14px 16px; }
+  .callout strong { display: block; margin-bottom: 4px; }
+  .callout p { margin: 0; }
+  .note { color: var(--muted); margin: 0 0 12px; }
+  .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; background: var(--card); }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; line-height: 1.5; }
+  caption { text-align: left; padding: 10px 14px 0; font-size: 12px; color: var(--faint); }
+  th, td { text-align: left; vertical-align: top; padding: 10px 14px; border-top: 1px solid var(--line); }
+  thead th { border-top: 0; font-size: 12px; font-weight: 650; color: var(--muted); background: #f6f5f0; }
+  tbody tr:nth-child(even) td { background: #f7f6f2; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  tr.warn td:first-child { box-shadow: inset 3px 0 0 var(--warn); }
+  .pills { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 16px; }
+  .pills button {
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--ink);
+    border-radius: 999px;
+    padding: 6px 12px;
+    font: inherit;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .pills button[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+  .task-panel { margin-top: 8px; }
+  .js .task-panel { display: none; }
+  .js .task-panel.is-on { display: block; }
+  .sees { list-style: none; padding: 0; margin: 14px 0 0; display: grid; gap: 8px; }
+  .sees li { display: grid; grid-template-columns: 168px 1fr; gap: 12px; font-size: 14px; }
+  .sees b { font-weight: 650; }
+  .sees span { color: var(--muted); }
+  .fine { color: var(--faint); font-size: 13px; }
+  .downloads { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 6px; }
+  .downloads button {
+    border: 1px solid var(--accent);
+    background: var(--accent);
+    color: var(--on-accent);
+    border-radius: 999px;
+    padding: 8px 14px;
+    font: inherit;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .downloads button.secondary { background: transparent; color: var(--ink); border-color: var(--line); }
+  footer .downloads { margin: 0; }
+  footer { border-top: 1px solid var(--line); padding: 18px 0 28px; color: var(--faint); font-size: 13px; }
+  footer .wrap { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .sr { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+  @media (max-width: 800px) {
+    h1 { font-size: 28px; }
+    .stats { grid-template-columns: 1fr 1fr; }
+    nav.crumbs { display: none; }
+    .sees li { grid-template-columns: 1fr; gap: 2px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { scroll-behavior: auto !important; }
+  }
+</style>
+<script>document.documentElement.classList.add("js");</script>
+</head>
+<body>
+<a class="skip" href="#content">跳到正文</a>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#content">图表实验室<small>PRODUCT ARCHITECTURE</small></a>
+    <nav class="crumbs" aria-label="页内">
+      <a href="#layers">五层</a>
+      <a href="#protocol">阅读协议</a>
+      <a href="#tasks">九种任务</a>
+      <a href="#shell">外壳</a>
+      <a href="#sample">示例</a>
+      <a href="#limits">边界</a>
+    </nav>
+  </div>
+</header>
+<main id="content" class="wrap">
+  <p class="fine">第一阶段完成态 · 2026-09-23</p>
+  <h1>图表实验室 · 产品功能架构</h1>
+  <p class="lede">51 个可交互单元，只按使用者能看见、点到、拖到、听到和分享到的能力分层。逐卡说明已放在这一页里，点下面的按钮即可保存。</p>
+  <div class="downloads" role="group" aria-label="下载">
+    <button type="button" data-dl="md">下载产品功能文档.md</button>
+    <button type="button" class="secondary" data-dl="html">下载产品功能架构.html</button>
+  </div>
+  <p class="fine">两份文件都在这一页中。保存下来的 HTML 里仍然带这两个下载按钮。</p>
+
+  <section class="stats" aria-label="规模">
+    <div class="stat"><b>51</b><span>可交互单元</span></div>
+    <div class="stat"><b>9</b><span>解耦后的阅读任务</span></div>
+    <div class="stat"><b>5</b><span>产品层级</span></div>
+    <div class="stat"><b>2</b><span>示例世界：生活与经营</span></div>
+  </section>
+
+  <aside class="callout">
+    <strong>产品在做什么</strong>
+    <p>打开即可使用的交互参考。标题是「让数据的变化，看得见。」前十张图讲活动、专注和步数；其余图表、指标、筛选、页签和表格讲一份截至 2026 年 9 月 22 日的经营简报。它不写入真实业务。</p>
+  </aside>
+
+  <section id="layers" aria-labelledby="layers-h">
+    <h2 id="layers-h">五层怎么叠</h2>
+    <p>上一层是下一层共用的规矩。任务不绑定某一张卡：换掉对比卡，箭头表示方向、颜色表示好坏仍然成立。</p>
+    <div class="table-wrap">
+      <table>
+        <caption>产品的五层</caption>
+        <thead><tr><th>层</th><th>使用者感到的是</th><th class="num">规模</th></tr></thead>
+        <tbody>
+          <tr><td>进入与浏览</td><td>顶栏、分类、深浅底色、减少动效、重播、截至日胶囊、四块规则说明</td><td class="num">整页</td></tr>
+          <tr><td>阅读协议</td><td>读数浮层、选中、连续变形、数字与好坏、一个截至日、可分享的当前看法</td><td class="num">所有卡片</td></tr>
+          <tr><td>九种任务</td><td>进度、时间、组成、结构、单指标、多指标、缩小范围、切换、明细</td><td class="num">9</td></tr>
+          <tr><td>五十一个单元</td><td>每张卡只回答一个问题</td><td class="num">51</td></tr>
+          <tr><td>场合</td><td>宽屏悬浮、窄屏图下停靠、触屏固定、键盘等价、读屏、减少动效</td><td class="num">同一功能的不同出现方式</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="protocol" aria-labelledby="protocol-h">
+    <h2 id="protocol-h">阅读协议</h2>
+    <p class="note">这些规矩跨卡片成立。页面下方的交互说明、指标规则、查询规则是它们的公开说明书。</p>
+    <div class="table-wrap">
+      <table>
+        <caption>跨卡片成立的阅读协议</caption>
+        <thead><tr><th>协议</th><th>使用者感到的规则</th></tr></thead>
+        <tbody>
+          <tr><td>看见局部，保留整体</td><td>悬浮看读数；点中一项后其余变淡或上抬；再点或 Esc 取消。换时间范围通常清掉旧选择。</td></tr>
+          <tr><td>直接操作</td><td>拖时间游标或目标线，读数和图形同时变。目标步数 2,000–10,000，每档 100。</td></tr>
+          <tr><td>总有另一种做法</td><td>键盘能完成承诺的操作。窄屏点一下，详情停在图下。减少动效时直接给出结果。</td></tr>
+          <tr><td>先说是什么</td><td>卡面简写，浮层给完整值和算式。空着写原因，零照常显示。</td></tr>
+          <tr><td>再说好不好</td><td>箭头只表示升降。绿色是变好，红色是变差。退款率下降为绿。一张卡最多两个对比。</td></tr>
+          <tr><td>进度怎么判</td><td>达成率减去时间进度，差到 0.5 个百分点才叫超前或滞后。时间进度是红色虚线。</td></tr>
+          <tr><td>状态怎么判</td><td>正常、关注、异常同时用图标、文字和颜色。按原始值分档，不按四舍五入后的显示值。</td></tr>
+          <tr><td>主数字不跟着探查走</td><td>逐日的数写在图旁或浮层。大数字仍是本月或当期。</td></tr>
+          <tr><td>条件从哪来，就回到哪去</td><td>单控件立刻生效，抽屉一次提交。联动用虚线芯片，可逐个撤销。空结果给出路。</td></tr>
+          <tr><td>全页一个截至日</td><td>只有日期面板能设定，胶囊可回到 9 月 22 日。跟随的是筛选、页签、表格和两张进度卡。</td></tr>
+          <tr><td>当前看法可分享</td><td>非默认的筛选、页签和截至日留在链接里，可后退。表格排序、页码和勾选不在其中。</td></tr>
+          <tr><td>两种切换</td><td>页签切内容，分段控件切参数，最多两层。内容已在页上就随方向键切换；要取数则按 Enter。</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="tasks" aria-labelledby="tasks-h">
+    <h2 id="tasks-h">九种任务</h2>
+    <p>点一种任务，看它下面的单元。进度任务里包含目标线和两张进度卡，因为它们回答的是同一件事，只是摆法不同。每个单元只归在它最主要的那一种任务下，九组合计 51。</p>
+    <div class="pills" role="group" aria-label="阅读任务">
+      <button type="button" data-task="progress" aria-pressed="true">看进度</button>
+      <button type="button" data-task="time" aria-pressed="false">看时间</button>
+      <button type="button" data-task="compose" aria-pressed="false">看组成</button>
+      <button type="button" data-task="structure" aria-pressed="false">看结构</button>
+      <button type="button" data-task="metric" aria-pressed="false">看一个指标</button>
+      <button type="button" data-task="organize" aria-pressed="false">组织多个指标</button>
+      <button type="button" data-task="narrow" aria-pressed="false">缩小范围</button>
+      <button type="button" data-task="switch" aria-pressed="false">切换内容</button>
+      <button type="button" data-task="detail" aria-pressed="false">落到一行</button>
+    </div>
+    <p class="sr" role="status" id="task-status"></p>
+
+    <article class="task-panel is-on" data-panel="progress">
+      <h3>看进度 <span>· 6 个单元</span></h3>
+      <p>做到哪了，离标准还有多远，落在哪一档。</p>
+      <div class="table-wrap"><table>
+        <caption>看进度</caption>
+        <thead><tr><th>编号</th><th>单元</th><th>它回答的问题</th><th>打开后能做的事</th></tr></thead>
+        <tbody>
+          <tr><td>01</td><td>活动圆环</td><td>三项目标各自完成了多少，有没有超额。</td><td>悬浮环或图例。浮层给出当前、目标、完成率、超额量。</td></tr>
+          <tr><td>03</td><td>仪表盘</td><td>一个分数落在低、正常、高的哪一段。</td><td>切换示例分数 15、64、92。浮层给出当前、满分、所属区间。</td></tr>
+          <tr><td>07</td><td>目标线</td><td>标准一变，这周有几天还达标。</td><td>拖整条线，或用键盘以 100 步调整，范围 2,000–10,000。达到或超过都算达标。</td></tr>
+          <tr><td>K04</td><td>目标进度卡</td><td>照这个节奏，这一期能不能完成。</td><td>切换本月、本季、本年。跟随全页截至日重算。条头在虚线左边是滞后。</td></tr>
+          <tr><td>K05</td><td>进度环卡</td><td>目标、达成、差距、时间进度能否同时看见。</td><td>悬浮某一行，环上对应部分亮起。跟随截至日。</td></tr>
+          <tr><td>K06</td><td>阈值状态卡</td><td>这个数是正常、关注，还是异常。</td><td>切换本周、本月、上月。越低越好时色带左绿右红对调。按原始值分档。</td></tr>
+        </tbody>
+      </table></div>
+      <ul class="sees">
+        <li><b>01 活动圆环</b><span>三环同时从零画到当前。超过 100% 的一段加深，并出现超额标记。中心是热量。</span></li>
+        <li><b>03 仪表盘</b><span>指针从零扫到 64，略微过冲再停稳。当前段更实。</span></li>
+        <li><b>07 目标线</b><span>七根日柱，达标为亮色。一条可拖的目标线，主数字是达标天数。</span></li>
+        <li><b>K04 目标进度卡</b><span>达成率、状态胶囊、红色时间进度虚线，以及目标、达成、差额、日均还需。</span></li>
+        <li><b>K05 进度环卡</b><span>月环为蓝，年环为橙。环上红色刻度是时间进度，右侧四行解释。</span></li>
+        <li><b>K06 阈值状态卡</b><span>数字、图标加文字的胶囊、三段色带和指针。</span></li>
+      </ul>
+    </article>
+
+    <article class="task-panel" data-panel="time">
+      <h3>看时间 <span>· 9 个单元</span></h3>
+      <p>这段时间怎么走过来；换尺度后趋势还在不在；每一步贡献多少。</p>
+      <div class="table-wrap"><table>
+        <caption>看时间</caption>
+        <thead><tr><th>编号</th><th>单元</th><th>它回答的问题</th><th>打开后能做的事</th></tr></thead>
+        <tbody>
+          <tr><td>02</td><td>打卡热力格</td><td>哪些天做了，哪些天断了。</td><td>点选某一天。方向键按周或按日移动。</td></tr>
+          <tr><td>04</td><td>柱状图</td><td>换一周或一月后，每天还能不能放在同一把尺子上比。</td><td>周 / 月连续变形。点一根后其余变成轨道色。换范围会清掉选中。</td></tr>
+          <tr><td>05</td><td>专注分段图</td><td>一天里何时深度专注、普通专注、休息。</td><td>横向拖动。键盘可按 1 分钟、15 分钟或 1 小时移动。</td></tr>
+          <tr><td>06</td><td>面积图</td><td>从一周换到一年，趋势是否还连贯。</td><td>周 / 月 / 年连续变形。左右键沿采样点看，不读曲线插值。</td></tr>
+          <tr><td>11</td><td>折线图</td><td>折线和曲线读到的是不是同一组点。</td><td>折 / 曲切换时点不动，已选中的点留着。可点选，Esc 取消。</td></tr>
+          <tr><td>12</td><td>组合图</td><td>规模和效率能不能放在一起看走势。</td><td>换半年、点某月、开关图例。至少留一个系列。线在柱上方不表示大小比较。</td></tr>
+          <tr><td>13</td><td>瀑布图</td><td>从期初到期末，每一步是加是减。</td><td>实际 / 预算连续变化。点一步看变化前后的累计。</td></tr>
+          <tr><td>K03</td><td>趋势卡</td><td>这个月的总数是怎么一天天走过来的。</td><td>拖动或方向键逐日。主数字始终是本月累计。</td></tr>
+          <tr><td>K09</td><td>日 / 月 / 年三联卡</td><td>同一个营收，今天、这个月、今年分别是多少。</td><td>三列各自探查。日比上周同日，月比环比同期，年比同比。</td></tr>
+        </tbody>
+      </table></div>
+      <ul class="sees">
+        <li><b>02 打卡热力格</b><span>20 周的五档颜色。角落是连续 26 天。断签是深色格。</span></li>
+        <li><b>04 柱状图</b><span>日均分钟，以及 60 分钟参考线。</span></li>
+        <li><b>05 专注分段图</b><span>9:00–17:00 的三行色块。游标默认停在 16:14。</span></li>
+        <li><b>06 面积图</b><span>平滑面积，主数字是这一段的平均步数。默认一年，平均 6.5 千步。</span></li>
+        <li><b>11 折线图</b><span>一周活跃用户，主数字是周日。</span></li>
+        <li><b>12 组合图</b><span>营收柱、成本柱、毛利率线。左轴万元从零起，右轴固定 0–60%。</span></li>
+        <li><b>13 瀑布图</b><span>总量、增加、减少三种颜色，柱顶虚线相接。说明行是一道等式。</span></li>
+        <li><b>K03 趋势卡</b><span>营收面积与订单柱。图旁默认是最新一天。</span></li>
+        <li><b>K09 日 / 月 / 年三联卡</b><span>三列迷你柱。未满的 9 月变浅并带虚线。</span></li>
+      </ul>
+    </article>
+
+    <article class="task-panel" data-panel="compose">
+      <h3>看组成 <span>· 4 个单元</span></h3>
+      <p>一个整体里，每一部分占多少。</p>
+      <div class="table-wrap"><table>
+        <caption>看组成</caption>
+        <thead><tr><th>编号</th><th>单元</th><th>它回答的问题</th><th>打开后能做的事</th></tr></thead>
+        <tbody>
+          <tr><td>08</td><td>分段占比条</td><td>今天这 9 小时 40 分各做了哪一类。</td><td>点段或图例，该段上抬，其余颜色保留。</td></tr>
+          <tr><td>09</td><td>环形占比图</td><td>屏幕时间里哪一类占了多少。</td><td>点扇段或图例，该段外移，中心换成这一项，其余变灰。</td></tr>
+          <tr><td>10</td><td>气泡图</td><td>先用面积建立印象，再看清一个活动。</td><td>点击进入聚焦：放大让位，并声明此时大小不再表示数量。可返回比例。</td></tr>
+          <tr><td>P07</td><td>转化链</td><td>从访客到成交，每一步留下多少、流失多少。</td><td>切换逐步转化或累计转化。浮层给出本步流失的完整人数。</td></tr>
+        </tbody>
+      </table></div>
+      <ul class="sees">
+        <li><b>08 分段占比条</b><span>四段一条，段间有缝，图例带百分比。</span></li>
+        <li><b>09 环形占比图</b><span>中心是 5 小时 12 分。四段依次画出。</span></li>
+        <li><b>10 气泡图</b><span>六项活动，面积表示分钟。比例模式写明圆面积表示时长。</span></li>
+        <li><b>P07 转化链</b><span>五枚由深到浅的胶囊。成交人数等于订单数。</span></li>
+      </ul>
+    </article>
+
+    <article class="task-panel" data-panel="structure">
+      <h3>看结构 <span>· 2 个单元</span></h3>
+      <p>在层级里的位置，或在增长与份额上的位置。</p>
+      <div class="table-wrap"><table>
+        <caption>看结构</caption>
+        <thead><tr><th>编号</th><th>单元</th><th>它回答的问题</th><th>打开后能做的事</th></tr></thead>
+        <tbody>
+          <tr><td>14</td><td>四象限图</td><td>业务在份额和增长率上处于哪一象限，营收有多大。</td><td>切换季度时选中留着，用来看迁移。点一只气泡，其余变淡。</td></tr>
+          <tr><td>15</td><td>树状图</td><td>总营收下每一层占多少。</td><td>横纵切换时收起和选中都留着。点分支收起子项。浮层给出占上级和占总体。</td></tr>
+        </tbody>
+      </table></div>
+      <ul class="sees">
+        <li><b>14 四象限图</b><span>左高右低的份额轴，增长轴，四块象限名。颜色跟着业务走，不跟着象限走。</span></li>
+        <li><b>15 树状图</b><span>根、三个分支、六片叶子。分支上有展开符号。</span></li>
+      </ul>
+    </article>
+
+    <article class="task-panel" data-panel="metric">
+      <h3>看一个指标 <span>· 3 个单元</span></h3>
+      <p>现在多少，比以前如何，口径是什么，是否正常，谁在前面。</p>
+      <div class="table-wrap"><table>
+        <caption>看一个指标</caption>
+        <thead><tr><th>编号</th><th>单元</th><th>它回答的问题</th><th>打开后能做的事</th></tr></thead>
+        <tbody>
+          <tr><td>K01</td><td>数值卡</td><td>这个数是什么，统计哪一段，现在显不显示得可靠。</td><td>切换正常、加载、空、失败、延迟。五种状态卡片不跳动。失败可重试。</td></tr>
+          <tr><td>K02</td><td>对比卡</td><td>比上一期是升是降，这件事是变好还是变差。</td><td>悬浮对比行，看本期、基期、绝对变化和算式。一张卡最多两个对比。</td></tr>
+          <tr><td>K08</td><td>排行卡</td><td>谁贡献最多，谁涨得最快。</td><td>营收 / 增速切换，行移到新名次。增速为负的一侧用灰色条。</td></tr>
+        </tbody>
+      </table></div>
+      <ul class="sees">
+        <li><b>K01 数值卡</b><span>本月营收与订单并排。眉标有口径标记和日期区间。</span></li>
+        <li><b>K02 对比卡</b><span>两行对比。客单价下降为红，退款率下降为绿。</span></li>
+        <li><b>K08 排行卡</b><span>六个区域。「其他」固定在末尾，不参与排名。</span></li>
+      </ul>
+    </article>
+
+    <article class="task-panel" data-panel="organize">
+      <h3>组织多个指标 <span>· 5 个单元</span></h3>
+      <p>并列、主次、驱动一张图、同一尺度、对照目标。</p>
+      <div class="table-wrap"><table>
+        <caption>组织多个指标</caption>
+        <thead><tr><th>编号</th><th>单元</th><th>它回答的问题</th><th>打开后能做的事</th></tr></thead>
+        <tbody>
+          <tr><td>P01</td><td>指标条</td><td>一行看完核心指标，并同时换成另一种对比。</td><td>环比 / 同比一起过渡，颜色跟着变化中的数值走。方向键在六项间移动。</td></tr>
+          <tr><td>P02</td><td>主次面板</td><td>主指标怎么样，还差多少，月底会落到哪。</td><td>悬浮右侧某一行，图上对应的线亮起。可沿曲线逐日看。主数字不变。</td></tr>
+          <tr><td>P03</td><td>指标页签图</td><td>从一排指标走进这一项自己的逐日图。</td><td>切换时曲线原位变形。页签上的数字始终是本月。</td></tr>
+          <tr><td>P04</td><td>宫格看板</td><td>同一时间尺度下，六项一起看。</td><td>本月 / 本季 / 本年一起过渡。比率按权重重算，不做简单平均。</td></tr>
+          <tr><td>P05</td><td>记分卡</td><td>所有指标相对目标的全貌，哪几项要关注。</td><td>「达成」和「状态」三态排序。状态降序时异常在前。方向键逐行读判定依据。</td></tr>
+        </tbody>
+      </table></div>
+      <ul class="sees">
+        <li><b>P01 指标条</b><span>营收、订单、客单价、毛利率、退款率、及时率。</span></li>
+        <li><b>P02 主次面板</b><span>大号营收、累计曲线、目标节奏、今天、预计线，以及一句结论。</span></li>
+        <li><b>P03 指标页签图</b><span>四个页签，下方折线、日目标虚线和刻度。</span></li>
+        <li><b>P04 宫格看板</b><span>三行两列。窄屏变成两列三行。</span></li>
+        <li><b>P05 记分卡</b><span>六行：本月、目标、达成、同比、走势、状态。累计型走势用日均。</span></li>
+      </ul>
+    </article>
+
+    <article class="task-panel" data-panel="narrow">
+      <h3>缩小范围 <span>· 11 个单元</span></h3>
+      <p>先定时间，再收范围，看见条件，空了还能退出。</p>
+      <div class="table-wrap"><table>
+        <caption>缩小范围</caption>
+        <thead><tr><th>编号</th><th>单元</th><th>它回答的问题</th><th>打开后能做的事</th></tr></thead>
+        <tbody>
+          <tr><td>F01</td><td>快捷时间</td><td>先把时间定下来。</td><td>点选或方向键即生效。只在有数据的日子上做对比。自定义走月历。</td></tr>
+          <tr><td>F02</td><td>日期区间</td><td>这段时间到底是哪几天，和哪一段比。</td><td>先预览，确定后本期和对比期一起更新。没有的日子不补 0。</td></tr>
+          <tr><td>F03</td><td>单选下拉</td><td>在几条互斥业务线里选一条。</td><td>方向键只移动高亮，Enter、空格或 Tab 才确认。Esc 不改值。</td></tr>
+          <tr><td>F04</td><td>多选下拉</td><td>同时看几个，并且知道选了几个。</td><td>可搜索、可全选。每勾一项立刻生效。再次打开时已选项在最前。</td></tr>
+          <tr><td>F05</td><td>级联筛选</td><td>沿着地理往下收，重名不要算成同一个。</td><td>只在区县勾选。南京鼓楼和福州鼓楼分开计算。</td></tr>
+          <tr><td>F06</td><td>维度芯片</td><td>候选很少时，还要不要下拉。</td><td>同一维是或，两维之间是且。</td></tr>
+          <tr><td>F07</td><td>已选条件</td><td>我现在到底在看哪一段。</td><td>逐个移除，焦点落到下一枚。可以再加回。</td></tr>
+          <tr><td>F08</td><td>筛选抽屉</td><td>条件多的时候，怎样改完一次提交。</td><td>未应用先记着。应用才生效，Esc 放弃。空结果给出路。</td></tr>
+          <tr><td>F09</td><td>图表联动</td><td>点了图之后，其余图为什么变了。</td><td>单击即联动其余图。来源图不滤自己。关掉开关后单击只高亮。</td></tr>
+          <tr><td>F10</td><td>结果与空态</td><td>筛空之后，下一步点哪里。</td><td>拖阈值或换区域。空了换成原因和可点的出路。</td></tr>
+          <tr><td>F11</td><td>日期面板</td><td>哪天没达标；要不要把这一天设成截至日。</td><td>看某一天，和「设为截至日」是两步。设下后胶囊变色，相关卡片重算。</td></tr>
+        </tbody>
+      </table></div>
+      <ul class="sees">
+        <li><b>F01 快捷时间</b><span>今日到近 30 天，加自定义。默认本月，今日没有数。</span></li>
+        <li><b>F02 日期区间</b><span>触发器上的区间。弹层里是预设、月历和对比期。</span></li>
+        <li><b>F03 单选下拉</b><span>直营、分销、电商，未选项变浅但仍留在图上。</span></li>
+        <li><b>F04 多选下拉</b><span>触发器写「华东 +2」，旁边是已选计数。</span></li>
+        <li><b>F05 级联筛选</b><span>省、市、区三列。芯片写全路径。</span></li>
+        <li><b>F06 维度芯片</b><span>渠道一行、客群一行，下方是矩阵。命中格反色。</span></li>
+        <li><b>F07 已选条件</b><span>条件芯片。来自图表的那枚是虚线。下方是每一刀收窄了多少。</span></li>
+        <li><b>F08 筛选抽屉</b><span>筛选计数和已应用芯片。抽屉里是大区、金额区间、环比。</span></li>
+        <li><b>F09 图表联动</b><span>三张图和一枚默认开着的联动开关。联动条件是虚线芯片。</span></li>
+        <li><b>F10 结果与空态</b><span>符合多少天、合计、一排日格。截至日之后是空心格。</span></li>
+        <li><b>F11 日期面板</b><span>月历状态点、当日读数、按周的达标堆叠。</span></li>
+      </ul>
+    </article>
+
+    <article class="task-panel" data-panel="switch">
+      <h3>切换内容 <span>· 6 个单元</span></h3>
+      <p>换一块内容用页签，换一个参数用分段控件，最多两层。</p>
+      <div class="table-wrap"><table>
+        <caption>切换内容</caption>
+        <thead><tr><th>编号</th><th>单元</th><th>它回答的问题</th><th>打开后能做的事</th></tr></thead>
+        <tbody>
+          <tr><td>T01</td><td>下划线页签</td><td>这一层我在看总览、趋势、结构，还是明细。</td><td>方向键立刻切换。选中项写进链接，刷新后还在。</td></tr>
+          <tr><td>T02</td><td>药丸页签</td><td>卡片内部换一组维度，同时还能换指标。</td><td>药丸换内容，分段控件换参数。两层语义不同。</td></tr>
+          <tr><td>T05</td><td>徽标页签</td><td>哪一组还有事没处理。</td><td>处理后数量减少，焦点落到下一条。刷新后回到示例。</td></tr>
+          <tr><td>T06</td><td>页签溢出</td><td>页签放不下时怎么找。</td><td>方向键把目标滚进可视区。菜单可翻到按钮上方。</td></tr>
+          <tr><td>T07</td><td>纵向页签</td><td>左边一列、右边一页，适合文案较长的设置。</td><td>上下键切换。窄屏改成横向，方向键跟着变成左右。</td></tr>
+          <tr><td>T08</td><td>动态页签</td><td>页签能否自己加、自己关。</td><td>方向键只移动焦点，Enter 才切换，切换时先见骨架。关闭后焦点落到邻项。</td></tr>
+        </tbody>
+      </table></div>
+      <ul class="sees">
+        <li><b>T01 下划线页签</b><span>四块内容共用高度，切换时页面不跳。</span></li>
+        <li><b>T02 药丸页签</b><span>渠道、区域、客群，右上角是营收 / 订单。</span></li>
+        <li><b>T05 徽标页签</b><span>待办、关注、已处理、全部。数量为 0 时徽标消失。</span></li>
+        <li><b>T06 页签溢出</b><span>15 个省。两端渐隐、箭头、按大区分组的更多菜单。</span></li>
+        <li><b>T07 纵向页签</b><span>经营、渠道、区域、客群、履约五页。</span></li>
+        <li><b>T08 动态页签</b><span>我的视图、华东复盘、电商专题。最多六个。</span></li>
+      </ul>
+    </article>
+
+    <article class="task-panel" data-panel="detail">
+      <h3>落到一行 <span>· 5 个单元</span></h3>
+      <p>具体是哪一行，差多少。图负责趋势和结构，表负责明细。</p>
+      <div class="table-wrap"><table>
+        <caption>落到一行</caption>
+        <thead><tr><th>编号</th><th>单元</th><th>它回答的问题</th><th>打开后能做的事</th></tr></thead>
+        <tbody>
+          <tr><td>B01</td><td>明细表</td><td>点这一行，应该只是看、往下走、勾起来，还是拿去筛。</td><td>只读、下钻、勾选、联动四种。超过 50 行后每页 20 行。</td></tr>
+          <tr><td>B03</td><td>交叉表</td><td>两个维度交叉之后，每一格是多少。</td><td>超过 60 格先询问再展开。悬浮时十字高亮。合计用看到的数相加。</td></tr>
+          <tr><td>B05</td><td>分组小计</td><td>先在组里比，再在组与组之间比。</td><td>组头展开或收起，也可全部展开。键盘到不了组内行。</td></tr>
+          <tr><td>B06</td><td>可展开行</td><td>平时看汇总，偶尔看省份。</td><td>展开后父行不动，子行写占该区域的比例。整行不会下钻。</td></tr>
+          <tr><td>B07</td><td>对比列组</td><td>本期、基期、差多少，放在同一行。</td><td>差额和环比可三态排序。可切换五种数据状态，表高不变。</td></tr>
+        </tbody>
+      </table></div>
+      <ul class="sees">
+        <li><b>B01 明细表</b><span>六个区域。可换成区域 × 日，共 132 行。</span></li>
+        <li><b>B03 交叉表</b><span>区域对渠道、周或日。行小计和列合计。</span></li>
+        <li><b>B05 分组小计</b><span>每个区域三个渠道。组头写小计。组内占比是数据条。</span></li>
+        <li><b>B06 可展开行</b><span>六个区域。展开按钮独立于整行。</span></li>
+        <li><b>B07 对比列组</b><span>三组表头：本期、基期、变化。合计行更深。</span></li>
+      </ul>
+    </article>
+  </section>
+
+  <section id="shell" aria-labelledby="shell-h">
+    <h2 id="shell-h">进入页面时的外壳</h2>
+    <div class="table-wrap">
+      <table>
+        <caption>页面外壳</caption>
+        <thead><tr><th>能力</th><th>默认</th><th>使用者能做的事</th></tr></thead>
+        <tbody>
+          <tr><td>分类浏览</td><td>全部 51</td><td>按八组收起其它卡。集合计数跟着变。选择不写进链接。</td></tr>
+          <tr><td>图表底色</td><td>深色，并记住</td><td>深色 / 浅色。选中、筛选和页签都留着。纸色页面底不动。</td></tr>
+          <tr><td>减少动态效果</td><td>跟随系统</td><td>进场和切换直接到终态。拖动、点选、排序仍然立刻有结果。</td></tr>
+          <tr><td>重播</td><td>每张卡一次进场</td><td>单卡或全部回到示例初值。底部提示约 1.8 秒。筛选卡的重播会清掉它在链接里的状态。</td></tr>
+          <tr><td>截至日胶囊</td><td>数据截至 9/22</td><td>被改过之后变琥珀色，出现「回到最新」。文案写全页，实际跟随的卡片更少。</td></tr>
+          <tr><td>单卡失败</td><td>51 张都在</td><td>失败的卡写明没能加载。其余卡、重播全部不受影响。</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="sample" aria-labelledby="sample-h">
+    <h2 id="sample-h">两套示例里读到的经营判断</h2>
+    <p class="note">生活节律是活动、专注、步数和屏幕时间，不参与筛选。经营简报截至 9 月 22 日，更新演示时刻是 9 月 23 日 09:30。</p>
+    <div class="table-wrap">
+      <table>
+        <caption>经营简报里能读到的判断</caption>
+        <thead><tr><th>读数</th><th>判断</th></tr></thead>
+        <tbody>
+          <tr><td>本月营收 1,286.4 万元</td><td>达成 71.5%，时间进度 73.3%，滞后 1.8 个百分点。月底按近 7 日节奏约 1,802.5 万，只多 2.5 万。</td></tr>
+          <tr><td>订单 2,418 单</td><td>新客 1,012，复购 1,406。环比同期 +12.5%。</td></tr>
+          <tr><td>客单价 5,320 元</td><td>环比 −3.5% 为向差，同比 +2.5% 为向好。达成 97.5%，记分卡列为关注。</td></tr>
+          <tr><td>退款率 1.8%</td><td>下降为好。上限 2%。</td></tr>
+          <tr><td>及时率本月 96.4%</td><td>落在 95–98%，为关注。本周正常，上月异常。</td></tr>
+          <tr><td>区域</td><td>华东最高。西南涨得最快。华中是唯一下滑的大区。</td></tr>
+          <tr><td>渠道</td><td>直营、分销、电商的环比分别约为 +5.1%、+7.9%、+16.0%，不会都等于整体 +8.6%。</td></tr>
+          <tr><td>转化</td><td>48,210 名访客到 2,418 笔成交，整体 5.0%。成交数等于订单数。</td></tr>
+          <tr><td>日目标</td><td>工作日 64.3 万，周末 48.2 万。9 月 1–22 日达标 8 天、接近 9 天、未达 5 天。</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="limits" aria-labelledby="limits-h">
+    <h2 id="limits-h">本版边界</h2>
+    <div class="table-wrap">
+      <table>
+        <caption>本版使用者会碰到的边界</caption>
+        <thead><tr><th>使用者会碰到</th><th>页面实际怎样</th></tr></thead>
+        <tbody>
+          <tr class="warn"><td>胶囊写「全页截至」</td><td>重算的是筛选、页签、表格、目标进度卡和进度环卡。15 张图表和其余指标卡仍停在 9 月 22 日。</td></tr>
+          <tr class="warn"><td>换季度后选中还在</td><td>四象限用这个来看迁移。同页说明却写换范围后清除选择。折线换折曲、树状图换方向也保留选中。</td></tr>
+          <tr><td>分组表和展开行</td><td>键盘可以展开，到不了组内行和子行，那些读数靠悬浮。</td></tr>
+          <tr class="warn"><td>处理待办、新建视图</td><td>只在当次打开里有效。能留在链接里的是筛选、页签和截至日。</td></tr>
+          <tr><td>点一张图想筛全页</td><td>联动只发生在「图表联动」那张卡的三张图之间，以及明细表自己的演示。</td></tr>
+          <tr><td>今日</td><td>被定义成截至日的第二天，所以默认的 9 月 23 日没有数，空态写原因。</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="fine">方案里讨论过、页面上没有的：构成卡、翻牌器、指标树、跨卡片看板联动、任意月份的真实数据、把表格排序写进链接。热力格的单独缺席标记已明确不做。</p>
+  </section>
+</main>
+<footer>
+  <div class="wrap">
+    <span>CHART STUDIES / 2026 · 产品功能架构</span>
+    <div class="downloads" role="group" aria-label="下载">
+      <button type="button" data-dl="md">下载产品功能文档.md</button>
+      <button type="button" class="secondary" data-dl="html">下载产品功能架构.html</button>
+    </div>
+  </div>
+</footer>
+<script>
+try {
+  var root = document.getElementById("tasks");
+  var buttons = [].slice.call(root.querySelectorAll("[data-task]"));
+  var panels = [].slice.call(root.querySelectorAll("[data-panel]"));
+  var live = document.getElementById("task-status");
+  var ids = buttons.map(function (b) { return b.getAttribute("data-task"); });
+  function show(id, announce) {
+    if (ids.indexOf(id) < 0) id = "progress";
+    buttons.forEach(function (b) {
+      b.setAttribute("aria-pressed", b.getAttribute("data-task") === id ? "true" : "false");
+    });
+    panels.forEach(function (p) {
+      var on = p.getAttribute("data-panel") === id;
+      p.classList.toggle("is-on", on);
+    });
+    var current = buttons.filter(function (b) { return b.getAttribute("data-task") === id; })[0];
+    if (announce && live && current) live.textContent = "当前任务：" + current.textContent;
+    if (announce) {
+      try { history.replaceState(null, "", "#" + id); } catch (err) {}
+    }
+  }
+  buttons.forEach(function (b) {
+    b.addEventListener("click", function () { show(b.getAttribute("data-task"), true); });
+  });
+  root.querySelector("[role=group]").addEventListener("keydown", function (e) {
+    var order = ["ArrowRight", "ArrowLeft", "Home", "End"];
+    if (order.indexOf(e.key) < 0) return;
+    var i = buttons.indexOf(document.activeElement);
+    if (i < 0) return;
+    e.preventDefault();
+    if (e.key === "Home") i = 0;
+    else if (e.key === "End") i = buttons.length - 1;
+    else if (e.key === "ArrowRight") i = (i + 1) % buttons.length;
+    else i = (i - 1 + buttons.length) % buttons.length;
+    buttons[i].focus();
+    show(buttons[i].getAttribute("data-task"), true);
+  });
+  var fromHash = (location.hash || "").replace("#", "");
+  show(ids.indexOf(fromHash) >= 0 ? fromHash : "progress", false);
+} catch (e) {}
+try {
+  function saveFile(name, mime, text) {
+    var blob = new Blob([text], { type: mime });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function () { try { URL.revokeObjectURL(url); } catch (err) {} }, 1500);
+  }
+  function markdownText() {
+    var node = document.getElementById("source-md");
+    return node ? node.textContent : "";
+  }
+  function pageHtml() {
+    return "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+  }
+  document.querySelectorAll("[data-dl]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      if (btn.getAttribute("data-dl") === "md") saveFile("产品功能文档.md", "text/markdown;charset=utf-8", markdownText());
+      else saveFile("产品功能架构.html", "text/html;charset=utf-8", pageHtml());
+    });
+  });
+} catch (e) {}
+</script>
+<script type="text/plain" id="source-md"># 图表实验室 · 产品功能文档
+
+> 对照物：第一阶段完成页（2026-09-23）。打开 `chart-studies.html` 看到的，就是本文描述的产品。
+> 本文只写使用者能看见、点到、拖到、听到、分享到的功能。组件怎么拼、数字存在哪、样式怎么命名，一律不写。
+> 来源：页面文案、设计规格、指标 / 筛选 / 页签 / 表格四份方案里已经落地的决定，以及规格第 9 节明确不做的范围。
+> 配套架构页：[产品功能架构.html](产品功能架构.html)，浏览器直接打开。页内可以下载本文和架构页本身。五层、阅读协议、九种任务和本版边界与该页一致；逐卡行为以本文为准。
+
+---
+
+## 0. 怎么读
+
+产品按五层组织。上一层是下一层共用的规矩，下一层是上一层的具体样子。
+
+| 层 | 使用者感受到的是 | 本文位置 |
+|---|---|---|
+| 一、进入与浏览 | 整页怎么逛、怎么换底色、怎么重看动画 | 第 3 节 |
+| 二、阅读协议 | 任何一张卡都遵守的读数、选中、数字、条件规矩 | 第 4 节 |
+| 三、九种任务 | 和具体卡片解开之后，产品实际提供的能力 | 第 5 节 |
+| 四、五十一个单元 | 每张卡回答的一个问题，以及在这张卡上能做的事 | 第 6 节 |
+| 五、场合 | 宽屏、窄屏、键盘、读屏、减少动效时，同一功能怎么出现 | 第 7 节 |
+
+第 8 节是打开页面时实际读到的两套示例内容。第 9 节是本版使用者会碰到的边界。第 10 节是方案里讨论过、页面上没有的功能。
+
+编号沿用页面：图表 01–15，指标卡 K01–K09（没有 K07），指标面板 P01–P07（没有 P06），筛选 F01–F11，页签 T01、T02、T05–T08（没有 T03、T04），表格 B01、B03、B05–B07（没有 B02、B04）。缺号是合并或暂缓，不是页面漏做。
+
+---
+
+## 1. 产品是什么
+
+图表实验室是一份可以打开就用的交互参考。标题是「让数据的变化，看得见。」
+
+它同时做两件事：
+
+1. **给一套读数据的语言。** 51 个可交互组件放在同一页：15 种图表、8 种指标卡、6 种指标面板、11 种筛选、6 种页签、5 种表格。深色和浅色两套图表底色，读数方式相同。
+2. **用两套能读完的示例把这套语言演出来。** 前 10 张图讲一天的活动、专注和步数；后 5 张图加上全部指标、筛选、页签、表格，讲一份截至 2026 年 9 月 22 日的经营简报。
+
+使用者不用登录，不用联网。页面下方还有四块说明，把同一套规矩用文字再讲一遍：设计规范、交互说明、指标规则、查询规则。页脚链到设计规格原文。
+
+它不是一份会写入真实业务的看板。标记已处理、新建视图、拖动目标线，都只在当次打开里生效；刷新后，除了写进链接的筛选、页签和截至日，其余回到示例初值。
+
+---
+
+## 2. 五层怎么叠
+
+```
+进入与浏览
+  顶栏、引言、分类、底色、动效、重播、截至日胶囊、卡片网格、四块规则、页脚
+        │
+        ▼
+阅读协议（所有卡片共用，使用者不必每张卡重新学）
+  读数浮层 · 选中与降噪 · 换范围时图形连续变化 · 直接拖动
+  数字与好坏 · 五种数据状态 · 一个截至日 · 链接里的当前看法
+  条件能撤销 · 空了有出路 · 切内容与切参数分开
+        │
+        ▼
+九种任务（能力，不绑定某一张卡）
+  看进度 · 看时间变化 · 看组成 · 看结构位置
+  看一个指标 · 把多个指标组织起来
+  缩小范围 · 切换内容 · 落到一行
+        │
+        ▼
+五十一个单元（每张卡只回答一个问题）
+        │
+        ▼
+场合
+  宽屏悬浮 · 窄屏图下停靠 · 触屏点选固定 · 键盘等价操作
+  读屏播报 · 减少动效 · 某一张卡失败时其余照常
+```
+
+解耦的含义：任务不依赖某一张卡才能成立。例如「看一个数好不好」在对比卡、指标条、宫格、记分卡里是同一套箭头和颜色；「缩小范围」在快捷时间、下拉、抽屉、图表单击里是同一套条件，结果都回到条件自己来的地方撤销。换掉其中一张卡，协议还在。
+
+---
+
+## 3. 第一层 · 进入与浏览
+
+### 3.1 页面顺序
+
+从上到下：
+
+1. **顶栏**（滚动时贴在顶部）：品牌「图表实验室」，英文副标 CHART STUDIES，五个锚点（组件总览、设计规范、交互说明、指标规则、查询规则），版次 REFERENCE EDITION / 01。点品牌回到页首，不会清掉当前的筛选和页签。
+2. **引言**：眉标、主标题、两行说明、右侧三项统计（15 图表组件、14 指标组件、22 筛选 · 页签 · 表格）。
+3. **组件总览**：分类工具条、集合计数、截至日胶囊、「可交互 · 示例数据」。
+4. **卡片网格**：51 张卡。前四组图表顺着排下来，从指标卡开始，指标面板、筛选、页签、表格各有一条分隔标题，写明这一组在回答什么。
+5. **设计规范**：统一底色，让数据成为重点。深色、浅色两行色板同时可见；阅读层级；状态过渡。附注「以下为本模板的参考参数，可在正式设计中调整。」
+6. **交互说明**：三条原则（见 4.1）。
+7. **指标规则**：数字格式、涨跌语义、判定（见 4.5）。
+8. **查询规则**：筛选、页签、表格各六条（见 4.7–4.9）。
+9. **页脚**：2026、独立交互参考、使用固定示例数据，以及「阅读原始设计蒸馏文档」。
+
+窄屏时品牌英文副标、版次、引言统计会收起；顶栏五个导航收成一行，可以横向滑动，右缘渐隐，提示后面还有项。
+
+### 3.2 按组浏览
+
+工具条左侧是九个分类胶囊，当前项压下：
+
+| 胶囊 | 数量 | 这一组在做什么 |
+|---|---|---|
+| 全部组件 | 51 | 按页面顺序看完 |
+| 进度与目标 | 3 | 一个数在目标上的位置 |
+| 时间与趋势 | 7 | 一段时间里的起伏、节奏和贡献 |
+| 组成与分类 | 3 | 一个整体里的每一部分 |
+| 结构与策略 | 2 | 层级，或增长与份额上的位置 |
+| 指标与概览 | 14 | 经营数字：一张卡一个问题，或多种组织关系 |
+| 筛选与查询 | 11 | 看哪一段数据 |
+| 切换与导航 | 6 | 换一块内容，或换一个参数 |
+| 表格与明细 | 5 | 具体是哪一行、差多少 |
+
+选中某一类后，其它卡隐藏，分隔标题跟着隐藏，集合计数改成当前数量。分类选择留在当次浏览里，不写进分享链接。
+
+### 3.3 一张卡长什么样
+
+每张卡都有：
+
+- **卡头**：编号、中文名、英文名、「重播」。
+- **卡体**：眉标、主数字或标题，右侧常有分段控件（周 / 月、环比 / 同比这类）。
+- **卡脚**：一个手势标签（如「上下拖动」「单击即联动」）、一句标题、一句怎么用。
+
+指标卡同一行两张等高。指标面板和多数筛选、页签、表格占满一行。弹层打开时可以超出卡片，不会被卡片边裁掉。
+
+### 3.4 图表底色
+
+工具条右侧「深色 / 浅色」。默认深色。选择会记住，下次打开仍是上次的底色；记不住时回到深色。
+
+切换时：
+
+- 只换卡片和读数浮层的颜色，纸色页面底不动。
+- 颜色约三分之一秒过渡。开了「减少动态效果」则立刻换完。
+- 选中、范围、游标、目标值、筛选、页签全部留着。
+- 设计规范里的两行色板始终一边深、一边浅，用来对照。
+
+浅色是按同一角色重选的一套颜色，观感上仍能认出金黄、鼠尾草绿、雾蓝、淡紫、橙。涨跌的绿、琥珀、红只表示好坏和状态，不拿来区分数据系列。选中同时用颜色、位置和文字，不单靠颜色。
+
+### 3.5 减少动态效果
+
+工具条复选框，并与系统的「减少动态效果」双向同步：系统开着，页面打开即勾上；在页面里改，当次浏览按页面的勾选走。
+
+勾上之后，进场、切换、数字计数直接出现终态，过渡几乎不可见。操作本身还在：拖动、点选、排序、换页签都会立刻给出结果。加载骨架不再扫光。
+
+### 3.6 重播
+
+- **单卡「重播」**：这张卡回到示例初值，并再放一次进场（没有进场的卡只复位）。
+- **「重播全部」**：每张卡都复位，底部出现「已恢复初始状态并重播全部组件」，约 1.8 秒后消失。
+- 筛选和页签的重播会清掉这张卡写在链接里的状态。F11 的重播还会把全页截至日改回 9 月 22 日。
+- 卡片第一次滚进视口时，若使用者还没动过它、链接里也没有它的状态，会自动重播一次，保证看到完整进场。已经从链接恢复的状态不会被这次重播冲掉。
+- 使用者一开始就去点、去拖、去按键，进场会立刻收束到终态，避免动画和操作抢同一张卡。
+
+### 3.7 截至日胶囊
+
+集合计数右侧常驻一枚胶囊，默认「数据截至 9/22」。
+
+只有 F11「设为截至日」能改它，胶囊上的「回到最新」能改回去。改过之后胶囊变琥珀色，文案变为「全页截至 9/14」这类日期，并出现「回到最新」。
+
+跟随这一天重算的是：11 张筛选卡、6 张页签卡、5 张表格卡，以及目标进度卡 K04、进度环卡 K05。15 张图表和其余指标组件仍停在 9 月 22 日的示例上。胶囊写「全页」，范围比实际跟随的卡片大，这是本版文案上的一处不精确（见第 9 节）。
+
+截至日只能落在 9 月 1 日到 9 月 22 日。它会写进链接。
+
+### 3.8 一张卡没能打开
+
+某一张卡如果没能建出来，卡内写「这个组件没能加载」，并带上原因。其余卡照常。重播全部不受这一张的影响。指标这一组起不来时，15 张图表仍在。筛选、页签、表格这一组起不来时，15 张图表和指标卡仍在；记分卡要用到表格的能力，会一起受影响。
+
+---
+
+## 4. 第二层 · 阅读协议
+
+这些规矩跨卡片成立。页面「交互说明」「指标规则」「查询规则」是它们的公开说明书。
+
+### 4.1 三条交互原则
+
+**看见局部，保留整体。** 悬浮看读数；点击数据项或图例聚焦，再点或按 Esc 取消。柱形和环形会把其余项变暗，占比条保留各段颜色。切换时间范围后，旧的选中清掉。
+
+这条原则有三处页面自己采用了不同做法，使用者会直接感觉到：
+
+- 折线图切换折线 / 曲线时，选中的点留着。
+- 树状图切换横向 / 纵向时，选中和收起状态留着。
+- 四象限切换季度时，选中的业务留着，用来看它迁到了哪一象限。页面「交互说明」仍写「切换时间范围后清除旧选择」，和这里不一致。
+
+**直接操作，实时回应。** 沿时间线拖，顶部时刻和状态跟着走；上下拖目标线，达标天数跟着变。目标步数在 2,000 到 10,000 之间，每次 100 步。达到或超过目标都算达标。
+
+**让交互有替代方式。** 键盘聚焦到数据项就能看读数。面积图和折线图可以用左右键逐点看。窄屏点一下，详情出现在图下方。时间游标用左右键，目标线用上下键。重播回到示例初值。减少动态效果时跳过过渡，操作反馈保留。
+
+### 4.2 读数浮层
+
+全页只有这一层读数，不另做旁弹小卡。页面把它叫「读数浮层」，和「指标面板」不是一回事。
+
+**什么时候出现**
+
+- 指针停在可读取的图形、图例、数字、表格行上，约 0.1 秒后出现。若浮层已经开着，或刚关掉不到 0.3 秒，下一个立刻出现。
+- 指针在两个图形之间的空隙或卡片空白处时，浮层继续跟着指针，读数仍是上一条。离开可读取目标后约 0.12 秒关闭；这 0.12 秒只计一次，不会因为鼠标还在卡片里移动就一直不关。
+- 鼠标在宽屏上点击，只是让浮层马上出现，不固定。移开就按上面的规则关闭。
+- 触屏，以及窄屏（约 700 像素及以下）上的点选，会把这一条读数固定住。宽屏触屏再点图表外面，固定取消。窄屏的固定读数留在图下。
+- 拖动目标线或时间游标时，浮层锁定并跟随，松手后回到悬浮或固定规则。
+- 键盘焦点进入可读取项时，浮层立刻出现，并向这张卡播报标题、每一行标签和数值、脚注。同一条内容不重复念。
+- Esc、点卡片里不是读数目标的按钮（例如分段控件）、宽屏下在当前图表外按下、窗口尺寸变化，都会收起浮层。窄屏上已经固定的那条，调整窗口时保留。卡片滚出视口时浮层隐藏。切换分类把卡片隐藏时，浮层和打开的筛选弹层一起关掉。
+
+**浮层里有什么**
+
+标题、若干行「标签 + 数值」（可带色点）、可选脚注（口径或算法）。卡面用简写，浮层给完整值和算式。没有数时写「暂无数据」，不写 0。
+
+**连续图形怎么探**
+
+面积图、折线图、组合图、专注分段图，以及主次面板、指标页签图、下划线页签的趋势页，指针沿横轴走到最近的一天或一个采样点。多数会出一条虚线导引。组合图和部分指标图不出导引线，改用透明度或空心点标出当前点。左右方向键、Home、End 可以逐点移动。读的是采样值本身，面积图脚注写明不读曲线插出来的中间值。
+
+**窄屏**
+
+浮动面板改为图下方的停靠区，占位文案默认「轻点图形查看读数」，直到点中一项。
+
+**表格和会重画的行**
+
+行、条形、格子重新画出来之后，读数跟着新元素走。当前读的那一行若已不在页面上，浮层关闭，不会停在旧数字上。
+
+### 4.3 选中与降噪
+
+点中一项之后，使用者仍看得到整体，只是注意力被引到这一项。再点同一项或 Esc 取消。
+
+| 卡片 | 被点中的一项 | 其余 |
+|---|---|---|
+| 柱状图 | 保持原色，读数在浮层 | 变成轨道色 |
+| 分段占比条 | 整段上抬 | 颜色都留着 |
+| 环形占比图 | 向外移出，中心改成这一项的占比和名称 | 其余扇段和图例变灰 |
+| 气泡图 | 进入聚焦：放大到画面中部 | 其余让到四周固定位置并缩小。此模式下大小不再表示时长 |
+| 折线图 | 点变大并带描边，导引线停在该点 | 其余点不动 |
+| 组合图 | 主指标改成该月 | 其它月份变淡 |
+| 瀑布图 | 说明行改成这一步的明细 | 其它柱变淡 |
+| 四象限 | 描边，说明行写出象限和三个数 | 其它气泡变淡 |
+| 树状图 | 金色描边，说明占比 | 点中间层还会收起或展开子项；再点只切换收起，选中留着 |
+| 图表联动 | 金色高亮，并（在开着联动时）筛选其余图 | 其余变浅 |
+
+### 4.4 换范围时，坐标系留着
+
+周 / 月、上半年 / 下半年、实际 / 预算、本月 / 本季 / 本年、环比 / 同比：图形在原位置过渡到新数据，主数字一起变，不清空再画一张。
+
+折线换成曲线时，点的位置不动，只改点与点之间的连法。树状图换方向时先淡出再淡入，避免方块互相穿过。气泡聚焦是一段有弹性的移动，被选中的气泡受到周围气泡的空位限制，不会瞬移叠在一起。
+
+### 4.5 数字先说清是什么，再说好不好
+
+指标卡和指标面板共用。筛选、页签、表格里的金额、单数、比率沿用同一套读法。
+
+**格式**
+
+| 使用者看到 | 规则 |
+|---|---|
+| 1,286.4 万元 | 金额到万，保留 1 位 |
+| 1.15 亿元 | 金额到亿，保留 2 位 |
+| 2,418 单；4.8 万 | 计数用千分位；到万再换单位 |
+| 38.4% | 比率 1 位；浮层里需要核对时给到 2 位，如 96.44% |
+| +1.2pp | 两个比率的差写百分点，不写百分号 |
+| −3.5% | 负数用真减号 |
+| — | 没有数，旁边或浮层写原因 |
+| 0 | 零是数，照常显示 |
+| 同一张卡里的金额同一单位 | 按这张卡里最大的那个金额定单位。每天还要完成的金额固定用「万」 |
+| 卡面简写，浮层全值 | 卡面 1,286.4 万元，浮层 12,864,000 元 |
+
+**涨跌**
+
+- 箭头只表示方向：上升、下降、持平。箭头不读给读屏。
+- 颜色表示好坏：绿是变好，红是变差，灰是持平。
+- 变好的方向跟指标走。营收、订单、客单价、毛利率、及时率，上升是好。退款率、响应时长，下降是好。退款率下降显示为绿色。
+- 中性指标只标方向，不上好坏色。
+- 变化小到四舍五入后为 0，显示持平。
+- 一张卡最多两个对比：主对比（环比同期）和次对比（同比）。
+- 读屏把整张卡读成一句，例如「客单价 5,320 元，环比（同期）下降 3.5%，向差」。
+
+**三种判定**
+
+- **累计型**（营收、订单这类越积越多的指标）：用卡面上的达成率减去时间进度。差达到 0.5 个百分点才叫超前或滞后，不到则持平。超前为绿，滞后为琥珀。使用者可以用卡面上的两个百分数自己减一遍。
+- **阈值型**：按原始值分档，不按四舍五入后的显示值。96.44% 落在 95% 到 98% 之间，就是「关注」，即使卡面写成 96.4%。越低越好的指标，色带左绿右红对调，颜色含义不变。
+- **目标型**：达成 = 实际 ÷ 目标。越低越好的指标改为 目标 ÷ 实际。达成达到 100% 为正常，95% 到 100% 为关注，低于 95% 为异常。退款率另按实际值：不超过上限为正常，不超过上限的 1.2 倍为关注，否则异常。
+
+状态胶囊始终是图标 + 文字 + 颜色：正常、关注、异常。累计型在记分卡里只出现正常和关注（滞后算关注），不出现异常。
+
+**主数字不跟着探查跑。** 趋势卡、三联卡、指标页签上的大数字始终是当期累计或本月合计。逐日的数写在图旁边或浮层里。
+
+**未满的周期要看得出来。** 9 月只有 22 天：三联卡里这个月的柱子变浅并带虚线，读数注明「9 月（1–22 日）」；记分卡里累计型指标的小走势改用日均，避免未满月看起来像突然下跌。
+
+### 4.6 五种数据状态
+
+数值卡演示，对比列组也完整演示，全组通用。五种状态叠在同一块高度里切换，卡片不跳动。
+
+| 状态 | 使用者看到 |
+|---|---|
+| 正常 | 数字、单位、统计区间、更新时间 |
+| 加载中 | 骨架条。减少动效时不闪 |
+| 暂无数据 | 一字线，加一句原因。浮层补充：空着要写原因，零要显示 0 |
+| 加载失败 | 一句说明和「重试」。重试后先看到加载，约 0.9 秒后回到正常并重放数字 |
+| 数据延迟 | 数字仍在，琥珀色胶囊「数据延迟」，脚注改为上次更新时间 |
+
+### 4.7 条件：从哪来，就回到哪去
+
+筛选只决定「看哪一段」，不另造一套数。每张筛选卡都同时写出当前条件、结果和口径。
+
+- **单个控件立刻生效。** 点一颗时间胶囊、勾一个区域，结果马上变。
+- **抽屉里的多项一起提交。** 改动先记成「N 项未应用」。应用才生效；关掉、点遮罩或 Esc 等于放弃，回到打开前。
+- **全页只定截至日。** 「本月」「近 7 天」「和上期比」由每张卡自己定。
+- **单击图表 = 选中，并且（默认）联动其余图。** 联动可以整张卡关掉，关掉后单击只高亮。联动条件用虚线芯片标出来，写明来自哪张图。主动筛选和联动取交集。被点的那张图不用自己的条件再滤自己。
+- **地名按整条路径算。** 南京鼓楼和福州鼓楼是两项。芯片上写全路径，图上的标签写到能区分为止。
+- **空结果写出原因，并给可点的出路。** 常见三条：放宽阈值、拿掉某个维度、清空全部。没有数的日子写原因，不补成 0。
+- **输入框是方角，选项是药丸。** 选中是反色底。平铺的多选用按下态；下拉和级联里的多选用复选框和勾，不靠色块本身表示选中。
+
+### 4.8 当前看法可以分享，也可以后退
+
+筛选和页签的非默认选择，以及被改过的截至日，写在地址后部。复制链接、刷新、前进后退，都会回到同一种看法。
+
+- 默认状态不占链接。全部回到默认时，地址里没有这段。
+- 连续点选若发生在很短时间内，后退一次回到这一串之前，而不是每点一下退一格。
+- 点页面里的锚点（设计规范、交互说明等）不会把筛选清掉。
+- 重播和「回到最新」会清掉对应的那一段，且不额外增加一条「再后退又出现」的历史。
+- 表格的排序、翻到第几页、勾了哪些行，不写进链接。
+- 从带截至日的链接打开时，目标进度卡和进度环卡在页面准备好之后就按那一天显示。
+
+### 4.9 切内容，和切参数，是两种控件
+
+- **页签切内容**：总览 / 趋势 / 结构，渠道 / 区域 / 客群。页面这一层用下划线（加粗 + 一条指示）；卡片内部用药丸（反色）。
+- **分段控件切参数**：营收 / 订单、环比 / 同比、周 / 月。它是一组按钮，不是第二层页签。
+- 内容已经在页面上：方向键一移就切换。
+- 切换需要重新取数（动态页签）：方向键只移动焦点，Enter 或空格才切换，切换时先看到短暂骨架。
+- 最多两层。页签里可以再放分段控件，不再往里嵌页签。
+- 放不下时：横向滑动，两端渐隐，两侧箭头；数量不可控时再加「更多」菜单。菜单在下方放不下就翻到上方。
+- 同一组页签的各块内容共用一个最小高度，切换时页面不跳。
+- 选中的页签写进链接，第一项不写。
+
+### 4.10 表格是明细层
+
+图回答趋势和结构，表回答「具体是哪一行、差多少」。
+
+- **排序三态**：默认 → 降序 → 升序 → 回到默认。只有当前排序列标明顺序。排序时行平滑移到新位置；减少动效时直接换位。结果会播报，例如「已按营收降序排列」。
+- **默认只用行线分开。** 行很多且列也多时才加斑马纹。分页后每页最多 20 行，因此分页表上看不到斑马纹。
+- **条件格式只用两种**：数据条（占比、组内占比）和状态胶囊。不用整格铺底色。
+- **点一行做什么，按这张表的用途来**：只读、下钻、勾选、联动。明细表演示全部四种。
+- **表头可以真的跨列。** 本期、基期、变化各成一组，读屏能读出「这一格属于哪一组」。
+- **长表**：50 行及以内整表显示；超过之后每页 20 行，分页器写总行数、第几页、每页多少行。
+- **文字靠左，数字靠右**，数字列的表头也靠右。数字等宽，方便上下对齐。
+- **合计用使用者在格子里看到的数相加**，自己加一遍对得上。
+- 五种数据状态与指标卡相同，切换时表的高度不变。
+- 表太宽时可以横向滚，行头列粘在左侧。只有真的溢出时，这个滚动区域才占用一个键盘停靠位。
+
+---
+
+## 5. 第三层 · 九种任务
+
+每一种任务都可以单独成立。五十一个单元是它们的一种摆法，不是任务本身。
+
+### 任务 1 · 看进度与位置
+
+回答：做到哪了，离标准还有多远，落在哪一档。
+
+包含：活动圆环、仪表盘、目标线、目标进度卡、进度环卡、阈值状态卡，以及主次面板、记分卡里的达成与时间进度。
+
+共同语言：目标、实际、差距、时间进度。时间进度用红色虚线标在进度上，条或环的头部落在虚线左边是滞后，右边是超前。
+
+### 任务 2 · 看时间上的变化
+
+回答：这段时间怎么走过来，换一个时间尺度之后趋势还在不在，每一步贡献了多少。
+
+包含：打卡热力格、柱状图、专注分段图、面积图、折线图、组合图、瀑布图，以及趋势卡、三联卡、指标页签图里的迷你或完整走势。
+
+共同语言：范围切换时图形连续变形；沿时间拖或逐点看；主数字表示整段，探查数字表示某一天或某一月。
+
+### 任务 3 · 看组成
+
+回答：一个整体里每一部分占多少。
+
+包含：分段占比条、环形占比图、气泡图，以及页签里的堆叠条、转化链。
+
+共同语言：点一段或一个图例就聚焦这一部分；再点取消；聚焦时声明哪些视觉变化只是强调、不表示数量（气泡的聚焦大小）。
+
+### 任务 4 · 看结构位置
+
+回答：事情在层级里的位置，或在「增长 × 份额」里的位置。
+
+包含：四象限图、树状图。
+
+共同语言：切换阅读方向或季度时，已经展开的结构和已经点中的项留着，方便追踪。
+
+### 任务 5 · 看一个指标
+
+回答：现在多少，比以前如何，口径是什么，这个数是怎么走到今天的，照这个节奏能不能完成，是否正常，谁排在前面。
+
+包含八张指标卡。每张只回答其中一个问题。悬浮口径标记可以看到区间、更新时间和定义。
+
+### 任务 6 · 把多个指标组织起来
+
+回答的不再是单个指标，而是一种关系：并列、主次、由指标驱动一张图、同一时间尺度下的一组、对照目标的全表、一条转化链路。
+
+包含六块指标面板。面板级切换（环比 / 同比，或本月 / 本季 / 本年）让块内所有指标一起变。
+
+### 任务 7 · 缩小范围
+
+回答：我现在到底在看哪一段。
+
+链路是：先定时间 → 再收组织、渠道、客群、金额 → 看见已选条件 → 筛空了还能退出去。图表单击是这条链路的一种输入，和手选条件取交集。
+
+包含十一张筛选卡，加上明细表的「联动」行点击。
+
+### 任务 8 · 切换内容
+
+回答：这一层我在看哪一块；卡片内部换一组；哪一组还有事没处理；页签放不下怎么办；页签可否自己加。
+
+包含六张页签卡。和下方分段控件的分工见 4.9。
+
+### 任务 9 · 落到一行
+
+回答：具体是哪一行，两个维度交叉之后是哪一格，组内和组间分别是多少，汇总底下的明细是什么，本期比基期差多少。
+
+包含五张表，加上下划线页签里的明细页、记分卡、筛选抽屉里的结果表。
+
+---
+
+## 6. 第四层 · 五十一个单元
+
+每张卡的默认画面来自第 8 节的示例。这里写使用者能做的事，以及读数浮层里多出来的信息。
+
+### 6.1 进度与目标
+
+前四组图表没有分隔标题。这一组三张卡讲「一个数在标准上的位置」。
+
+#### 01 活动圆环
+
+- **问题**：三项目标各自完成了多少，有没有超额。
+- **默认画面**：三环同时从 0 画到当前。中心是热量数字。右侧每项有完成百分比和明细。外环超过 100% 时，超出的一段用更深的金色叠上，并出现 OVER GOAL。
+- **能做的事**：悬浮环或图例。没有点击选中。
+- **浮层**：当前 / 目标、完成率、超额量。
+- **示例**：活动 620 / 500 千卡（124%），锻炼 47 / 60 分钟（78%），站立 7 / 12 小时（58%）。
+
+#### 03 仪表盘
+
+- **问题**：一个分数落在低、正常、高的哪一段。
+- **默认画面**：指针从 0 扫到 64，略微过冲再停稳。弧分三段，段名标在弧外。当前段更实，其余略淡。左下标注这是专注分数。
+- **能做的事**：右上切换示例分数 15、64、92。指针用同样的回弹扫到新分数，读数和状态一起变。
+- **浮层**：当前 / 满分、所属区间。
+- **示例**：默认 64，正常区间，满分 100。15 为低，92 为高。分界在 33 和 67。
+
+#### 07 目标线
+
+- **问题**：标准一变，这周有几天还达标。
+- **默认画面**：周一到周日七根柱。达到目标的柱是橙色，未达到的是暗色。一条可拖的水平线，左端写着目标步数，右端是把手。主数字是达标天数，例如 5 / 7 天。
+- **能做的事**：拖整条线或把手；键盘上下左右每次 100 步，翻页键每次 1,000 步，Home 到 2,000，End 到 10,000。线、标签、柱色、达标天数同时变。达到或超过都算达标。
+- **浮层**：柱上是步数、每日目标、超过多少或还差多少。线上是目标步数和达标天数。拖动时浮层跟着线。
+- **示例**：七天步数为 5400、7200、3800、8500、6100、9100、4400。默认目标 5,000 步，5 天达标。
+
+### 6.2 时间与趋势
+
+#### 02 打卡热力格
+
+- **问题**：连续很多天里，哪些天做了、哪些天断了。
+- **默认画面**：20 周乘 7 天，按列从左淡入。颜色五档，从无到深。月份标在列顶。左下是 LESS 到 MORE，右下是连续天数 26 天。断掉的那天就是最深一档之外的空色，没有单独的「缺席」标记。
+- **能做的事**：点击或 Enter 选中某一天（白色描边）。方向键在格子间移动，左右一周一周、上下一天一天；已经选中时，焦点走到哪一天就改选中哪一天。Esc 关闭。
+- **浮层**：日期、打卡次数、色阶（几次，或 4 次及以上）。
+- **示例**：末日 2026-09-20。倒数第 27 天为 0，从而最近 26 天连续。
+
+#### 04 柱状图
+
+- **问题**：换一周或一月之后，每天的专注还能不能放在同一把尺子上比。
+- **默认画面**：柱从底部长出，主数字是这段时间的日均分钟。60 分钟处有一条参考虚线。图下写日期范围。
+- **能做的事**：WEEK / MONTH 切换，柱的位置、粗细、高度一起过渡，多出来的淡入，少掉的淡出，日均一起变。点击一根，其余变成轨道色。再点或 Esc 取消。换范围会清掉选中。
+- **浮层**：这一天的专注分钟、这段时间的日均。
+- **示例**：周视图 9 月 14–20 日，七天分钟数为 34、48、29、63、44、57、47，日均 46。月视图 9 月 1–28 日共 28 天，日均 47。
+
+#### 05 专注分段图
+
+- **问题**：一天 9 点到 17 点，什么时候在深度专注、普通专注、休息。
+- **默认画面**：三行高度不同的色块连成阶梯。游标默认停在 16:14，顶部是时刻和状态胶囊，图下是三段总时长。没有进场动画，重播只是把游标放回 16:14。
+- **能做的事**：点按即跳到该处，横向拖动跟随。键盘左右或上下 1 分钟，按住 Shift 为 15 分钟，翻页 60 分钟，Home 到 9:00，End 到 17:00。竖着滑页面时，这张图不把滚动吃掉。
+- **浮层**：时刻、状态、所属时段、这一段持续了多少分钟。
+- **示例**：深度 2 小时 10 分，普通 4 小时 30 分，休息 1 小时 20 分。
+
+#### 06 面积图
+
+- **问题**：时间尺度从一周换到一年，趋势是否还连贯。
+- **默认画面**：平滑面积，末端一个点，主数字是这一段的平均步数。默认一年。
+- **能做的事**：1W / 1M / 1Y。曲线、面积、末端和平均一起变形。左右键沿采样点探查。
+- **浮层**：日均步数、口径（当月日均，或示例采样日）。脚注说明读的是采样值，不是曲线上的插值。
+- **示例**：一年视图平均 6.5 千步，年末约 9.7 千步。
+
+#### 11 折线图
+
+- **问题**：同一组每日活跃，用折线或曲线，读到的点是否相同。
+- **默认画面**：线描出来，点依次出现，主数字是周日的活跃。
+- **能做的事**：折线 / 曲线切换，点不动，已选中的点和导引线留着。悬浮或聚焦出导引线。点击选中，再点或 Esc 取消。
+- **浮层**：当天活跃用户（千人）。
+- **示例**：周一到周日 32、48、41、65、54、82、72 千人。主数字 72。
+
+#### 12 双柱＋折线组合图
+
+- **问题**：规模（营收、成本）和效率（毛利率）能不能放在一起看走势。
+- **默认画面**：每月两根柱加一条毛利率线。左轴是万元且从 0 起，右轴是 0–60% 的固定刻度。图例可开关。说明行给出半年合计的成本和毛利率。主数字默认是半年营收合计。
+- **能做的事**：上半年 / 下半年过渡。悬浮或点选某月，主数字改成该月，其它月变淡。图例至少留一个系列，关掉的系列划掉并变淡。浮层只显示还开着的系列。Esc 或换半年会清掉月份选中。
+- **浮层**：该月营收、成本、毛利率，带单位。使用者不必对着两根轴估。
+- **怎么读这张图**：线在柱的上方不表示「毛利率大于营收」。两根轴单位不同，只看是否同向。图例目前不写左轴 / 右轴，轴的归属靠左上角「万元」和右侧百分号识别。
+- **示例**：上半年营收合计 581 万，下半年 740 万。
+
+#### 13 瀑布图
+
+- **问题**：从期初到期末，每一步是加进还是减去。
+- **默认画面**：期初、期末用总量色，增加用绿色，减少用橙色，柱顶用虚线把上一步的高度接到下一步。说明行写恒等式：期初 + 增益 − 支出 = 期末。主数字是期末。
+- **能做的事**：实际 / 预算切换，各段连续变化，并清掉选中。点某一阶段，其余变淡，说明行改成这一步的起始、增减和累计。Esc 取消。
+- **浮层**：总量柱给出总额；中间柱给出本次变动、变化前累计、变化后累计。
+- **示例**：实际为期初 120、新客 +48、复购 +26、人力 −35、营销 −19、期末 140（万元）。预算期末 166。
+
+### 6.3 组成与分类
+
+#### 08 分段占比条
+
+- **问题**：今天这 9 小时 40 分，各做了哪一类。
+- **默认画面**：一条分成四段，段间有缝。图例两列，名称加百分比。各段依次从左长出。
+- **能做的事**：点段或图例，该段上抬，其余颜色保留。再点或 Esc 放下。
+- **浮层**：占比、按占比折算的分钟、总时长 580 分钟。
+- **示例**：专注 38%、会议 22%、学习 16%、休息 24%。
+
+#### 09 环形占比图
+
+- **问题**：屏幕时间里，哪一类占了多少。
+- **默认画面**：环从 12 点方向依次画出。中心是总时长。右侧图例。
+- **能做的事**：点扇段或图例，该段向外移，其余变灰，中心改成这一项的百分比和名称。再点或 Esc 回到总时长。
+- **浮层**：占比、折算分钟、总时长 312 分钟。
+- **示例**：5 小时 12 分。视频 42%、阅读 26%、游戏 18%、音乐 14%。
+
+#### 10 气泡图
+
+- **问题**：先用面积建立「谁更久」的印象，再聚焦看清一个活动。
+- **默认画面**：六个气泡，面积表示分钟。够大的气泡里直接写名称和分钟。眉标下写「比例模式 · 圆面积表示时长」。
+- **能做的事**：点击进入聚焦模式。被点中的气泡到画面中部并放大，其余让到四周并缩小，模式行改为「聚焦模式 · 圆大小不用于比较」，出现「返回比例」。再点另一只，焦点换过去并重新让位。再点当前这只、Esc，或「返回比例」，回到比例模式；从按钮返回时，焦点回到原来那只气泡。
+- **浮层**：活动时长、占总时长。脚注随模式变化：比例模式说明面积表示时长；聚焦模式说明大小只用于强调，数值仍按原数据。
+- **示例**：步行 180、跑步 96、骑行 80、瑜伽 64、游泳 40、健身 24 分钟。
+
+### 6.4 结构与策略
+
+#### 14 四象限图（波士顿矩阵）
+
+- **问题**：四项业务在市场份额和增长率上处于哪一象限，营收有多大。
+- **默认画面**：横轴是相对市场份额，左边高、右边低；纵轴是市场增长率。四块浅底写着明星、问题、现金牛、瘦狗。气泡面积是营收，颜色跟业务走，不跟当前象限走——换季度后业务进了别的象限，颜色仍是原来的。圆内是 A–D。
+- **能做的事**：Q1 / Q2 切换，气泡滑到新位置，已选中的业务留着，说明和浮层改读新季度。点一只气泡，其余变淡。Esc 取消选中。
+- **浮层**：所属象限、相对市场份额、市场增长率、营收。象限名旁边的色点是业务色，不是象限色。
+- **示例**：A 云服务、B AI 助手、C 协作套件、D 旧版工具。分界是 1 倍份额和 10% 增长。
+
+#### 15 树状图
+
+- **问题**：总营收下每一层占多少，换个方向还能否读出同一棵树。
+- **默认画面**：根、三个分支、六片叶子。分支上有减号或加号。说明行提示点击分支收起或展开，同一层的节点保持等距。窄屏时节点里的数字隐藏，只留名称。
+- **能做的事**：横向 / 纵向切换，收起状态和选中都留着。点分支：子项收起或展开，同时选中该分支；再点只切换收起，选中不取消。点根或叶子：切换选中，并看到占比。Esc 取消选中。
+- **浮层**：营收、占上一级、占总营收。脚注是路径，例如「总营收 / 订阅」。
+- **示例**：总营收 240 万。订阅 120（个人版 45、团队版 75），服务 80（实施 50、咨询 30），其他 40（培训 24、授权 16）。
+
+### 6.5 指标卡
+
+分隔标题：8 种，一张卡回答一个问题。同一套经营数字，派生结果当场重算。K07 构成卡、K10 翻牌器不在本版。
+
+#### K01 数值卡
+
+- **问题**：这个数是什么，统计的是哪一段，现在显示的是不是可靠结果。
+- **默认画面**：两张并排。左是本月营收，右是订单数。眉标带口径标记和日期区间。脚注是更新时间或新客 / 复购拆分。数字从 0 计数出现，单位不跟着晃。
+- **能做的事**：分段控件切换正常、加载中、暂无数据、加载失败、数据延迟。失败态可以重试。
+- **浮层**：口径标记给出区间、更新时间、单位和口径。数字给出卡面值和完整金额。空值态给出状态和原因。延迟态下，更新时间改为上次成功的时刻，并说明超过 6 小时未更新、显示的是上次结果。
+- **示例**：营收 1,286.4 万元，区间 9/1–9/22，更新于 9/23 09:30，确认收入口径。订单 2,418 单，新客 1,012，复购 1,406。延迟演示用的上次更新是 9/23 01:30。
+
+#### K02 对比卡
+
+- **问题**：比上一期是升是降，这件事是变好还是变差。
+- **默认画面**：两张卡。每张两行对比：口径名、涨跌、基期值。脚注一侧写「增加为好」或「减少为好」。
+- **能做的事**：悬浮或聚焦任一行对比。
+- **浮层**：本期、基期、变化的绝对量、好坏。脚注给出算式。比率写「本期比率与基期比率之差，用百分点」；金额写「本期 ÷ 基期 − 1」。
+- **示例**：客单价 5,320 元，环比 −3.5%（向差），同比 +2.5%（向好）。退款率 1.8%，环比 −0.4 个百分点、同比 −0.3 个百分点，下降都是向好。
+
+#### K03 趋势卡
+
+- **问题**：这个月的总数，是怎么一天天走过来的。
+- **默认画面**：营收配面积迷你图，订单配柱状迷你图。图下标着 9/1 和 9/22。图的右上方默认是最新一天，颜色较淡；探到某一天时变实。
+- **能做的事**：在迷你图上拖，或用左右键、Home、End 逐日。面积图出空心点和虚线，柱图把当天加实、其余变淡。主数字始终是本月累计。移开或 Esc 回到最新一天。
+- **浮层**：对比行给出本期、基期、变化。脚注重申读数在图旁，主数字是当期。
+
+#### K04 目标进度卡
+
+- **问题**：照现在的节奏，这一期能不能完成。
+- **默认画面**：大号达成率加状态胶囊。进度条上有一条红色虚线表示时间进度，虚线上方写着时间进度百分比；虚线太靠近右端时，这句话改到左侧以免挤出。底部四格：目标、达成、差额、剩余天数与日均还需。
+- **能做的事**：本月 / 本季 / 本年。条、虚线、四格一起过渡，胶囊立刻换成新判定。年视图的目标、达成、差额用「亿」，每天还需仍用「万」。跟随全页截至日：设成 9 月 14 日之后，周期文字变成「本月 9/1–9/14」，达成、时间进度、四格和胶囊按这一天重算。
+- **浮层**：进度条给出达成、目标、达成率。虚线给出已过天数、当期天数、时间进度和算法。达成率给出超前或滞后怎么减出来。差额和日均还需各给算式。
+- **示例**：本月 71.5%，滞后 1.8 个百分点。本季 91.5%，持平。本年 73.5%，超前 0.9 个百分点。月目标 1,800 万。
+
+#### K05 进度环卡
+
+- **问题**：目标、达成、差距、时间进度，能否在一枚环上同时看见。
+- **默认画面**：两枚环。月业绩蓝色，年业绩橙色。环上红色虚线刻度是时间进度。右侧四行：目标、达成、差距、时间进度。脚注是超前或滞后，以及剩余天数和日均还需。
+- **能做的事**：悬浮或聚焦右侧某一行，环上对应部分亮起，其余降到约三分之一。目标对应轨道，达成对应已完成的弧，差距对应剩余的弧，时间进度对应刻度。悬浮环本身则高亮达成。跟随截至日，卡角写「截至 9/14」这类日期，两环和四行一起重算。
+- **浮层**：四行各自的算式。环上给出时间进度和结论。
+
+#### K06 阈值状态卡
+
+- **问题**：这个数正常、需要关注，还是已经异常。
+- **默认画面**：两张卡。交付及时率越高越好，平均响应时长越低越好。每张有数字、状态胶囊、三段色带和一根白色指针，脚注写三档定义。越低越好时色带左绿右红对调。卡头周期写成「本周 9/16–9/22」「本月 9/1–9/22」或「上月 8/1–8/31」。
+- **能做的事**：本周 / 本月 / 上月。指针滑到新位置，数字跟着变，胶囊在原地换档。默认停在本月，进场时指针从刻度左端滑入。
+- **浮层**：数字给出原始值、显示值、落在哪一档，并说明按原始值判、不按显示值。色带给出三档阈值。
+- **示例**：及时率阈值 95% / 98%，刻度 90–100%。本周 98.6% 正常，本月 96.4% 关注，上月 94.8% 异常。响应时长阈值 4 小时 / 8 小时，刻度 0–12 小时。本周 5.4 小时关注，本月 3.6 小时正常，上月 8.7 小时异常。
+
+#### K08 排行卡
+
+- **问题**：谁贡献最多，谁涨得最快。
+- **默认画面**：六行，名次、名称、条、数值。「其他」的名次是一字线，条和数字变弱，不参与排名，固定在末尾。增速视图从 0% 向两侧伸出，负的一侧用灰色条，数字仍用好坏色。
+- **能做的事**：营收 / 增速。行移到新名次，条和数字一起变。阅读顺序和键盘顺序跟着新名次走。
+- **浮层**：营收、占比、环比、两种口径下的名次、基期值。
+- **示例**：华东 412.6、华南 298.3、华北 236.5、西南 171.2、华中 102.4、其他 65.4（万元），加总等于本月营收。增速依次为 +7.4%、+13.3%、+3.5%、+19.3%、−2.8%、+9.0%。按增速，西南第一，华中为负。
+
+#### K09 日 / 月 / 年三联卡
+
+- **问题**：同一个营收，今天、这个月、今年分别是多少。
+- **默认画面**：三列。日是 24 根小时柱，月是 22 根日柱，年是 9 根月柱。9 月未满，月柱变浅加虚线。年列单位是亿元。
+- **能做的事**：三列迷你图各自可拖、可逐根看。读数在图旁，主数字不跟着变。
+- **浮层**：这一列的本期、基期、变化，以及对比口径。日对比的是上周同一天，用来避开周末效应；月是环比同期；年是同比。
+- **示例**：9 月 22 日 66.4 万，较上周同日 +5.6%。本月 1,286.4 万，环比同期 +8.6%。本年 1.15 亿，同比 +17.9%。
+
+### 6.6 指标面板
+
+分隔标题：6 种。多个指标加上一种组织关系。面板占满一行。P06 指标树不在本版。
+
+#### P01 指标条
+
+- **问题**：一行看完这个月的核心指标，并同时换成另一种对比。
+- **默认画面**：营收、订单数、客单价、毛利率、退款率、交付及时率。窄一些时变成三列两行，再窄变成两列三行。
+- **能做的事**：环比 / 同比。六项涨跌一起过渡，颜色跟着过渡中的数值变（毛利率从环比 +1.2 个百分点到同比 −0.6 个百分点时，绿会转到红）。方向键在六项之间移动，整条只占一个键盘停靠位，Home / End 到两端。
+- **浮层**：本期、基期、当前口径的变化、另一口径的变化、指标口径。
+
+#### P02 主次面板
+
+- **问题**：主指标怎么样，还差多少，按最近的节奏月底会落到哪。
+- **默认画面**：左侧大号本月营收、两行对比，以及一条累计曲线：实线是累计，红色虚线是目标节奏，灰色虚线是月目标，一条竖线是今天，点线是预计。右侧是达成率、时间进度、落后目标节奏的金额、剩余天数与日均还需、近 7 日日均，以及一句结论。窄屏时上下叠放。
+- **能做的事**：悬浮右侧某一行，图上对应元素亮起，其余变淡。达成率对应加粗曲线，时间进度对应今天的竖线，落后节奏对应今天那一段红色差额，日均还需对应从今天连到目标的点线，近 7 日日均对应预计线。曲线本身可以逐日探。主数字不随探查改变。
+- **浮层**：逐日给出累计营收、目标节奏、较节奏、当日值。各行给出算式。口径标记给出区间、更新时间、定义。
+- **示例**：落后目标节奏 33.6 万。剩余 8 天，日均需 64.2 万，近 7 日日均 64.5 万。按这个节奏月底约 1,802.5 万，能完成，但只多 2.5 万。环比同期 +8.6%，同比 +21.3%。
+
+#### P03 指标页签驱动图表
+
+- **问题**：从一排指标走进这一项自己的逐日图。
+- **默认画面**：四个页签（营收、订单数、客单价、退款率），选中项顶部有一条指示。下方是折线、每日圆点、淡面积、一条目标虚线和左侧刻度。刻度按这项指标自己的数值取整。窄屏时页签变成两行。
+- **能做的事**：点击或方向键切换。曲线在原地变成下一项的形状，目标线滑到新高度，刻度在中途换掉。可以逐日探查，当前点变成空心点并带虚线。页签上的数字始终是本月，不随悬浮改变。
+- **浮层**：当日值、日目标、较目标，并带好坏。
+- **日目标示例**：营收 60.0 万、订单 110 单、客单价 5,455 元、退款率上限 2.00%。客单价目标由营收目标除以订单目标得出。
+
+#### P04 宫格看板
+
+- **问题**：同一时间尺度下，六项指标一起看。
+- **默认画面**：三行两列，窄屏变成两行三列。格内是指标条那六项。
+- **能做的事**：本月 / 本季 / 本年。六格的数字和涨跌一起过渡。对比口径跟着变成环比同期、上季同期、同比。金额跨到亿、订单跨到万时，按目标周期的单位显示。
+- **浮层**：本期、基期、变化，以及合并口径：毛利率按营收加权，及时率按订单加权，客单价和退款率按这一期重算，不做简单平均。
+- **示例**：本年营收 1.15 亿元，订单 2.2 万单。
+
+#### P05 记分卡表格
+
+- **问题**：所有指标相对目标的全貌，哪几项需要关注。
+- **默认画面**：六行七列。指标、本月、目标、达成、同比、1–9 月走势、状态。行头在窄屏横滚时粘住。走势是小线。状态是胶囊。营收和订单的走势用日均。
+- **能做的事**：点「达成」或「状态」的表头，按默认 → 降序 → 升序 → 默认循环。状态降序时最严重的在前（异常，然后关注，然后正常），同一档里达成低的在前。方向键在行间移动并打开读数。整表一个键盘停靠位，两个排序按钮另外各占一个。
+- **浮层**：本月、目标、达成、同比、状态，加上判定依据和走势口径。例如「达成 71.5% 对时间进度 73.3%，滞后 1.8 个百分点」。
+- **关注三项**：营收滞后 1.8 个百分点；客单价达成 97.5%；交付及时率 96.4% 落在 95–98%。营收和订单按累计型，客单价、毛利率、退款率按目标型，及时率按阈值型。
+
+#### P07 转化链
+
+- **问题**：从访客到成交，每一步留下了多少、流失了多少。
+- **默认画面**：五枚等宽胶囊，颜色由深到浅，表示阶段先后。胶囊下是人数和转化率。脚注写整体转化和「成交人数等于订单数」。窄屏改为竖向，箭头转向下。
+- **能做的事**：逐步转化 / 累计转化。比率过渡，人数不变。
+- **浮层**：人数、上一步人数、逐步转化、累计转化、本步流失。人数用完整数字，不用「万」。
+- **示例**：访客 48,210 → 注册 12,684 → 线索 6,532 → 商机 3,988 → 成交 2,418。整体转化 5.0%（2,418 ÷ 48,210）。
+
+### 6.7 筛选与查询
+
+分隔标题：11 种。筛选只产生条件；单击图表即联动，开关默认开着。
+
+#### F01 快捷时间
+
+- **问题**：先把时间定下来。
+- **默认画面**：一排单选胶囊：今日、昨日、本周、本月、本季、本年、近 7 天、近 30 天、自定义。默认本月。下方是区间、主数字、对比、订单、日均、客单价，以及一排逐日小柱；没有数据的日子是虚线空位。
+- **能做的事**：点击或方向键移动即选中。自定义打开月历，选起止后再确定或取消，焦点回到「自定义」。今日没有数据，显示空态和原因。
+- **对比怎么选**：日和周比上周同一段；月比上月同一段；季比上季；年比去年。近 7 天、近 30 天和自定义比前面一段同样长度的日子。只在有数据的日子上比，不用 22 天去比 23 天。季和年的现成基期只在截至日仍是 9 月 22 日时有数，否则显示一字线并说明。
+- **示例**：默认本月写成 9/1–9/23、23 天，其中有数据 22 天，营收 1,286.4 万元，较上月同期 +8.6%。「今日」是截至日的次日，默认即 9 月 23 日，尚无数据。
+
+#### F02 日期区间
+
+- **问题**：这段时间到底是哪几天，和哪一段比。
+- **默认画面**：触发器写着当前区间。打开后左边是预设（近 7 天、近 14 天、本月、上月、8/1 至今），右边是区间月历，底部选对比期：上期同期、去年同期、不对比。底部还写已选天数、有数据天数、时间进度。取消或确定。确定后本期和对比期一起更新。结果区是成对柱。
+- **能做的事**：预设和月历二选一，改动先在弹层里预览，确定后才落到结果上。对比期跟着区间走：上期同期是每一天往前挪一个月。
+- **没有数时**：对比期落在没有逐日数据的月份，读数写「无逐日数据」，不补 0。只缺一部分时写「缺 N 天」。
+- **示例**：默认 9/1–9/22 对 8/1–8/22。营收 1,286.4 万、+8.6%；订单 2,418 单、+12.5%。
+
+#### F03 单选下拉
+
+- **问题**：在几条互斥的业务线里选一条。
+- **默认画面**：方角触发器。打开后每项右侧有数值，当前项打勾。下方条形图里没选中的业务线变浅，但仍在，作为比较参照。
+- **能做的事**：方向键、Enter、空格、Home、End 打开。方向键只移动高亮，Enter、空格或 Tab 才确认。Alt + 上方向确认并关闭。输入首字可跳到匹配项（例如「分」到分销）。Esc 关闭且不改已确认的值。
+- **结果**：占比、订单、客单价、环比同期。
+- **示例**：全部，或直营 556.1、分销 402.7、电商 327.6（万元）。
+
+#### F04 多选下拉
+
+- **问题**：同时看几个区域，并且随时知道选了几个。
+- **默认画面**：触发器写「区域 华东 +2」，右侧「已选 3 / 6」。弹层里有搜索、三态全选（全选、半选、不选）、带复选框和数值的列表、底部计数，以及清空、完成。
+- **能做的事**：每勾一项立刻生效。搜索后 Enter 勾选当前高亮项。搜索框为空时，Ctrl 或 ⌘ + A 全选。Esc 先清掉搜索词，再关弹层。重新打开时，已选项排在最上面。下方条形图未选项变浅。
+- **规则说明**：候选超过 100 个时，应先搜索再选。本例只有 6 个区域，用来把交互演完。
+- **示例**：默认华东、华南、华北，合计 947.4 万元，占全部 73.6%，订单 1,705 单，环比同期 +8.2%。一项都不选时，结果按「没有区域」处理，并在链接里记一笔，以便分享这种空选。
+
+#### F05 级联筛选
+
+- **问题**：沿着省、市、区往下收，重名的区县不要算成同一个。
+- **默认画面**：触发器写「区县 鼓楼（南京）+1」。弹层三列：省、市、区，列上写已选数量。已选路径变成芯片，例如「江苏 / 南京 / 鼓楼」。结果条的标签写到能区分为止。下方有一句重名说明。
+- **能做的事**：右方向进入下一级，左方向返回。只在区县这一级勾选。可以清空。
+- **示例**：默认南京鼓楼 + 福州鼓楼，45.7 万元，占全部 3.6%。南京、徐州、福州各有一个鼓楼。
+
+#### F06 维度芯片
+
+- **问题**：候选很少时，直接铺开选，不用下拉。
+- **默认画面**：渠道一行、客群一行，行首是维度名，第一项是「全部」（这一维不设限）。下方是渠道 × 客群矩阵，每格有营收和订单。命中的格子反色，其余变浅。底部是营收、订单、客单价。
+- **能做的事**：同一维里多选是「或」，两维之间是「且」。方向键在一行内移动，空格切换。图例不承担筛选，芯片只放在数据上方。
+- **示例**：直营 × 复购为 358.1 万、583 单。三渠道客单价彼此不同：直营约 5,891 元，分销约 5,292 元，电商约 4,595 元，合计仍是 5,320 元。
+
+#### F07 已选条件回显
+
+- **问题**：我现在到底在看哪一段，拿掉一个条件会放开多少。
+- **默认画面**：四枚条件芯片和「清空全部」「添加条件」。来自图表联动的那枚是虚线。下方按芯片顺序逐步写出每一刀收窄了多少。
+- **能做的事**：点 ✕，或在芯片上按 Delete / Backspace 移除。焦点落到下一枚；删的是最后一枚就落到前一枚；一枚不剩就回到卡片里的起始焦点。添加条件的弹层只列出被拿掉的那些。四项都在时，添加按钮不可用，悬浮和读屏都能听到原因：「示例条件都已加上」。
+- **示例**：默认是近 7 天、华东等三个区域、电商、复购（其中复购来自图表联动），结果 44.8 万元、94 单、占全部 3.5%。逐步收窄的演示包括：加上近 7 天后约保留 35.1%，直到复购这一步约保留 55.2%。
+
+#### F08 筛选抽屉
+
+- **问题**：条件多的时候收起来，改完一次提交。
+- **默认画面**：「筛选 · 3」加上已应用的芯片。打开后抽屉从卡片右侧滑出（窄屏占满卡宽，高度不超过一屏）。里面是大区芯片、营收区间双滑块、环比芯片。底部是未应用计数、重置、应用。结果表可排序，合计与格子里看到的数一致。
+- **能做的事**：抽屉里的修改先算「未应用」。应用才提交。关闭、遮罩、Esc 放弃改动，焦点回到「筛选」。焦点锁在抽屉里。空结果时，表给出路：放宽营收区间、拿掉大区、清空全部。出路是否出现，取决于拿掉之后是否真能有结果。
+- **示例**：默认华东、华南、华北，营收 50–210 万，环比为增长。符合 7 / 15 个省份，901.0 万元，占全部 70.0%。
+
+#### F09 图表联动
+
+- **问题**：点了图之后，其余图为什么变了。
+- **默认画面**：右上角开关「联动 开 / 关」，默认开。三张图：区域营收、渠道构成、逐日营收（当前条件与全部的成对柱）。另有时间范围（本月、近 14 天、近 7 天）和区域多选。图下用灰色字写当前模式，例如单击条形即筛选其余两图。
+- **能做的事**：单击条形 = 选中 + 联动其余两图。再点同一条、点虚线芯片的 ✕，或 Esc，撤销这一条联动。两个来源取交集，例如区域华东并且渠道电商。被点的那张图仍显示全部类别，不被自己滤掉。关掉开关会清掉已有联动，之后单击只高亮。若区域多选把正在联动的区域排除了，那条联动自动消失，并播报。
+- **浮层**：条形给出营收、订单、占本图，以及「本图不受自己的联动影响」。结果行给出时间、筛选区域、联动条件、营收。
+
+#### F10 结果条与空态
+
+- **问题**：筛完之后如果什么都没有，下一步点哪里。
+- **默认画面**：区域芯片，加一根单日营收阈值滑块（0–80 万，一档 5 万）。结果条常驻：符合多少天、合计、占区间的比例。22 格日条：符合为蓝色，不符合为轨道色，截至日之后是空心格。
+- **能做的事**：拖阈值或换区域，立刻生效。空了之后整块换成原因和出路按钮：阈值放宽到能命中的那一档、拿掉区域（仅当拿掉后能命中）、清空全部。
+- **示例**：默认不低于 60 万，符合 10 / 22 天，合计 668.7 万元，占区间 52.0%。
+
+#### F11 日期面板
+
+- **问题**：哪一天没达标；把某一天设成全页的截至日。
+- **默认画面**：三栏，窄屏逐栏叠下。月历每个日子下面有状态点：绿达标、琥珀接近、红未达、空心无数据。中栏是所选日：营收、日目标、达成、订单、客单价、较上周同日，以及本周小结。右栏按周堆叠达标、接近、未达。
+- **能做的事**：在月历上逐日移动，Enter 或点击选定。截至日之后的日子不可选。换月时会念出月份，例如「2026 年 9 月」。周末表头比平日更淡，但仍能读。「设为截至日」把全页截至日改成所选日，顶部胶囊变色；筛选、页签、表格、目标进度卡、进度环卡按这一天重算。再点胶囊上的「回到最新」恢复 9 月 22 日。
+- **日目标**：工作日 64.3 万，周末 48.2 万（周末按工作日的 0.75 计，使全月仍对准 1,800 万）。达标是达到日目标，接近是 90% 到 100%，未达是低于 90%。
+- **示例**：9 月 1–22 日，达标 8 天、接近 9 天、未达 5 天。所选日和截至日是两件事：看 9 月 14 日，不等于已经把截至日改成 14 日，除非按了「设为截至日」。
+
+### 6.8 切换与导航
+
+分隔标题：6 种。切内容用页签，切参数用分段控件，最多两层。T03 由指标页签 P03 承担，T04 就是全页已经在用的分段控件，因此没有单独的卡。
+
+#### T01 下划线页签
+
+- **问题**：页面这一层，我在看总览、趋势、结构，还是明细。
+- **四块内容**：
+  - **总览**：营收、订单、客单价、日均营收四块数，各带小走势；一条目标进度（达成 71.5%，时间进度 73.3%，滞后 1.8 个百分点）；三条由数字得出的要点：涨得最快的区域、唯一下滑的区域、客单价和订单的关系。
+  - **趋势**：逐日营收柱加 7 日均线。截至日之后留空位。可以逐日探。
+  - **结构**：区域一条；渠道和客群各有营收、订单两条堆叠。两条对不齐，就是客单价的差。
+  - **明细**：区域表，含客单价列，沿用表格的排序和读数。
+- **能做的事**：左右方向立刻切换，Home / End 到两端。Tab 进入当前这块内容。刷新或打开复制来的链接，回到同一个页签。
+- **浮层**：数字块给出本期、同期、环比和口径。色段给出营收、订单、两种占比、客单价。趋势给出逐日。表格给出行读数。
+
+#### T02 药丸页签
+
+- **问题**：卡片内部换一组维度，同时还可以换看营收还是订单。
+- **默认画面**：渠道、区域、客群三枚药丸。每块是合计、个数、环比，加上条形（数值和环比），再加一条结构条。右上角分段控件切营收 / 订单。页签换内容，分段控件换参数。
+- **示例**：渠道环比直营 +5.1%、分销 +7.9%、电商 +16.0%。客群环比新客 +15.9%、复购 +4.3%。各渠道、各客群的涨幅不同，不会全部等于整体的 +8.6%。
+
+#### T05 徽标页签
+
+- **问题**：哪一组还有事没处理。
+- **默认画面**：待办、关注、已处理、全部。徽标只显示数量，为 0 就隐藏。「全部」不带徽标。关注的徽标是琥珀色。每条是状态胶囊、两行说明、一个操作（标记已处理、移出关注、撤回）。「全部」只列出来，不操作。列表区高度固定，多了在内部滚动，底部渐隐提示下面还有。
+- **能做的事**：处理后徽标立刻减少。焦点落到同一组的下一条按钮；处理的是最后一条，就落到新的最后一条；列表空了，回到页签。页签的读屏名称里含数量，例如「待办，4 项」。截至日变化时，待办按新的截至日重算。这些处理只存在于当次打开，刷新后回到示例。
+- **示例**：默认待办是截至日及之前未达日目标的日子，5 条；关注 3 条；已处理 2 条；全部 10 条。
+
+#### T06 页签溢出
+
+- **问题**：页签放不下的时候怎么找。
+- **默认画面**：15 个省按营收排序。两端渐隐，左右箭头在到头时不可用。右侧「更多」按大区分组列出全部省份，当前项打勾。滚动条本身不显示。
+- **能做的事**：方向键移动时，目标页签滚进可视区。菜单里可以用方向键、Home、End、首字跳转、Esc。下方空间不够时菜单翻到按钮上方。「更多」是菜单，不是页签。
+- **面板**：该省营收、占所在大区、大区内排名，以及下级城市条形。只有沪、苏、浙、粤、闽有城市数据，其余十省写明没有下级城市数据。
+
+#### T07 纵向页签
+
+- **问题**：条目不多、每项文案较长时，左边一列、右边一页。
+- **五页**：经营总览（三块数 + 逐日小柱）、渠道（营收与环比、营收 / 订单结构条、客单价说明）、区域（营收与环比）、客群（两块数 + 各渠道里复购占营收的比例）、履约（三块数 + 1–9 月及时率走势，虚线是 98% 目标）。履约按周更新，不随截至日变化。
+- **能做的事**：纵向时用上下键，选中项右侧有一条竖指示。约 700 像素及以下自动变成横向滑动的下划线页签，方向键改为左右。
+- **适用**：设置型、说明较长的一列。它不作整站主导航。
+
+#### T08 动态页签
+
+- **问题**：页签由使用者自己加、自己关。
+- **默认画面**：我的视图（固定）、华东复盘（区域 = 华东）、电商专题（渠道 = 电商）。每页是条件说明、三块带走势的数、一条分解条。
+- **能做的事**：方向键只移动焦点，Enter 或空格才切换。切换时先看到约 0.4 秒的骨架。新建视图最多 6 个。Delete 关闭当前页签。页签上的 ✕ 只给指针用，不进键盘顺序；键盘和读屏用面板里的「关闭此视图」。关闭后焦点落到旁边的页签。
+- **边界**：新建和关闭只存在于当次打开。焦点环画在页签内侧，避免被横向滚动的边缘裁掉。
+
+### 6.9 表格与明细
+
+分隔标题：5 种。兜底的明细层：三态排序、行点击按用途配置、表头可以跨列。记分卡就是 P05，排行就是 K08，因此没有重复的表。
+
+#### B01 明细表
+
+- **问题**：具体是哪一行；点这一行之后应该只是看、往下走、勾起来，还是拿去筛别的图。
+- **默认画面**：六个区域。列有营收、订单、客单价、环比同期、占比。右上角两组分段控件：粒度（区域，或区域 × 日），以及行点击（只读、下钻、勾选、联动）。
+- **四种点法**：
+  - **只读**：悬浮或上下键看读数。
+  - **下钻**：只在区域粒度可用；切到「区域 × 日」时自动回到只读。行头带 › 的可以进入该区域的省份。上方面包屑变成「全部区域 › 华东」，点「全部区域」返回。下钻之后，占比改为占该大区。
+  - **勾选**：第一列复选框，表头是三态全选。上方写「已选 N 行 · 合计多少万元 · 多少单 · 清除」。勾选变化会播报「已选 N 行」；全部取消时播报「已取消全部选择」。
+  - **联动**：点行把该区域变成条件，出现虚线芯片「区域 = 华东 · 来自 明细表」，可多选。表下方的渠道构成按这些区域重算。
+- **长表**：「区域 × 日」共 132 行，自动分页，每页 20 行。
+- **浮层**：区域或省份行给出营收、订单、环比同期、占全部（下钻后占大区）和口径。逐日行给出营收、订单、客单价。
+
+#### B03 交叉表
+
+- **问题**：区域和另一个维度交叉之后，每一格是多少。
+- **默认画面**：行是六个区域。列可以是渠道（3）、周（4）或日（22）。值是营收。行合计在「小计」列，列合计在末行。悬浮某一格时，所在行和所在列形成十字高亮。
+- **能做的事**：切换列维度。行 × 列超过 60 格时（切到「日」是 132 格）先出提示，点「仍然展开」才展开。小计和合计用格子里看到的数相加。
+- **浮层**：单元格（含小计格）给出营收、占本行、占本列。行头给出小计和占全部。
+
+#### B05 分组小计
+
+- **问题**：先在组里比渠道，再在组与组之间比。
+- **默认画面**：六个区域，每个区域三个渠道。默认展开华东、华南。组头写「华东 3 个渠道 · 小计」和金额。成员行的组内占比是数据条，「占全部」颜色更次要。
+- **能做的事**：点组头的 ▸ 展开或收起，也可以用右方向展开、左方向收起。「全部展开 / 全部收起」。
+- **键盘边界**：每个 ▸ 单独占一个键盘位。没有上下键逐行。组内那些行，键盘到不了，读数靠悬浮。
+
+#### B06 可展开行
+
+- **问题**：平时看区域汇总，偶尔展开看省份。
+- **默认画面**：六个区域。行头里的 ▸ 是独立按钮。
+- **能做的事**：点 ▸，或按右方向展开、左方向收起。子行插在父行后面，父行位置不动。子行的占比写成「占华东 40.8%」这类说法。行的其余部分不会触发下钻，避免和「点整行进入下一层」混在一起。
+- **键盘边界**：与分组小计相同，键盘到不了子行。
+
+#### B07 对比列组
+
+- **问题**：本期、基期、差多少，放在同一行。
+- **默认画面**：两行表头。三个列组有很淡的底色：本期、基期、变化。合计行更深。数字是营收、订单、差额、环比。
+- **能做的事**：营收、订单、差额、环比都可以三态排序。右上角切换五种数据状态，表高不变。
+- **读屏**：每一格能读出它属于哪一行、哪一组、哪一列，不必靠位置猜测。
+- **示例**：本期 1,286.4 万、2,418 单，基期 1,184.5 万、2,149 单，差额 +101.9 万，环比 +8.6%。
+
+---
+
+## 7. 第五层 · 同一功能在不同场合
+
+### 7.1 宽度
+
+| 大约宽度 | 使用者感到的变化 |
+|---|---|
+| 宽（约 1500 像素及以上） | 版心更宽，卡片略高 |
+| 桌面（约 901 像素及以上） | 图表卡两列；面板和宽表通栏 |
+| 中等（约 701–900） | 改成单列，卡片居中，不要拉得过宽 |
+| 窄（约 700 及以下） | 单列。读数改到图下停靠区。树状图隐藏节点里的数字。筛选胶囊不再显示计数。纵向页签改横向。抽屉占满卡宽且不超过一屏。转化链改竖向。顶栏导航横向滑动 |
+| 很窄（约 380 及以下） | 标题和卡头英文名再收一档，卡片内边距更紧 |
+| 约 960 及以下 | 隐藏品牌英文副标、版次、引言统计；工具条换行；指标条改为三列两行 |
+
+图表上的字在窄屏会放大到仍能读，大约不小于 8.5 像素。
+
+弹层、菜单、抽屉在桌面和手机宽度下都应完整落在屏幕内：下方放不下就翻到触发器上方；两边都放不下就把弹层滚进视口，并避开顶栏。
+
+### 7.2 指针、触屏、键盘
+
+- **最后一次是指针**（鼠标、触屏、笔）：不画焦点环。文本搜索框仍保留细边框，让人知道可以输入。
+- **按了键**（修饰键除外）：焦点环立刻出现。之后的键盘移动都带环。
+- 环的颜色：页面上是绿色；图表里的可聚焦图形是浅色光晕或虚线，不盖住数据；目标线把手在键盘聚焦时是金色描边，拖动时不出现方框。
+- 每张卡都能只用键盘做完它承诺的操作。分组小计和可展开行是例外：展开按钮可达，组内行和子行不可达。
+- 弹层关闭后，焦点回到打开它的按钮。移除一枚条件芯片后，焦点落到下一枚。抽屉打开时，Tab 在抽屉内部循环。
+
+### 7.3 读屏会听到什么
+
+- 每张卡一条播报。筛选、页签、表格的结果变化写在这里：排序结果、已选行数、全部取消、换月后的月份标题。
+- 键盘把焦点送进可读取项时，读数浮层的内容会念出来。
+- 15 张图表和指标组件上的「切换示例、切换周期、切换口径」本身不另念一句结果。想听当前值，把焦点放在数字或图形上。
+- 指标卡的名称就是一句完整的话：指标、数值、对比、好坏。
+- 箭头图标不单独朗读。状态不单靠颜色：胶囊有图标和文字；涨跌有箭头和数字；日期状态点有图例，读屏能读出达标、接近、未达或无数据；联动条件的虚线芯片写着来源。
+- 徽标上的数字不单独朗读，数量写在页签名称里。只给鼠标点的关闭叉不进读屏顺序，旁边有文字按钮等价。
+- 隐藏掉的加载层、空态层不会被点到，也不会被读到。
+
+### 7.4 动效开着时，使用者感到的节奏
+
+进场大约零点八秒到一点五秒。切换大约半秒到零点八秒。选中大约零点三秒。气泡聚焦大约一点五秒，带弹性。数字计数大约零点七秒，目标进度和主次面板略长。页签内容淡入大约零点一六秒。减少动效时这些全部直接到达终态。
+
+主题切换约零点三秒。排序时行的移动约零点四秒。
+
+---
+
+## 8. 打开页面时读到的两套示例
+
+示例是固定的。使用者改变筛选和截至日时，看到的是同一套事实在新条件下的结果，不是另一份数。
+
+### 8.1 生活节律（图表 01–10，以及目标线、面积图）
+
+| 内容 | 读到的事实 |
+|---|---|
+| 活动圆环 | 热量超额，锻炼和站立未完成 |
+| 热力格 | 截至 2026-09-20 的 20 周打卡，当前连续 26 天 |
+| 仪表盘 | 专注分数默认 64，处在正常段 |
+| 柱状图 | 9 月中下旬一周的每日专注分钟，日均 46；月视图日均 47 |
+| 专注分段 | 9:00–17:00 的深度、普通、休息，游标停在 16:14 |
+| 面积图 | 步数从一周、一月到一年，年平均 6.5 千步 |
+| 目标线 | 一周步数相对 5,000 步目标，默认 5 天达标 |
+| 占比条 | 今日 9 小时 40 分的四类时间 |
+| 环形 | 5 小时 12 分屏幕时间的四类 |
+| 气泡 | 六项活动的分钟，步行最久 |
+
+这些图不跟随截至日，也不参与经营筛选。
+
+### 8.2 经营简报（截至 2026-09-22，演示用的更新时刻是 9 月 23 日 09:30）
+
+时间进度：月 22 / 30 天，季 84 / 92 天，年 265 / 365 天。
+
+| 指标 | 本月读数 | 使用者同时能看到的判断 |
+|---|---|---|
+| 营收 | 1,286.4 万元 | 月目标 1,800 万，达成 71.5%，时间进度 73.3%，滞后 1.8 个百分点。环比同期 +8.6%，同比 +21.3%。按近 7 日节奏，月底约 1,802.5 万 |
+| 订单 | 2,418 单 | 新客 1,012，复购 1,406。环比同期 +12.5%。月目标 3,300 单 |
+| 客单价 | 5,320 元 | 环比 −3.5%（向差），同比 +2.5%（向好）。目标 5,455 元，达成 97.5%，记分卡里列为关注 |
+| 毛利率 | 与指标条、宫格、记分卡一致 | 环比 +1.2 个百分点（向好），同比 −0.6 个百分点（向差）。目标不低于 38% |
+| 退款率 | 1.8%（更精确的本月值在浮层里是 1.82%） | 下降为好。环比、同比都在下降。上限 2% |
+| 交付及时率 | 本月 96.4%（原始 96.44%） | 阈值 95 / 98，本月为关注。本周 98.6% 正常，上月 94.8% 异常。年目标不低于 98% |
+| 本年营收 | 1.15 亿元 | 年目标 1.56 亿，达成 73.5%，超前 0.9 个百分点，同比 +17.9% |
+| 本季营收达成 | 91.5% | 相对时间进度为持平。季目标 4,750 万 |
+
+区域营收（万元）：华东 412.6、华南 298.3、华北 236.5、西南 171.2、华中 102.4、其他 65.4。华中环比下滑，是总览里「唯一下滑」的那一条。西南增速最高。
+
+渠道营收（万元）：直营 556.1、分销 402.7、电商 327.6。环比分别约 +5.1%、+7.9%、+16.0%。电商和新客涨得更快，直营和复购更慢，所以渠道环比不会都等于整体 +8.6%。
+
+六个大区的客单价彼此不同（大约 4,613 元到 5,852 元），三个渠道也不同（大约 4,595 元到 5,891 元）。结构条上营收占比和订单占比对不齐，就是这个差。
+
+转化链从 48,210 名访客到 2,418 笔成交，成交数等于订单数，整体转化 5.0%。
+
+地理上有 15 个省。默认级联选中的是南京鼓楼和福州鼓楼。抽屉默认能命中 15 省里的 7 个。
+
+瀑布图用的是另一则利润拆解示例（期初 120 万到期末 140 万），四象限和树状图用的是产品组合示例（总营收 240 万，四项业务）。它们和经营简报放在同一页，但是各自的示例，不随区域筛选改变。
+
+---
+
+## 9. 本版使用者会碰到的边界
+
+这些是页面已经这样工作、规格也记了下来的体验边界，不是故障清单。
+
+1. **数据是一份固定示例。** 不能换公司、不能换月份。截至日只能在 9 月 1 日到 9 月 22 日之间移动。
+2. **截至日不是全页。** 胶囊在改动后写「全页截至」。实际重算的是筛选、页签、表格、目标进度卡、进度环卡。15 张图表和其余指标卡仍是 9 月 22 日。
+3. **「今日」永远没有数。** 它被定义成截至日的第二天。默认截至 9 月 22 日时，今日是 9 月 23 日。空态写原因，不写 0。
+4. **图表和多数指标卡的切换不主动播报。** 键盘焦点在读数上时听得到当前值。切换「周 / 月」「本季」「环比 / 同比」本身没有一句结果摘要。
+5. **分组小计和可展开行，键盘到不了内部行。** 只能操作展开按钮，内部读数靠悬浮。
+6. **四象限换季度会保留选中**，方便看迁移。同页「交互说明」写的是换时间范围后清除选择。树状图换方向、折线图换折或曲，也保留选中。
+7. **组合图图例不标明左右轴。** 轴的单位写在轴上。线与柱的上下位置没有比较意义。
+8. **写操作不保留。** 徽标页签里的已处理、动态页签的新建和关闭、目标线拖到的新目标、各图的选中，刷新后消失。能留在链接里的只有筛选、页签和截至日。
+9. **表格的排序、页码、勾选不能分享。** 把链接发给别人，表回到默认排序和第一页。
+10. **热力格没有单独的缺席标记。** 断掉的那天是深色格，连续天数写在角落。
+11. **联动发生在演示卡内部。** 「图表联动」卡里的三张图会互相影响；它不会筛掉页面上其它卡片。明细表自己的联动也只影响它下方那条渠道构成。
+12. **深色里有几组颜色比较接近。** 占比条、环形、气泡靠名称、图例和段间缝隙区分，不单靠颜色。
+13. **进场可能连续感到两次。** 卡片刚出现时播一次，第一次滚进视口若还没被操作过，会再播一次。多数情况下几乎看不出来。
+
+---
+
+## 10. 讨论过、本版没有的功能
+
+方案和收尾记录里出现过、页面上没有的能力。列在这里是为了划清产品边界。
+
+| 名称 | 原本准备回答的问题 | 本版决定 |
+|---|---|---|
+| K07 构成卡 | 一个指标内部的类别构成，用条而不是另一张图 | 暂缓 |
+| K10 翻牌器 | 数字以翻牌或只涨不跌的方式滚动，偏大屏 | 暂缓 |
+| P06 指标树 | 指标之间谁驱动谁 | 暂缓 |
+| 热力格「缺席」标记 | 断签那天单独标出来 | 明确不做。强度用颜色，断档用深色格和连续天数 |
+| 跨卡片的看板联动 | 在总览里点一个区域，整页指标和表一起变 | 未做。联动模型只在 F09 和 B01 的演示里 |
+| 真实数据、任意截至日 | 换一套经营数据，截至日不限于 9 月 | 未做。第二阶段的可选方向，页面仍是参考模板 |
+| 表格排序写入链接 | 把「按环比升序」分享给别人 | 未做 |
+| 已处理、自定义视图的保存 | 刷新后还在 | 未做。当次打开有效 |
+
+刻意不用的表达（方案里写明避开）：
+
+- 水波、立体、发光一类大屏装饰。
+- 每个数字旁边配一个图标。
+- 目标和当期用同一种颜色，让人分不清。
+- 一张卡上堆两个以上的对比口径。
+- 只靠颜色表示涨跌或正常与否。
+- 涨红跌绿。本产品绿色表示变好，红色表示变差。
+- 筛选器自己造一套与原数对不上的结果。
+
+---
+
+## 附录 · 功能索引
+
+| 编号 | 名称 | 任务 | 一句话 |
+|---|---|---|---|
+| 01 | 活动圆环 | 进度 | 三环同步画到当前，超额叠加深色 |
+| 02 | 打卡热力格 | 时间 | 点一天看次数，方向键在周和日之间移动 |
+| 03 | 仪表盘 | 进度 | 指针扫入某一档，可换示例分数 |
+| 04 | 柱状图 | 时间 | 周 / 月连续变形，点一根查看并压低其余 |
+| 05 | 专注分段图 | 时间 | 横向拖动读一天的节奏 |
+| 06 | 面积图 | 时间 | 周 / 月 / 年连续变形，读采样值 |
+| 07 | 目标线 | 进度 | 上下拖动标准，达标天数即时变化 |
+| 08 | 分段占比条 | 组成 | 点一段上抬，其余颜色保留 |
+| 09 | 环形占比图 | 组成 | 点一段外移，中心换成该项 |
+| 10 | 气泡图 | 组成 | 聚焦时放大让位，并声明大小不再表示数量 |
+| 11 | 折线图 | 时间 | 折 / 曲切换点不动，可点选 |
+| 12 | 组合图 | 时间 | 营收、成本与毛利率，可关系列、可看单月 |
+| 13 | 瀑布图 | 时间 | 实际 / 预算，点一步看变化前后累计 |
+| 14 | 四象限图 | 结构 | 换季度看迁移，选中留着 |
+| 15 | 树状图 | 结构 | 横纵切换，分支收起，看占上级和占总体 |
+| K01 | 数值卡 | 单指标 | 一个数，先看口径，并可演示五种状态 |
+| K02 | 对比卡 | 单指标 | 箭头是方向，颜色是好坏 |
+| K03 | 趋势卡 | 单指标 | 拖迷你图看每天，主数字仍是本月 |
+| K04 | 目标进度卡 | 单指标 | 达成相对时间进度，跟随截至日 |
+| K05 | 进度环卡 | 单指标 | 四行解释一枚环，跟随截至日 |
+| K06 | 阈值状态卡 | 单指标 | 正常 / 关注 / 异常，越低越好时色带对调 |
+| K08 | 排行卡 | 单指标 | 按金额或增速重新排名，「其他」不参与 |
+| K09 | 三联卡 | 单指标 | 日、月、年三种尺度，未满月可辨认 |
+| P01 | 指标条 | 组织 | 六项并列，环比与同比一起换 |
+| P02 | 主次面板 | 组织 | 主指标加累计曲线，右侧行解释图上的线 |
+| P03 | 指标页签图 | 组织 | 页签驱动曲线原位变形 |
+| P04 | 宫格看板 | 组织 | 同一周期下的六格 |
+| P05 | 记分卡 | 组织 | 全体指标对目标，可按达成或状态排序 |
+| P07 | 转化链 | 组织 | 逐步或累计，看留下的和流失的 |
+| F01 | 快捷时间 | 缩小范围 | 一排时间胶囊，自定义走月历 |
+| F02 | 日期区间 | 缩小范围 | 预设加月历，确定后本期和对比期一起更新 |
+| F03 | 单选下拉 | 缩小范围 | 方向键移动，确认后才改变 |
+| F04 | 多选下拉 | 缩小范围 | 搜索、计数、全选，勾选即时生效 |
+| F05 | 级联筛选 | 缩小范围 | 省市区，重名按全路径分开 |
+| F06 | 维度芯片 | 缩小范围 | 候选少就铺开，维内或、维间且 |
+| F07 | 已选条件 | 缩小范围 | 逐个移除，看见每一刀收窄多少 |
+| F08 | 筛选抽屉 | 缩小范围 | 多项改完一次应用，放弃则还原 |
+| F09 | 图表联动 | 缩小范围 | 单击即联动，来源图不滤自己，可整体关掉 |
+| F10 | 结果与空态 | 缩小范围 | 阈值和区域，空了给出路 |
+| F11 | 日期面板 | 缩小范围 | 按日看达标，并可设为截至日 |
+| T01 | 下划线页签 | 切换 | 总览、趋势、结构、明细，方向键即切换 |
+| T02 | 药丸页签 | 切换 | 卡内换维度，分段控件换营收或订单 |
+| T05 | 徽标页签 | 切换 | 待办数量，处理后减少 |
+| T06 | 页签溢出 | 切换 | 滑动、箭头、更多菜单 |
+| T07 | 纵向页签 | 切换 | 左列右页，窄屏改横向 |
+| T08 | 动态页签 | 切换 | 自己新建和关闭，确认后才切换 |
+| B01 | 明细表 | 明细 | 只读、下钻、勾选、联动，长了分页 |
+| B03 | 交叉表 | 明细 | 两个维度交叉，过大时先询问 |
+| B05 | 分组小计 | 明细 | 组头折叠，先组内再组间 |
+| B06 | 可展开行 | 明细 | 独立按钮展开省份，行本身不下钻 |
+| B07 | 对比列组 | 明细 | 本期、基期、差额、环比，可排序，可看五种状态 |
+</script>
+</body>
+</html>
