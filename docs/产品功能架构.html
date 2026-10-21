@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<meta name="description" content="图表实验室的产品功能架构：五层、阅读协议、九种任务、页面外壳、经营判断与本版边界。">
+<title>图表实验室 · 产品功能架构</title>
+<style>
+  :root {
+    --paper: #eeede7;
+    --ink: #20231f;
+    --muted: #5c6158;
+    --faint: #73776e;
+    --line: #d6d7ce;
+    --card: #fbfbf8;
+    --soft: #e7e6df;
+    --accent: #242b20;
+    --on-accent: #f4f3ee;
+    --focus: #3f6b4a;
+    --info: #eef1ea;
+    --info-line: #c9d2c4;
+    --warn: #8a5a00;
+    --warn-bg: #f7eedb;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-padding-top: 72px; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font: 16px/1.6 "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  }
+  .skip {
+    position: absolute;
+    left: 12px;
+    top: -40px;
+    background: var(--accent);
+    color: var(--on-accent);
+    padding: 6px 10px;
+    border-radius: 8px;
+  }
+  .skip:focus { top: 12px; }
+  a { color: #245c38; }
+  a:hover { text-decoration: none; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+  .wrap { width: min(1080px, calc(100% - 32px)); margin: 0 auto; }
+  header.top {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: #eeede7;
+    background: color-mix(in srgb, var(--paper) 92%, transparent);
+    border-bottom: 1px solid var(--line);
+    backdrop-filter: blur(10px);
+  }
+  header.top .wrap {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-height: 58px;
+  }
+  .brand { font-weight: 650; letter-spacing: -0.02em; text-decoration: none; color: inherit; }
+  .brand small { display: block; font: 10px/1.2 ui-monospace, Consolas, monospace; letter-spacing: 0.12em; color: var(--faint); font-weight: 500; }
+  nav.crumbs { display: flex; gap: 14px; margin-left: auto; font-size: 13px; }
+  nav.crumbs a { color: var(--muted); text-decoration: none; }
+  nav.crumbs a:hover { color: var(--ink); }
+  main { padding: 28px 0 72px; }
+  h1 { font-size: 34px; line-height: 1.2; letter-spacing: -0.03em; font-weight: 650; margin: 8px 0 10px; }
+  h2 { font-size: 22px; letter-spacing: -0.02em; font-weight: 650; margin: 36px 0 8px; }
+  h3 { font-size: 18px; margin: 0 0 6px; font-weight: 650; }
+  h3 span { font-weight: 450; color: var(--muted); font-size: 15px; }
+  .lede { margin: 0; max-width: 68ch; color: var(--muted); }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 22px 0; }
+  .stat { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px 12px; }
+  .stat b { display: block; font-size: 28px; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; line-height: 1.1; }
+  .stat span { color: var(--muted); font-size: 13px; }
+  .callout { background: var(--info); border: 1px solid var(--info-line); border-radius: 14px; padding: 14px 16px; }
+  .callout strong { display: block; margin-bottom: 4px; }
+  .callout p { margin: 0; }
+  .note { color: var(--muted); margin: 0 0 12px; }
+  .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; background: var(--card); }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; line-height: 1.5; }
+  caption { text-align: left; padding: 10px 14px 0; font-size: 12px; color: var(--faint); }
+  th, td { text-align: left; vertical-align: top; padding: 10px 14px; border-top: 1px solid var(--line); }
+  thead th { border-top: 0; font-size: 12px; font-weight: 650; color: var(--muted); background: #f6f5f0; }
+  tbody tr:nth-child(even) td { background: #f7f6f2; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  tr.warn td:first-child { box-shadow: inset 3px 0 0 var(--warn); }
+  .pills { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 16px; }
+  .pills button {
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--ink);
+    border-radius: 999px;
+    padding: 6px 12px;
+    font: inherit;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .pills button[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+  .task-panel { margin-top: 8px; }
+  .js .task-panel { display: none; }
+  .js .task-panel.is-on { display: block; }
+  .sees { list-style: none; padding: 0; margin: 14px 0 0; display: grid; gap: 8px; }
+  .sees li { display: grid; grid-template-columns: 168px 1fr; gap: 12px; font-size: 14px; }
+  .sees b { font-weight: 650; }
+  .sees span { color: var(--muted); }
+  .fine { color: var(--faint); font-size: 13px; }
+  footer { border-top: 1px solid var(--line); padding: 18px 0 28px; color: var(--faint); font-size: 13px; }
+  footer .wrap { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .sr { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+  @media (max-width: 800px) {
+    h1 { font-size: 28px; }
+    .stats { grid-template-columns: 1fr 1fr; }
+    nav.crumbs { display: none; }
+    .sees li { grid-template-columns: 1fr; gap: 2px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { scroll-behavior: auto !important; }
+  }
+</style>
+<script>document.documentElement.classList.add("js");</script>
+</head>
+<body>
+<a class="skip" href="#content">跳到正文</a>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#content">图表实验室<small>PRODUCT ARCHITECTURE</small></a>
+    <nav class="crumbs" aria-label="页内">
+      <a href="#layers">五层</a>
+      <a href="#protocol">阅读协议</a>
+      <a href="#tasks">九种任务</a>
+      <a href="#shell">外壳</a>
+      <a href="#sample">示例</a>
+      <a href="#limits">边界</a>
+    </nav>
+  </div>
+</header>
+<main id="content" class="wrap">
+  <p class="fine">第一阶段完成态 · 2026-09-23</p>
+  <h1>图表实验室 · 产品功能架构</h1>
+  <p class="lede">51 个可交互单元，只按使用者能看见、点到、拖到、听到和分享到的能力分层。逐卡的操作、读数和示例数字在 <a href="产品功能文档.md">产品功能文档</a>。</p>
+
+  <section class="stats" aria-label="规模">
+    <div class="stat"><b>51</b><span>可交互单元</span></div>
+    <div class="stat"><b>9</b><span>解耦后的阅读任务</span></div>
+    <div class="stat"><b>5</b><span>产品层级</span></div>
+    <div class="stat"><b>2</b><span>示例世界：生活与经营</span></div>
+  </section>
+
+  <aside class="callout">
+    <strong>产品在做什么</strong>
+    <p>打开即可使用的交互参考。标题是「让数据的变化，看得见。」前十张图讲活动、专注和步数；其余图表、指标、筛选、页签和表格讲一份截至 2026 年 9 月 22 日的经营简报。它不写入真实业务。</p>
+  </aside>
+
+  <section id="layers" aria-labelledby="layers-h">
+    <h2 id="layers-h">五层怎么叠</h2>
+    <p>上一层是下一层共用的规矩。任务不绑定某一张卡：换掉对比卡，箭头表示方向、颜色表示好坏仍然成立。</p>
+    <div class="table-wrap">
+      <table>
+        <caption>产品的五层</caption>
+        <thead><tr><th>层</th><th>使用者感到的是</th><th class="num">规模</th></tr></thead>
+        <tbody>
+          <tr><td>进入与浏览</td><td>顶栏、分类、深浅底色、减少动效、重播、截至日胶囊、四块规则说明</td><td class="num">整页</td></tr>
+          <tr><td>阅读协议</td><td>读数浮层、选中、连续变形、数字与好坏、一个截至日、可分享的当前看法</td><td class="num">所有卡片</td></tr>
+          <tr><td>九种任务</td><td>进度、时间、组成、结构、单指标、多指标、缩小范围、切换、明细</td><td class="num">9</td></tr>
+          <tr><td>五十一个单元</td><td>每张卡只回答一个问题</td><td class="num">51</td></tr>
+          <tr><td>场合</td><td>宽屏悬浮、窄屏图下停靠、触屏固定、键盘等价、读屏、减少动效</td><td class="num">同一功能的不同出现方式</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="protocol" aria-labelledby="protocol-h">
+    <h2 id="protocol-h">阅读协议</h2>
+    <p class="note">这些规矩跨卡片成立。页面下方的交互说明、指标规则、查询规则是它们的公开说明书。</p>
+    <div class="table-wrap">
+      <table>
+        <caption>跨卡片成立的阅读协议</caption>
+        <thead><tr><th>协议</th><th>使用者感到的规则</th></tr></thead>
+        <tbody>
+          <tr><td>看见局部，保留整体</td><td>悬浮看读数；点中一项后其余变淡或上抬；再点或 Esc 取消。换时间范围通常清掉旧选择。</td></tr>
+          <tr><td>直接操作</td><td>拖时间游标或目标线，读数和图形同时变。目标步数 2,000–10,000，每档 100。</td></tr>
+          <tr><td>总有另一种做法</td><td>键盘能完成承诺的操作。窄屏点一下，详情停在图下。减少动效时直接给出结果。</td></tr>
+          <tr><td>先说是什么</td><td>卡面简写，浮层给完整值和算式。空着写原因，零照常显示。</td></tr>
+          <tr><td>再说好不好</td><td>箭头只表示升降。绿色是变好，红色是变差。退款率下降为绿。一张卡最多两个对比。</td></tr>
+          <tr><td>进度怎么判</td><td>达成率减去时间进度，差到 0.5 个百分点才叫超前或滞后。时间进度是红色虚线。</td></tr>
+          <tr><td>状态怎么判</td><td>正常、关注、异常同时用图标、文字和颜色。按原始值分档，不按四舍五入后的显示值。</td></tr>
+          <tr><td>主数字不跟着探查走</td><td>逐日的数写在图旁或浮层。大数字仍是本月或当期。</td></tr>
+          <tr><td>条件从哪来，就回到哪去</td><td>单控件立刻生效，抽屉一次提交。联动用虚线芯片，可逐个撤销。空结果给出路。</td></tr>
+          <tr><td>全页一个截至日</td><td>只有日期面板能设定，胶囊可回到 9 月 22 日。跟随的是筛选、页签、表格和两张进度卡。</td></tr>
+          <tr><td>当前看法可分享</td><td>非默认的筛选、页签和截至日留在链接里，可后退。表格排序、页码和勾选不在其中。</td></tr>
+          <tr><td>两种切换</td><td>页签切内容，分段控件切参数，最多两层。内容已在页上就随方向键切换；要取数则按 Enter。</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="tasks" aria-labelledby="tasks-h">
+    <h2 id="tasks-h">九种任务</h2>
+    <p>点一种任务，看它下面的单元。进度任务里包含目标线和两张进度卡，因为它们回答的是同一件事，只是摆法不同。每个单元只归在它最主要的那一种任务下，九组合计 51。</p>
+    <div class="pills" role="group" aria-label="阅读任务">
+      <button type="button" data-task="progress" aria-pressed="true">看进度</button>
+      <button type="button" data-task="time" aria-pressed="false">看时间</button>
+      <button type="button" data-task="compose" aria-pressed="false">看组成</button>
+      <button type="button" data-task="structure" aria-pressed="false">看结构</button>
+      <button type="button" data-task="metric" aria-pressed="false">看一个指标</button>
+      <button type="button" data-task="organize" aria-pressed="false">组织多个指标</button>
+      <button type="button" data-task="narrow" aria-pressed="false">缩小范围</button>
+      <button type="button" data-task="switch" aria-pressed="false">切换内容</button>
+      <button type="button" data-task="detail" aria-pressed="false">落到一行</button>
+    </div>
+    <p class="sr" role="status" id="task-status"></p>
+
+    <article class="task-panel is-on" data-panel="progress">
+      <h3>看进度 <span>· 6 个单元</span></h3>
+      <p>做到哪了，离标准还有多远，落在哪一档。</p>
+      <div class="table-wrap"><table>
+        <caption>看进度</caption>
+        <thead><tr><th>编号</th><th>单元</th><th>它回答的问题</th><th>打开后能做的事</th></tr></thead>
+        <tbody>
+          <tr><td>01</td><td>活动圆环</td><td>三项目标各自完成了多少，有没有超额。</td><td>悬浮环或图例。浮层给出当前、目标、完成率、超额量。</td></tr>
+          <tr><td>03</td><td>仪表盘</td><td>一个分数落在低、正常、高的哪一段。</td><td>切换示例分数 15、64、92。浮层给出当前、满分、所属区间。</td></tr>
+          <tr><td>07</td><td>目标线</td><td>标准一变，这周有几天还达标。</td><td>拖整条线，或用键盘以 100 步调整，范围 2,000–10,000。达到或超过都算达标。</td></tr>
+          <tr><td>K04</td><td>目标进度卡</td><td>照这个节奏，这一期能不能完成。</td><td>切换本月、本季、本年。跟随全页截至日重算。条头在虚线左边是滞后。</td></tr>
+          <tr><td>K05</td><td>进度环卡</td><td>目标、达成、差距、时间进度能否同时看见。</td><td>悬浮某一行，环上对应部分亮起。跟随截至日。</td></tr>
+          <tr><td>K06</td><td>阈值状态卡</td><td>这个数是正常、关注，还是异常。</td><td>切换本周、本月、上月。越低越好时色带左绿右红对调。按原始值分档。</td></tr>
+        </tbody>
+      </table></div>
+      <ul class="sees">
+        <li><b>01 活动圆环</b><span>三环同时从零画到当前。超过 100% 的一段加深，并出现超额标记。中心是热量。</span></li>
+        <li><b>03 仪表盘</b><span>指针从零扫到 64，略微过冲再停稳。当前段更实。</span></li>
+        <li><b>07 目标线</b><span>七根日柱，达标为亮色。一条可拖的目标线，主数字是达标天数。</span></li>
+        <li><b>K04 目标进度卡</b><span>达成率、状态胶囊、红色时间进度虚线，以及目标、达成、差额、日均还需。</span></li>
+        <li><b>K05 进度环卡</b><span>月环为蓝，年环为橙。环上红色刻度是时间进度，右侧四行解释。</span></li>
+        <li><b>K06 阈值状态卡</b><span>数字、图标加文字的胶囊、三段色带和指针。</span></li>
+      </ul>
+    </article>
+
+    <article class="task-panel" data-panel="time">
+      <h3>看时间 <span>· 9 个单元</span></h3>
+      <p>这段时间怎么走过来；换尺度后趋势还在不在；每一步贡献多少。</p>
+      <div class="table-wrap"><table>
+        <caption>看时间</caption>
+        <thead><tr><th>编号</th><th>单元</th><th>它回答的问题</th><th>打开后能做的事</th></tr></thead>
+        <tbody>
+          <tr><td>02</td><td>打卡热力格</td><td>哪些天做了，哪些天断了。</td><td>点选某一天。方向键按周或按日移动。</td></tr>
+          <tr><td>04</td><td>柱状图</td><td>换一周或一月后，每天还能不能放在同一把尺子上比。</td><td>周 / 月连续变形。点一根后其余变成轨道色。换范围会清掉选中。</td></tr>
+          <tr><td>05</td><td>专注分段图</td><td>一天里何时深度专注、普通专注、休息。</td><td>横向拖动。键盘可按 1 分钟、15 分钟或 1 小时移动。</td></tr>
+          <tr><td>06</td><td>面积图</td><td>从一周换到一年，趋势是否还连贯。</td><td>周 / 月 / 年连续变形。左右键沿采样点看，不读曲线插值。</td></tr>
+          <tr><td>11</td><td>折线图</td><td>折线和曲线读到的是不是同一组点。</td><td>折 / 曲切换时点不动，已选中的点留着。可点选，Esc 取消。</td></tr>
+          <tr><td>12</td><td>组合图</td><td>规模和效率能不能放在一起看走势。</td><td>换半年、点某月、开关图例。至少留一个系列。线在柱上方不表示大小比较。</td></tr>
+          <tr><td>13</td><td>瀑布图</td><td>从期初到期末，每一步是加是减。</td><td>实际 / 预算连续变化。点一步看变化前后的累计。</td></tr>
+          <tr><td>K03</td><td>趋势卡</td><td>这个月的总数是怎么一天天走过来的。</td><td>拖动或方向键逐日。主数字始终是本月累计。</td></tr>
+          <tr><td>K09</td><td>日 / 月 / 年三联卡</td><td>同一个营收，今天、这个月、今年分别是多少。</td><td>三列各自探查。日比上周同日，月比环比同期，年比同比。</td></tr>
+        </tbody>
+      </table></div>
+      <ul class="sees">
+        <li><b>02 打卡热力格</b><span>20 周的五档颜色。角落是连续 26 天。断签是深色格。</span></li>
+        <li><b>04 柱状图</b><span>日均分钟，以及 60 分钟参考线。</span></li>
+        <li><b>05 专注分段图</b><span>9:00–17:00 的三行色块。游标默认停在 16:14。</span></li>
+        <li><b>06 面积图</b><span>平滑面积，主数字是这一段的平均步数。默认一年，平均 6.5 千步。</span></li>
+        <li><b>11 折线图</b><span>一周活跃用户，主数字是周日。</span></li>
+        <li><b>12 组合图</b><span>营收柱、成本柱、毛利率线。左轴万元从零起，右轴固定 0–60%。</span></li>
+        <li><b>13 瀑布图</b><span>总量、增加、减少三种颜色，柱顶虚线相接。说明行是一道等式。</span></li>
+        <li><b>K03 趋势卡</b><span>营收面积与订单柱。图旁默认是最新一天。</span></li>
+        <li><b>K09 日 / 月 / 年三联卡</b><span>三列迷你柱。未满的 9 月变浅并带虚线。</span></li>
+      </ul>
+    </article>
+
+    <article class="task-panel" data-panel="compose">
+      <h3>看组成 <span>· 4 个单元</span></h3>
+      <p>一个整体里，每一部分占多少。</p>
+      <div class="table-wrap"><table>
+        <caption>看组成</caption>
+        <thead><tr><th>编号</th><th>单元</th><th>它回答的问题</th><th>打开后能做的事</th></tr></thead>
+        <tbody>
+          <tr><td>08</td><td>分段占比条</td><td>今天这 9 小时 40 分各做了哪一类。</td><td>点段或图例，该段上抬，其余颜色保留。</td></tr>
+          <tr><td>09</td><td>环形占比图</td><td>屏幕时间里哪一类占了多少。</td><td>点扇段或图例，该段外移，中心换成这一项，其余变灰。</td></tr>
+          <tr><td>10</td><td>气泡图</td><td>先用面积建立印象，再看清一个活动。</td><td>点击进入聚焦：放大让位，并声明此时大小不再表示数量。可返回比例。</td></tr>
+          <tr><td>P07</td><td>转化链</td><td>从访客到成交，每一步留下多少、流失多少。</td><td>切换逐步转化或累计转化。浮层给出本步流失的完整人数。</td></tr>
+        </tbody>
+      </table></div>
+      <ul class="sees">
+        <li><b>08 分段占比条</b><span>四段一条，段间有缝，图例带百分比。</span></li>
+        <li><b>09 环形占比图</b><span>中心是 5 小时 12 分。四段依次画出。</span></li>
+        <li><b>10 气泡图</b><span>六项活动，面积表示分钟。比例模式写明圆面积表示时长。</span></li>
+        <li><b>P07 转化链</b><span>五枚由深到浅的胶囊。成交人数等于订单数。</span></li>
+      </ul>
+    </article>
+
+    <article class="task-panel" data-panel="structure">
+      <h3>看结构 <span>· 2 个单元</span></h3>
+      <p>在层级里的位置，或在增长与份额上的位置。</p>
+      <div class="table-wrap"><table>
+        <caption>看结构</caption>
+        <thead><tr><th>编号</th><th>单元</th><th>它回答的问题</th><th>打开后能做的事</th></tr></thead>
+        <tbody>
+          <tr><td>14</td><td>四象限图</td><td>业务在份额和增长率上处于哪一象限，营收有多大。</td><td>切换季度时选中留着，用来看迁移。点一只气泡，其余变淡。</td></tr>
+          <tr><td>15</td><td>树状图</td><td>总营收下每一层占多少。</td><td>横纵切换时收起和选中都留着。点分支收起子项。浮层给出占上级和占总体。</td></tr>
+        </tbody>
+      </table></div>
+      <ul class="sees">
+        <li><b>14 四象限图</b><span>左高右低的份额轴，增长轴，四块象限名。颜色跟着业务走，不跟着象限走。</span></li>
+        <li><b>15 树状图</b><span>根、三个分支、六片叶子。分支上有展开符号。</span></li>
+      </ul>
+    </article>
+
+    <article class="task-panel" data-panel="metric">
+      <h3>看一个指标 <span>· 3 个单元</span></h3>
+      <p>现在多少，比以前如何，口径是什么，是否正常，谁在前面。</p>
+      <div class="table-wrap"><table>
+        <caption>看一个指标</caption>
+        <thead><tr><th>编号</th><th>单元</th><th>它回答的问题</th><th>打开后能做的事</th></tr></thead>
+        <tbody>
+          <tr><td>K01</td><td>数值卡</td><td>这个数是什么，统计哪一段，现在显不显示得可靠。</td><td>切换正常、加载、空、失败、延迟。五种状态卡片不跳动。失败可重试。</td></tr>
+          <tr><td>K02</td><td>对比卡</td><td>比上一期是升是降，这件事是变好还是变差。</td><td>悬浮对比行，看本期、基期、绝对变化和算式。一张卡最多两个对比。</td></tr>
+          <tr><td>K08</td><td>排行卡</td><td>谁贡献最多，谁涨得最快。</td><td>营收 / 增速切换，行移到新名次。增速为负的一侧用灰色条。</td></tr>
+        </tbody>
+      </table></div>
+      <ul class="sees">
+        <li><b>K01 数值卡</b><span>本月营收与订单并排。眉标有口径标记和日期区间。</span></li>
+        <li><b>K02 对比卡</b><span>两行对比。客单价下降为红，退款率下降为绿。</span></li>
+        <li><b>K08 排行卡</b><span>六个区域。「其他」固定在末尾，不参与排名。</span></li>
+      </ul>
+    </article>
+
+    <article class="task-panel" data-panel="organize">
+      <h3>组织多个指标 <span>· 5 个单元</span></h3>
+      <p>并列、主次、驱动一张图、同一尺度、对照目标。</p>
+      <div class="table-wrap"><table>
+        <caption>组织多个指标</caption>
+        <thead><tr><th>编号</th><th>单元</th><th>它回答的问题</th><th>打开后能做的事</th></tr></thead>
+        <tbody>
+          <tr><td>P01</td><td>指标条</td><td>一行看完核心指标，并同时换成另一种对比。</td><td>环比 / 同比一起过渡，颜色跟着变化中的数值走。方向键在六项间移动。</td></tr>
+          <tr><td>P02</td><td>主次面板</td><td>主指标怎么样，还差多少，月底会落到哪。</td><td>悬浮右侧某一行，图上对应的线亮起。可沿曲线逐日看。主数字不变。</td></tr>
+          <tr><td>P03</td><td>指标页签图</td><td>从一排指标走进这一项自己的逐日图。</td><td>切换时曲线原位变形。页签上的数字始终是本月。</td></tr>
+          <tr><td>P04</td><td>宫格看板</td><td>同一时间尺度下，六项一起看。</td><td>本月 / 本季 / 本年一起过渡。比率按权重重算，不做简单平均。</td></tr>
+          <tr><td>P05</td><td>记分卡</td><td>所有指标相对目标的全貌，哪几项要关注。</td><td>「达成」和「状态」三态排序。状态降序时异常在前。方向键逐行读判定依据。</td></tr>
+        </tbody>
+      </table></div>
+      <ul class="sees">
+        <li><b>P01 指标条</b><span>营收、订单、客单价、毛利率、退款率、及时率。</span></li>
+        <li><b>P02 主次面板</b><span>大号营收、累计曲线、目标节奏、今天、预计线，以及一句结论。</span></li>
+        <li><b>P03 指标页签图</b><span>四个页签，下方折线、日目标虚线和刻度。</span></li>
+        <li><b>P04 宫格看板</b><span>三行两列。窄屏变成两列三行。</span></li>
+        <li><b>P05 记分卡</b><span>六行：本月、目标、达成、同比、走势、状态。累计型走势用日均。</span></li>
+      </ul>
+    </article>
+
+    <article class="task-panel" data-panel="narrow">
+      <h3>缩小范围 <span>· 11 个单元</span></h3>
+      <p>先定时间，再收范围，看见条件，空了还能退出。</p>
+      <div class="table-wrap"><table>
+        <caption>缩小范围</caption>
+        <thead><tr><th>编号</th><th>单元</th><th>它回答的问题</th><th>打开后能做的事</th></tr></thead>
+        <tbody>
+          <tr><td>F01</td><td>快捷时间</td><td>先把时间定下来。</td><td>点选或方向键即生效。只在有数据的日子上做对比。自定义走月历。</td></tr>
+          <tr><td>F02</td><td>日期区间</td><td>这段时间到底是哪几天，和哪一段比。</td><td>先预览，确定后本期和对比期一起更新。没有的日子不补 0。</td></tr>
+          <tr><td>F03</td><td>单选下拉</td><td>在几条互斥业务线里选一条。</td><td>方向键只移动高亮，Enter、空格或 Tab 才确认。Esc 不改值。</td></tr>
+          <tr><td>F04</td><td>多选下拉</td><td>同时看几个，并且知道选了几个。</td><td>可搜索、可全选。每勾一项立刻生效。再次打开时已选项在最前。</td></tr>
+          <tr><td>F05</td><td>级联筛选</td><td>沿着地理往下收，重名不要算成同一个。</td><td>只在区县勾选。南京鼓楼和福州鼓楼分开计算。</td></tr>
+          <tr><td>F06</td><td>维度芯片</td><td>候选很少时，还要不要下拉。</td><td>同一维是或，两维之间是且。</td></tr>
+          <tr><td>F07</td><td>已选条件</td><td>我现在到底在看哪一段。</td><td>逐个移除，焦点落到下一枚。可以再加回。</td></tr>
+          <tr><td>F08</td><td>筛选抽屉</td><td>条件多的时候，怎样改完一次提交。</td><td>未应用先记着。应用才生效，Esc 放弃。空结果给出路。</td></tr>
+          <tr><td>F09</td><td>图表联动</td><td>点了图之后，其余图为什么变了。</td><td>单击即联动其余图。来源图不滤自己。关掉开关后单击只高亮。</td></tr>
+          <tr><td>F10</td><td>结果与空态</td><td>筛空之后，下一步点哪里。</td><td>拖阈值或换区域。空了换成原因和可点的出路。</td></tr>
+          <tr><td>F11</td><td>日期面板</td><td>哪天没达标；要不要把这一天设成截至日。</td><td>看某一天，和「设为截至日」是两步。设下后胶囊变色，相关卡片重算。</td></tr>
+        </tbody>
+      </table></div>
+      <ul class="sees">
+        <li><b>F01 快捷时间</b><span>今日到近 30 天，加自定义。默认本月，今日没有数。</span></li>
+        <li><b>F02 日期区间</b><span>触发器上的区间。弹层里是预设、月历和对比期。</span></li>
+        <li><b>F03 单选下拉</b><span>直营、分销、电商，未选项变浅但仍留在图上。</span></li>
+        <li><b>F04 多选下拉</b><span>触发器写「华东 +2」，旁边是已选计数。</span></li>
+        <li><b>F05 级联筛选</b><span>省、市、区三列。芯片写全路径。</span></li>
+        <li><b>F06 维度芯片</b><span>渠道一行、客群一行，下方是矩阵。命中格反色。</span></li>
+        <li><b>F07 已选条件</b><span>条件芯片。来自图表的那枚是虚线。下方是每一刀收窄了多少。</span></li>
+        <li><b>F08 筛选抽屉</b><span>筛选计数和已应用芯片。抽屉里是大区、金额区间、环比。</span></li>
+        <li><b>F09 图表联动</b><span>三张图和一枚默认开着的联动开关。联动条件是虚线芯片。</span></li>
+        <li><b>F10 结果与空态</b><span>符合多少天、合计、一排日格。截至日之后是空心格。</span></li>
+        <li><b>F11 日期面板</b><span>月历状态点、当日读数、按周的达标堆叠。</span></li>
+      </ul>
+    </article>
+
+    <article class="task-panel" data-panel="switch">
+      <h3>切换内容 <span>· 6 个单元</span></h3>
+      <p>换一块内容用页签，换一个参数用分段控件，最多两层。</p>
+      <div class="table-wrap"><table>
+        <caption>切换内容</caption>
+        <thead><tr><th>编号</th><th>单元</th><th>它回答的问题</th><th>打开后能做的事</th></tr></thead>
+        <tbody>
+          <tr><td>T01</td><td>下划线页签</td><td>这一层我在看总览、趋势、结构，还是明细。</td><td>方向键立刻切换。选中项写进链接，刷新后还在。</td></tr>
+          <tr><td>T02</td><td>药丸页签</td><td>卡片内部换一组维度，同时还能换指标。</td><td>药丸换内容，分段控件换参数。两层语义不同。</td></tr>
+          <tr><td>T05</td><td>徽标页签</td><td>哪一组还有事没处理。</td><td>处理后数量减少，焦点落到下一条。刷新后回到示例。</td></tr>
+          <tr><td>T06</td><td>页签溢出</td><td>页签放不下时怎么找。</td><td>方向键把目标滚进可视区。菜单可翻到按钮上方。</td></tr>
+          <tr><td>T07</td><td>纵向页签</td><td>左边一列、右边一页，适合文案较长的设置。</td><td>上下键切换。窄屏改成横向，方向键跟着变成左右。</td></tr>
+          <tr><td>T08</td><td>动态页签</td><td>页签能否自己加、自己关。</td><td>方向键只移动焦点，Enter 才切换，切换时先见骨架。关闭后焦点落到邻项。</td></tr>
+        </tbody>
+      </table></div>
+      <ul class="sees">
+        <li><b>T01 下划线页签</b><span>四块内容共用高度，切换时页面不跳。</span></li>
+        <li><b>T02 药丸页签</b><span>渠道、区域、客群，右上角是营收 / 订单。</span></li>
+        <li><b>T05 徽标页签</b><span>待办、关注、已处理、全部。数量为 0 时徽标消失。</span></li>
+        <li><b>T06 页签溢出</b><span>15 个省。两端渐隐、箭头、按大区分组的更多菜单。</span></li>
+        <li><b>T07 纵向页签</b><span>经营、渠道、区域、客群、履约五页。</span></li>
+        <li><b>T08 动态页签</b><span>我的视图、华东复盘、电商专题。最多六个。</span></li>
+      </ul>
+    </article>
+
+    <article class="task-panel" data-panel="detail">
+      <h3>落到一行 <span>· 5 个单元</span></h3>
+      <p>具体是哪一行，差多少。图负责趋势和结构，表负责明细。</p>
+      <div class="table-wrap"><table>
+        <caption>落到一行</caption>
+        <thead><tr><th>编号</th><th>单元</th><th>它回答的问题</th><th>打开后能做的事</th></tr></thead>
+        <tbody>
+          <tr><td>B01</td><td>明细表</td><td>点这一行，应该只是看、往下走、勾起来，还是拿去筛。</td><td>只读、下钻、勾选、联动四种。超过 50 行后每页 20 行。</td></tr>
+          <tr><td>B03</td><td>交叉表</td><td>两个维度交叉之后，每一格是多少。</td><td>超过 60 格先询问再展开。悬浮时十字高亮。合计用看到的数相加。</td></tr>
+          <tr><td>B05</td><td>分组小计</td><td>先在组里比，再在组与组之间比。</td><td>组头展开或收起，也可全部展开。键盘到不了组内行。</td></tr>
+          <tr><td>B06</td><td>可展开行</td><td>平时看汇总，偶尔看省份。</td><td>展开后父行不动，子行写占该区域的比例。整行不会下钻。</td></tr>
+          <tr><td>B07</td><td>对比列组</td><td>本期、基期、差多少，放在同一行。</td><td>差额和环比可三态排序。可切换五种数据状态，表高不变。</td></tr>
+        </tbody>
+      </table></div>
+      <ul class="sees">
+        <li><b>B01 明细表</b><span>六个区域。可换成区域 × 日，共 132 行。</span></li>
+        <li><b>B03 交叉表</b><span>区域对渠道、周或日。行小计和列合计。</span></li>
+        <li><b>B05 分组小计</b><span>每个区域三个渠道。组头写小计。组内占比是数据条。</span></li>
+        <li><b>B06 可展开行</b><span>六个区域。展开按钮独立于整行。</span></li>
+        <li><b>B07 对比列组</b><span>三组表头：本期、基期、变化。合计行更深。</span></li>
+      </ul>
+    </article>
+  </section>
+
+  <section id="shell" aria-labelledby="shell-h">
+    <h2 id="shell-h">进入页面时的外壳</h2>
+    <div class="table-wrap">
+      <table>
+        <caption>页面外壳</caption>
+        <thead><tr><th>能力</th><th>默认</th><th>使用者能做的事</th></tr></thead>
+        <tbody>
+          <tr><td>分类浏览</td><td>全部 51</td><td>按八组收起其它卡。集合计数跟着变。选择不写进链接。</td></tr>
+          <tr><td>图表底色</td><td>深色，并记住</td><td>深色 / 浅色。选中、筛选和页签都留着。纸色页面底不动。</td></tr>
+          <tr><td>减少动态效果</td><td>跟随系统</td><td>进场和切换直接到终态。拖动、点选、排序仍然立刻有结果。</td></tr>
+          <tr><td>重播</td><td>每张卡一次进场</td><td>单卡或全部回到示例初值。底部提示约 1.8 秒。筛选卡的重播会清掉它在链接里的状态。</td></tr>
+          <tr><td>截至日胶囊</td><td>数据截至 9/22</td><td>被改过之后变琥珀色，出现「回到最新」。文案写全页，实际跟随的卡片更少。</td></tr>
+          <tr><td>单卡失败</td><td>51 张都在</td><td>失败的卡写明没能加载。其余卡、重播全部不受影响。</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="sample" aria-labelledby="sample-h">
+    <h2 id="sample-h">两套示例里读到的经营判断</h2>
+    <p class="note">生活节律是活动、专注、步数和屏幕时间，不参与筛选。经营简报截至 9 月 22 日，更新演示时刻是 9 月 23 日 09:30。</p>
+    <div class="table-wrap">
+      <table>
+        <caption>经营简报里能读到的判断</caption>
+        <thead><tr><th>读数</th><th>判断</th></tr></thead>
+        <tbody>
+          <tr><td>本月营收 1,286.4 万元</td><td>达成 71.5%，时间进度 73.3%，滞后 1.8 个百分点。月底按近 7 日节奏约 1,802.5 万，只多 2.5 万。</td></tr>
+          <tr><td>订单 2,418 单</td><td>新客 1,012，复购 1,406。环比同期 +12.5%。</td></tr>
+          <tr><td>客单价 5,320 元</td><td>环比 −3.5% 为向差，同比 +2.5% 为向好。达成 97.5%，记分卡列为关注。</td></tr>
+          <tr><td>退款率 1.8%</td><td>下降为好。上限 2%。</td></tr>
+          <tr><td>及时率本月 96.4%</td><td>落在 95–98%，为关注。本周正常，上月异常。</td></tr>
+          <tr><td>区域</td><td>华东最高。西南涨得最快。华中是唯一下滑的大区。</td></tr>
+          <tr><td>渠道</td><td>直营、分销、电商的环比分别约为 +5.1%、+7.9%、+16.0%，不会都等于整体 +8.6%。</td></tr>
+          <tr><td>转化</td><td>48,210 名访客到 2,418 笔成交，整体 5.0%。成交数等于订单数。</td></tr>
+          <tr><td>日目标</td><td>工作日 64.3 万，周末 48.2 万。9 月 1–22 日达标 8 天、接近 9 天、未达 5 天。</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="limits" aria-labelledby="limits-h">
+    <h2 id="limits-h">本版边界</h2>
+    <div class="table-wrap">
+      <table>
+        <caption>本版使用者会碰到的边界</caption>
+        <thead><tr><th>使用者会碰到</th><th>页面实际怎样</th></tr></thead>
+        <tbody>
+          <tr class="warn"><td>胶囊写「全页截至」</td><td>重算的是筛选、页签、表格、目标进度卡和进度环卡。15 张图表和其余指标卡仍停在 9 月 22 日。</td></tr>
+          <tr class="warn"><td>换季度后选中还在</td><td>四象限用这个来看迁移。同页说明却写换范围后清除选择。折线换折曲、树状图换方向也保留选中。</td></tr>
+          <tr><td>分组表和展开行</td><td>键盘可以展开，到不了组内行和子行，那些读数靠悬浮。</td></tr>
+          <tr class="warn"><td>处理待办、新建视图</td><td>只在当次打开里有效。能留在链接里的是筛选、页签和截至日。</td></tr>
+          <tr><td>点一张图想筛全页</td><td>联动只发生在「图表联动」那张卡的三张图之间，以及明细表自己的演示。</td></tr>
+          <tr><td>今日</td><td>被定义成截至日的第二天，所以默认的 9 月 23 日没有数，空态写原因。</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="fine">方案里讨论过、页面上没有的：构成卡、翻牌器、指标树、跨卡片看板联动、任意月份的真实数据、把表格排序写进链接。热力格的单独缺席标记已明确不做。</p>
+  </section>
+</main>
+<footer>
+  <div class="wrap">
+    <span>CHART STUDIES / 2026 · 产品功能架构</span>
+    <a href="产品功能文档.md">阅读完整产品功能文档</a>
+  </div>
+</footer>
+<script>
+try {
+  var root = document.getElementById("tasks");
+  var buttons = [].slice.call(root.querySelectorAll("[data-task]"));
+  var panels = [].slice.call(root.querySelectorAll("[data-panel]"));
+  var live = document.getElementById("task-status");
+  var ids = buttons.map(function (b) { return b.getAttribute("data-task"); });
+  function show(id, announce) {
+    if (ids.indexOf(id) < 0) id = "progress";
+    buttons.forEach(function (b) {
+      b.setAttribute("aria-pressed", b.getAttribute("data-task") === id ? "true" : "false");
+    });
+    panels.forEach(function (p) {
+      var on = p.getAttribute("data-panel") === id;
+      p.classList.toggle("is-on", on);
+    });
+    var current = buttons.filter(function (b) { return b.getAttribute("data-task") === id; })[0];
+    if (announce && live && current) live.textContent = "当前任务：" + current.textContent;
+    if (announce) {
+      try { history.replaceState(null, "", "#" + id); } catch (err) {}
+    }
+  }
+  buttons.forEach(function (b) {
+    b.addEventListener("click", function () { show(b.getAttribute("data-task"), true); });
+  });
+  root.querySelector("[role=group]").addEventListener("keydown", function (e) {
+    var order = ["ArrowRight", "ArrowLeft", "Home", "End"];
+    if (order.indexOf(e.key) < 0) return;
+    var i = buttons.indexOf(document.activeElement);
+    if (i < 0) return;
+    e.preventDefault();
+    if (e.key === "Home") i = 0;
+    else if (e.key === "End") i = buttons.length - 1;
+    else if (e.key === "ArrowRight") i = (i + 1) % buttons.length;
+    else i = (i - 1 + buttons.length) % buttons.length;
+    buttons[i].focus();
+    show(buttons[i].getAttribute("data-task"), true);
+  });
+  var fromHash = (location.hash || "").replace("#", "");
+  show(ids.indexOf(fromHash) >= 0 ? fromHash : "progress", false);
+} catch (e) {}
+</script>
+</body>
+</html>
